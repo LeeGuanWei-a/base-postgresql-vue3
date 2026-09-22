@@ -1,0 +1,26 @@
+// 基础平台 - 自定义主题色覆盖
+// 通过覆盖 Element Plus 的 CSS 变量实现主题色切换
+
+:root {
+  /* 主色 - 基础平台品牌色 */
+  --el-color-primary: #1890ff;
+  --el-color-primary-light-3: #56c0ff;
+  --el-color-primary-light-5: #a0dfff;
+  --el-color-primary-light-7: #d1efff;
+  --el-color-primary-light-8: #e6f7ff;
+  --el-color-primary-light-9: #f0fbff;
+  --el-color-primary-dark-2: #0976cc;
+
+  /* 品牌辅助色 */
+  --basic-brand-color: #1890ff;
+  --basic-brand-bg: #e6f7ff;
+  --basic-brand-border: #91d5ff;
+
+  /* 侧边栏基础色（与 variables.module.scss 一致） */
+  --basic-sidebar-width: 200px;
+}
+
+/* 主色重写：影响所有 primary 类型组件 */
+html {
+  --el-color-primary: #1890ff;
+}

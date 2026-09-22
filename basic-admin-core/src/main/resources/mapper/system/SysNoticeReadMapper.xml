@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.system.mapper.SysNoticeReadMapper">
+
+    <resultMap type="com.basic.system.domain.SysNoticeRead" id="SysNoticeReadResult">
+        <result property="readId"    column="read_id"    />
+        <result property="noticeId"  column="notice_id"  />
+        <result property="userId"    column="user_id"    />
+        <result property="readTime"  column="read_time"  />
+    </resultMap>
+
+    <select id="selectReadUserIds" parameterType="Long" resultType="Long">
+        select user_id from sys_notice_read where notice_id = #{noticeId}
+    </select>
+
+    <select id="selectReadNoticeIds" parameterType="Long" resultType="Long">
+        select notice_id from sys_notice_read where user_id = #{userId}
+    </select>
+
+    <insert id="insertRead" parameterType="com.basic.system.domain.SysNoticeRead">
+        insert into sys_notice_read (read_id, notice_id, user_id, read_time)
+        values (nextval('sys_notice_read_read_id_seq'::regclass), #{noticeId}, #{userId}, now())
+    </insert>
+
+    <insert id="batchInsertRead" parameterType="java.util.List">
+        insert into sys_notice_read (read_id, notice_id, user_id, read_time) values
+        <foreach collection="list" item="item" separator=",">
+            (nextval('sys_notice_read_read_id_seq'::regclass), #{item.noticeId}, #{item.userId}, now())
+        </foreach>
+    </insert>
+
+    <delete id="deleteByNoticeId" parameterType="Long">
+        delete from sys_notice_read where notice_id = #{noticeId}
+    </delete>
+
+    <delete id="deleteByNoticeIds" parameterType="Long">
+        delete from sys_notice_read where notice_id in
+        <foreach item="noticeId" collection="array" open="(" separator="," close=")">
+            #{noticeId}
+        </foreach>
+    </delete>
+
+    <select id="selectReadUsers" parameterType="Long" resultType="java.util.Map">
+        select r.user_id    as userId,
+               u.user_name  as userName,
+               u.nick_name  as nickName,
+               r.read_time  as readTime
+        from sys_notice_read r
+        left join sys_user u on u.user_id = r.user_id
+        where r.notice_id = #{noticeId}
+        order by r.read_time desc
+    </select>
+
+</mapper>
