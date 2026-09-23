@@ -1,1 +1,1 @@
-数据库只需要执行basic-sql-2023-03-01.sql文件
+springboot2+vue3+elementplus,js版本
