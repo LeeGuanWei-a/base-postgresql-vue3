@@ -53,3 +53,5 @@ package-lock.json
 
 ### BASIC ###
 *.iml
+/web-ui/node_modules/
+/.pnpm-store/
