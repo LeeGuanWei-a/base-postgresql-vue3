@@ -9,15 +9,13 @@
   </el-scrollbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import useTagsViewStore from '@/store/modules/tagsView'
 
-const tagAndTagSpacing = ref(4)
+const tagAndTagSpacing = ref<number>(4)
 const { proxy } = getCurrentInstance()
 
 const scrollWrapper = computed(() => proxy.$refs.scrollContainer.$refs.wrapRef)
-
-const emits = defineEmits(['scroll', 'updateArrows'])
 
 onMounted(() => {
   scrollWrapper.value.addEventListener('scroll', emitScroll, true)
@@ -27,26 +25,28 @@ onBeforeUnmount(() => {
   scrollWrapper.value.removeEventListener('scroll', emitScroll)
 })
 
-const emitScroll = () => {
-  emits('scroll')
+function handleScroll(e: WheelEvent): void {
+  const eventDelta = -e.deltaY * 40
+  const $scrollWrapper = scrollWrapper.value
+  $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4
   emits('updateArrows')
 }
 
-function smoothScrollTo(target) {
+function smoothScrollTo(target: number): void {
   const $scrollWrapper = scrollWrapper.value
-  const start = $scrollWrapper.scrollLeft
-  const distance = target - start
+  const start: number = $scrollWrapper.scrollLeft
+  const distance: number = target - start
   const duration = 300
-  let startTime = null
+  let startTime: number | null = null
 
-  function ease(t, b, c, d) {
+  function ease(t: number, b: number, c: number, d: number): number {
     t /= d / 2
     if (t < 1) return c / 2 * t * t + b
     t--
     return -c / 2 * (t * (t - 2) - 1) + b
   }
 
-  function step(timestamp) {
+  function step(timestamp: number): void {
     if (!startTime) startTime = timestamp
     const elapsed = timestamp - startTime
     $scrollWrapper.scrollLeft = ease(elapsed, start, distance, duration)
@@ -61,23 +61,26 @@ function smoothScrollTo(target) {
   requestAnimationFrame(step)
 }
 
-function handleScroll(e) {
-  const eventDelta = e.wheelDelta || -e.deltaY * 40
-  const $scrollWrapper = scrollWrapper.value
-  $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4
+const emits = defineEmits<{
+  (e: 'scroll'): void
+  (e: 'updateArrows'): void
+}>()
+
+const emitScroll = (): void => {
+  emits('scroll')
   emits('updateArrows')
 }
 
 const tagsViewStore = useTagsViewStore()
 const visitedViews = computed(() => tagsViewStore.visitedViews)
 
-function moveToTarget(currentTag) {
+function moveToTarget(currentTag: any): void {
   const $container = proxy.$refs.scrollContainer.$el
   const $containerWidth = $container.offsetWidth
   const $scrollWrapper = scrollWrapper.value
 
-  let firstTag = null
-  let lastTag = null
+  let firstTag: any = null
+  let lastTag: any = null
 
   if (visitedViews.value.length > 0) {
     firstTag = visitedViews.value[0]
@@ -90,39 +93,43 @@ function moveToTarget(currentTag) {
     smoothScrollTo($scrollWrapper.scrollWidth - $containerWidth)
   } else {
     const tagListDom = document.getElementsByClassName('tags-view-item')
-    const currentIndex = visitedViews.value.findIndex(item => item === currentTag)
-    let prevTag = null
-    let nextTag = null
+    const currentIndex = visitedViews.value.findIndex((item: any) => item === currentTag)
+    let prevTag: HTMLElement | null = null
+    let nextTag: HTMLElement | null = null
     for (const k in tagListDom) {
       if (k !== 'length' && Object.hasOwnProperty.call(tagListDom, k)) {
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex - 1].path) {
-          prevTag = tagListDom[k]
+        if ((tagListDom[k] as HTMLElement).dataset?.path === visitedViews.value[currentIndex - 1].path) {
+          prevTag = tagListDom[k] as HTMLElement
         }
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex + 1].path) {
-          nextTag = tagListDom[k]
+        const element = tagListDom[k] as HTMLElement
+        if (element.dataset?.path === visitedViews.value[currentIndex + 1].path) {
+          nextTag = element
         }
       }
     }
-    const afterNextTagOffsetLeft = nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing.value
-    const beforePrevTagOffsetLeft = prevTag.offsetLeft - tagAndTagSpacing.value
-    if (afterNextTagOffsetLeft > $scrollWrapper.scrollLeft + $containerWidth) {
-      smoothScrollTo(afterNextTagOffsetLeft - $containerWidth)
-    } else if (beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
-      smoothScrollTo(beforePrevTagOffsetLeft)
+
+    if (prevTag && nextTag) {
+      const afterNextTagOffsetLeft = nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing.value
+      const beforePrevTagOffsetLeft = prevTag.offsetLeft - tagAndTagSpacing.value
+      if (afterNextTagOffsetLeft > $scrollWrapper.scrollLeft + $containerWidth) {
+        smoothScrollTo(afterNextTagOffsetLeft - $containerWidth)
+      } else if (beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
+        smoothScrollTo(beforePrevTagOffsetLeft)
+      }
     }
   }
 }
 
-function scrollToStart() {
+function scrollToStart(): void {
   smoothScrollTo(0)
 }
 
-function scrollToEnd() {
+function scrollToEnd(): void {
   const $scrollWrapper = scrollWrapper.value
   smoothScrollTo($scrollWrapper.scrollWidth - $scrollWrapper.clientWidth)
 }
 
-function getScrollState() {
+function getScrollState(): { canLeft: boolean; canRight: boolean } {
   const $scrollWrapper = scrollWrapper.value
   return {
     canLeft: $scrollWrapper.scrollLeft > 0,

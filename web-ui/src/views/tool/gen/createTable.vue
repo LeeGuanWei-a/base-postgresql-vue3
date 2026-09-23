@@ -12,26 +12,26 @@
   </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { createTable } from "@/api/tool/gen"
 
-const visible = ref(false)
-const content = ref("")
+const visible = ref<boolean>(false)
+const content = ref<string>("")
 const { proxy } = getCurrentInstance()
 const emit = defineEmits(["ok"])
 
 /** 显示弹框 */
-function show() {
+function show(): void {
   visible.value = true
 }
 
 /** 导入按钮操作 */
-function handleImportTable() {
+function handleImportTable(): void {
   if (content.value === "") {
     proxy.$modal.msgError("请输入建表语句")
     return
   }
-  createTable({ sql: content.value, tplWebType: 'element-plus' }).then(res => {
+  createTable({ sql: content.value, tplWebType: 'element-plus-typescript' }).then(res => {
     proxy.$modal.msgSuccess(res.msg)
     if (res.code === 200) {
       visible.value = false

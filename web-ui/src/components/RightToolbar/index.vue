@@ -39,8 +39,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import cache from '@/plugins/cache'
+import type { TableShowColumns } from '@/types/api/common'
 
 const props = defineProps({
   /* 是否显示检索条件 */
@@ -78,14 +79,14 @@ const props = defineProps({
 const emits = defineEmits(['update:showSearch', 'queryTable'])
 
 // 显隐数据
-const value = ref([])
+const value = ref<number[]>([])
 // 弹出层标题
 const title = ref("显示/隐藏")
 // 是否显示弹出层
 const open = ref(false)
 
 const style = computed(() => {
-  const ret = {}
+  const ret: Record<string, string> = {}
   if (props.gutter) {
     ret.marginRight = `${props.gutter / 2}px`
   }
@@ -94,24 +95,24 @@ const style = computed(() => {
 
 // 是否全选/半选 状态
 const isChecked = computed({
-  get: () => Array.isArray(props.columns) ? props.columns.every(col => col.visible) : Object.values(props.columns).every((col) => col.visible),
+  get: () => Array.isArray(props.columns) ? props.columns.every((col: TableShowColumns) => col.visible) : Object.values(props.columns).every((col) => (col as TableShowColumns).visible),
   set: () => {}
 })
-const isIndeterminate = computed(() => Array.isArray(props.columns) ? props.columns.some((col) => col.visible) && !isChecked.value : Object.values(props.columns).some((col) => col.visible) && !isChecked.value)
-const transferData = computed(() => Array.isArray(props.columns) ? props.columns.map((item, index) => ({ key: index, label: item.label })) : Object.keys(props.columns).map((key, index) => ({ key: index, label: props.columns[key].label })))
+const isIndeterminate = computed(() => Array.isArray(props.columns) ? props.columns.some((col: TableShowColumns) => col.visible) && !isChecked.value : Object.values(props.columns).some((col) => (col as TableShowColumns).visible) && !isChecked.value)
+const transferData = computed(() => Array.isArray(props.columns) ? props.columns.map((item: TableShowColumns, index: number) => ({ key: index, label: item.label })) : Object.keys(props.columns).map((key, index) => ({ key: index, label: props.columns[key].label })))
 
 // 搜索
-const { proxy } = getCurrentInstance()
-function toggleSearch() {
-  let el = proxy.$el
-  let formEl = null
-  while ((el = el.parentElement) && el !== document.body) {
+const { proxy } = getCurrentInstance()!
+function toggleSearch(): void {
+  let el: HTMLElement | null = proxy!.$el
+  let formEl: HTMLElement | null = null
+  while ((el = el!.parentElement) && el !== document.body) {
     if ((formEl = el.querySelector('.el-form'))) break
   }
   if (!formEl) return emits('update:showSearch', !props.showSearch)
   animateSearch(formEl, props.showSearch)
 }
-function animateSearch(el, isHide) {
+function animateSearch(el: HTMLElement, isHide: boolean): void {
   const DURATION = 260
   const TRANSITION = 'max-height 0.25s ease, opacity 0.2s ease'
   const clear = () => Object.assign(el.style, { transition: '', maxHeight: '', opacity: '', overflow: '' })
@@ -133,16 +134,16 @@ function animateSearch(el, isHide) {
 }
 
 // 刷新
-function refresh() {
+function refresh(): void {
   emits("queryTable")
 }
 
 // 右侧列表元素变化
-function dataChange(data) {
+function dataChange(data: number[]): void {
   if (Array.isArray(props.columns)) {
     for (let item in props.columns) {
       const key = props.columns[item].key
-      props.columns[item].visible = !data.includes(key)
+      props.columns[item].visible = !data.includes(parseInt(key))
     }
   } else {
     Object.keys(props.columns).forEach((key, index) => {
@@ -153,7 +154,7 @@ function dataChange(data) {
 }
 
 // 打开显隐列dialog
-function showColumn() {
+function showColumn(): void {
   open.value = true
 }
 
@@ -163,7 +164,7 @@ if (props.storageKey) {
     const saved = cache.local.getJSON(props.storageKey)
     if (saved && typeof saved === 'object') {
       if (Array.isArray(props.columns)) {
-        props.columns.forEach((col, index) => {
+        props.columns.forEach((col: TableShowColumns, index: number) => {
           if (saved[index] !== undefined) col.visible = saved[index]
         })
       } else {
@@ -192,9 +193,12 @@ if (props.showColumnsType == "transfer") {
 }
 
 // 单勾选
-function checkboxChange(event, key) {
+function checkboxChange(event: boolean, key: string): void {
   if (Array.isArray(props.columns)) {
-    props.columns.filter(item => item.key == key)[0].visible = event
+    const col = props.columns.filter((item: any) => item.key == key)[0]
+    if (col) {
+      col.visible = event
+    }
   } else {
     props.columns[key].visible = event
   }
@@ -202,23 +206,23 @@ function checkboxChange(event, key) {
 }
 
 // 切换全选/反选
-function toggleCheckAll() {
+function toggleCheckAll(): void {
   const newValue = !isChecked.value
   if (Array.isArray(props.columns)) {
-    props.columns.forEach((col) => (col.visible = newValue))
+    props.columns.forEach((col: TableShowColumns) => (col.visible = newValue))
   } else {
-    Object.values(props.columns).forEach((col) => (col.visible = newValue))
+    Object.values(props.columns).forEach((col) => ((col as TableShowColumns).visible = newValue))
   }
   saveStorage()
 }
 
 // 将当前列显隐状态持久化到 localStorage
-function saveStorage() {
+function saveStorage(): void {
   if (!props.storageKey) return
   try {
-    let state = {}
+    let state: { [key: string]: boolean } = {}
     if (Array.isArray(props.columns)) {
-      props.columns.forEach((col, index) => { state[index] = col.visible })
+      props.columns.forEach((col: TableShowColumns, index: number) => { state[index] = col.visible })
     } else {
       Object.keys(props.columns).forEach(key => { state[key] = props.columns[key].visible })
     }

@@ -8,11 +8,13 @@
       </transition>
     </router-view>
     <iframe-toggle />
+    <copyright />
   </section>
 </template>
 
-<script setup>
-import iframeToggle from "./IframeToggle/index"
+<script setup lang="ts">
+import copyright from "./Copyright/index.vue"
+import iframeToggle from "./IframeToggle/index.vue"
 import useTagsViewStore from '@/store/modules/tagsView'
 
 const route = useRoute()
@@ -26,7 +28,7 @@ watchEffect(() => {
   addIframe()
 })
 
-function addIframe() {
+function addIframe(): void {
   if (route.meta.link) {
     useTagsViewStore().addIframeView(route)
   }
@@ -47,6 +49,10 @@ function addIframe() {
   scrollbar-gutter: auto;
   height: calc(100vh - 50px);
   min-height: 0px;
+}
+
+.app-main:has(.copyright) {
+  padding-bottom: 36px;
 }
 
 .fixed-header + .app-main {

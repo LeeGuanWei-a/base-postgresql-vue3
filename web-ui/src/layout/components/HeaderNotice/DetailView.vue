@@ -52,24 +52,25 @@
   </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getNotice } from '@/api/system/notice'
+import type { SysNotice } from '@/types/api/system/notice'
 
-const visible = ref(false)
-const loading = ref(false)
-const detail = ref(null)
+const visible = ref<boolean>(false)
+const loading = ref<boolean>(false)
+const detail: Ref<SysNotice | null> = ref<SysNotice | null>(null)
 
-const isStatusNormal = computed(() => {
+const isStatusNormal = computed<boolean>(() => {
   const status = detail.value && detail.value.status
   return status === '0' || status === 0
 })
 
-const hasContent = computed(() => {
+const hasContent = computed<boolean>(() => {
   const content = detail.value && detail.value.noticeContent
   return content != null && String(content).trim() !== ''
 })
 
-function open(payload) {
+function open(payload: any) {
   let id = null
   let preset = null
   if (payload != null && typeof payload === 'object') {
