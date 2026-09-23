@@ -53,6 +53,16 @@ public class SysLoginController
     }
 
     /**
+     * 锁屏解锁（需登录态，校验当前用户密码）
+     */
+    @PostMapping("/unlockscreen")
+    public AjaxResult unlockscreen(@RequestBody LoginBody loginBody)
+    {
+        loginService.unlockScreen(loginBody.getPassword());
+        return AjaxResult.success();
+    }
+
+    /**
      * 获取用户信息
      * 
      * @return 用户信息

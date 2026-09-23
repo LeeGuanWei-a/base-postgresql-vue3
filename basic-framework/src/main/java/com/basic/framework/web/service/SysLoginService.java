@@ -19,6 +19,7 @@ import com.basic.common.exception.user.CaptchaExpireException;
 import com.basic.common.exception.user.UserPasswordNotMatchException;
 import com.basic.common.utils.DateUtils;
 import com.basic.common.utils.MessageUtils;
+import com.basic.common.utils.SecurityUtils;
 import com.basic.common.utils.StringUtils;
 import com.basic.common.utils.ServletUtils;
 import com.basic.common.utils.ip.IpUtils;
@@ -97,8 +98,45 @@ public class SysLoginService
     }
 
     /**
+     * 锁屏解锁：校验当前用户的密码
+     * 与登录流程共用 RSA 私钥解密 + AuthenticationManager 校验
+     *
+     * @param password RSA 加密后的密码
+     */
+    public void unlockScreen(String password)
+    {
+        // 当前登录用户
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        if (loginUser == null || loginUser.getUser() == null)
+        {
+            throw new ServiceException("登录用户为空，请重新登录");
+        }
+        String username = loginUser.getUsername();
+        try
+        {
+            // 该方法会去调用 UserDetailsServiceImpl.loadUserByUsername
+            // 对密码进行 rsa 解密
+            authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(username, RsaUtils.decryptByPrivateKey(password)));
+        }
+        catch (Exception e)
+        {
+            if (e instanceof BadCredentialsException)
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
+                throw new UserPasswordNotMatchException();
+            }
+            else
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, e.getMessage()));
+                throw new ServiceException(e.getMessage());
+            }
+        }
+    }
+
+    /**
      * 校验验证码
-     * 
+     *
      * @param username 用户名
      * @param code 验证码
      * @param uuid 唯一标识
