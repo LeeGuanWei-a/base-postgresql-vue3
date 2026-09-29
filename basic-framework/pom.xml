@@ -5,20 +5,20 @@
     <parent>
         <artifactId>basic</artifactId>
         <groupId>com.basic</groupId>
-        <version>3.8.2</version>
+        <version>3.9.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>basic-framework</artifactId>
 
     <description>
-        framework框架核心
+        framework框架核心（与 RuoYi-Vue 3.9.2 ruoyi-framework 对齐）
     </description>
 
     <dependencies>
 
         <!-- SpringBoot Web容器 -->
-         <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -29,19 +29,19 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!-- 阿里数据库连接池 -->
+        <!-- 阿里数据库连接池 (Spring Boot 3 专用) -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
+            <artifactId>druid-spring-boot-3-starter</artifactId>
         </dependency>
 
         <!-- 验证码 -->
         <dependency>
-            <groupId>com.github.penggle</groupId>
+            <groupId>pro.fessional</groupId>
             <artifactId>kaptcha</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>javax.servlet-api</artifactId>
+                    <artifactId>servlet-api</artifactId>
                     <groupId>javax.servlet</groupId>
                 </exclusion>
             </exclusions>
@@ -53,17 +53,11 @@
             <artifactId>oshi-core</artifactId>
         </dependency>
 
-        <!-- 系统模块-->
+        <!-- 系统模块 -->
         <dependency>
             <groupId>com.basic</groupId>
             <artifactId>basic-admin-core</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.basic</groupId>-->
-<!--            <artifactId>basic-admin-core</artifactId>-->
-<!--            <version>3.8.2</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
 
     </dependencies>
 

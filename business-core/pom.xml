@@ -6,7 +6,7 @@
     <parent>
         <artifactId>basic</artifactId>
         <groupId>com.basic</groupId>
-        <version>3.8.2</version>
+        <version>3.9.2</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -17,6 +17,13 @@
         <dependency>
             <groupId>com.basic</groupId>
             <artifactId>basic-common</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>

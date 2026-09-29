@@ -31,9 +31,11 @@ public class ResourcesConfig implements WebMvcConfigurer
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
                 .addResourceLocations("file:" + BasicConfig.getProfile() + "/");
 
-        /** swagger配置 */
+        /** springdoc-openapi 静态资源（替代 springfox） */
         registry.addResourceHandler("/swagger-ui/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
+                .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     /**

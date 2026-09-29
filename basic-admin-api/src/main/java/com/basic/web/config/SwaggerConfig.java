@@ -1,26 +1,21 @@
 package com.basic.web.config;
 
 import com.basic.common.config.BasicConfig;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Swagger2的接口配置
- * 
+ * springdoc-openapi 接口配置（替代原 springfox Swagger 2）
+ *
+ * <p>访问地址：http://host:port/swagger-ui/index.html
+ *
  * @author basic
  */
 @Configuration
@@ -30,92 +25,29 @@ public class SwaggerConfig
     @Autowired
     private BasicConfig basicConfig;
 
-    /** 是否开启swagger */
-    @Value("${swagger.enabled}")
-    private boolean enabled;
-
-    /** 设置请求的统一前缀 */
-    @Value("${swagger.pathMapping}")
-    private String pathMapping;
-
     /**
-     * 创建API
+     * 创建 OpenAPI Bean
      */
     @Bean
-    public Docket createRestApi()
+    public OpenAPI customOpenApi()
     {
-        return new Docket(DocumentationType.OAS_30)
-                // 是否启用Swagger
-                .enable(enabled)
-                // 用来创建该API的基本信息，展示在文档的页面中（自定义展示的信息）
-                .apiInfo(apiInfo())
-                // 设置哪些接口暴露给Swagger展示
-                .select()
-                // 扫描所有有注解的api，用这种方式更灵活
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                // 扫描指定包中的swagger注解
-                // .apis(RequestHandlerSelectors.basePackage("com.basic.project.tool.swagger"))
-                // 扫描所有 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build()
-                /* 设置安全模式，swagger可以设置访问token */
-                .securitySchemes(securitySchemes())
-                .securityContexts(securityContexts())
-                .pathMapping(pathMapping);
-    }
-
-    /**
-     * 安全模式，这里指定token通过Authorization头请求头传递
-     */
-    private List<SecurityScheme> securitySchemes()
-    {
-        List<SecurityScheme> apiKeyList = new ArrayList<SecurityScheme>();
-        apiKeyList.add(new ApiKey("Authorization", "Authorization", In.HEADER.toValue()));
-        return apiKeyList;
-    }
-
-    /**
-     * 安全上下文
-     */
-    private List<SecurityContext> securityContexts()
-    {
-        List<SecurityContext> securityContexts = new ArrayList<>();
-        securityContexts.add(
-                SecurityContext.builder()
-                        .securityReferences(defaultAuth())
-                        .operationSelector(o -> o.requestMappingPattern().matches("/.*"))
-                        .build());
-        return securityContexts;
-    }
-
-    /**
-     * 默认的安全上引用
-     */
-    private List<SecurityReference> defaultAuth()
-    {
-        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        List<SecurityReference> securityReferences = new ArrayList<>();
-        securityReferences.add(new SecurityReference("Authorization", authorizationScopes));
-        return securityReferences;
-    }
-
-    /**
-     * 添加摘要信息
-     */
-    private ApiInfo apiInfo()
-    {
-        // 用ApiInfoBuilder进行定制
-        return new ApiInfoBuilder()
-                // 设置标题
-                .title("标题：基础平台管理系统_接口文档")
-                // 描述
-                .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
-                // 作者信息
-                .contact(new Contact(basicConfig.getName(), null, null))
-                // 版本
-                .version("版本号:" + basicConfig.getVersion())
-                .build();
+        return new OpenAPI()
+                .info(new Info()
+                        // 设置标题
+                        .title("标题：基础平台管理系统_接口文档")
+                        // 描述
+                        .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
+                        // 作者信息
+                        .contact(new Contact().name(basicConfig.getName()))
+                        // 版本
+                        .version("版本号:" + basicConfig.getVersion()))
+                // 设置安全模式，这里指定token通过Authorization头请求头传递
+                .components(new Components()
+                        .addSecuritySchemes("Authorization",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.HEADER)
+                                        .name("Authorization")))
+                .addSecurityItem(new SecurityRequirement().addList("Authorization"));
     }
 }

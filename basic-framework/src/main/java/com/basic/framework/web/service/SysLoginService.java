@@ -1,6 +1,6 @@
 package com.basic.framework.web.service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import com.basic.common.utils.sign.RsaUtils;
 import org.springframework.beans.factory.annotation.Autowired;

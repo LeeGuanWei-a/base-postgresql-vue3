@@ -36,7 +36,10 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
     @Override
     public void afterPropertiesSet()
     {
-        RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
+        // Spring Boot 3 + Spring 6.1 之后 actuator 引入了 controllerEndpointHandlerMapping
+        // 它也是 RequestMappingHandlerMapping 的子类，这里按 bean name 取主的那一个，避免类型歧义
+        RequestMappingHandlerMapping mapping = applicationContext.getBean(
+                "requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> map = mapping.getHandlerMethods();
 
         map.keySet().forEach(info -> {

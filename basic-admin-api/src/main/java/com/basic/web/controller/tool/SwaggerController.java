@@ -19,6 +19,7 @@ public class SwaggerController extends BaseController
     @GetMapping()
     public String index()
     {
-        return redirect("/swagger-ui.html");
+        // springdoc-openapi 默认 UI 路径
+        return redirect("/swagger-ui/index.html");
     }
 }

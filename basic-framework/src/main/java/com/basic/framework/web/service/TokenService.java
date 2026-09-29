@@ -3,7 +3,7 @@ package com.basic.framework.web.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.basic.framework.security.filter.JwtAuthenticationTokenFilter;
 import org.slf4j.Logger;
@@ -19,7 +19,8 @@ import com.basic.common.utils.StringUtils;
 import com.basic.common.utils.ip.AddressUtils;
 import com.basic.common.utils.ip.IpUtils;
 import com.basic.common.utils.uuid.IdUtils;
-import eu.bitwalker.useragentutils.UserAgent;
+import nl.basjes.parse.useragent.UserAgent;
+import nl.basjes.parse.useragent.UserAgentAnalyzer;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -54,6 +55,13 @@ public class TokenService
 
     @Autowired
     private RedisCache redisCache;
+
+    /**
+     * yauaa UserAgentAnalyzer 单例（由 UserAgentConfig 提供）
+     * 注入后全局共用，避免每次请求都重新加载 yaml 规则文件
+     */
+    @Autowired
+    private UserAgentAnalyzer userAgentAnalyzer;
 
     /**
      * 获取用户身份信息
@@ -161,12 +169,13 @@ public class TokenService
      */
     public void setUserAgent(LoginUser loginUser)
     {
-        UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
+        String ua = ServletUtils.getRequest().getHeader("User-Agent");
+        UserAgent userAgent = userAgentAnalyzer.parse(ua);
         String ip = IpUtils.getIpAddr(ServletUtils.getRequest());
         loginUser.setIpaddr(ip);
         loginUser.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-        loginUser.setBrowser(userAgent.getBrowser().getName());
-        loginUser.setOs(userAgent.getOperatingSystem().getName());
+        loginUser.setBrowser(userAgent.getValue("AgentName"));
+        loginUser.setOs(userAgent.getValue("OperatingSystemName"));
     }
 
     /**

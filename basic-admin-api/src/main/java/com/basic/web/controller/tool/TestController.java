@@ -3,7 +3,12 @@ package com.basic.web.controller.tool;
 import com.basic.common.core.controller.BaseController;
 import com.basic.common.core.domain.R;
 import com.basic.common.utils.StringUtils;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -12,11 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * swagger 用户测试方法
- * 
+ * springdoc-openapi 用户测试方法（替代原 springfox）
+ *
  * @author basic
  */
-@Api("用户信息管理")
+@Tag(name = "用户信息管理")
 @RestController
 @RequestMapping("/test/user")
 public class TestController extends BaseController
@@ -27,7 +32,7 @@ public class TestController extends BaseController
         users.put(2, new UserEntity(2, "ry", "admin123", "15666666666"));
     }
 
-    @ApiOperation("获取用户列表")
+    @Operation(summary = "获取用户列表")
     @GetMapping("/list")
     public R<List<UserEntity>> userList()
     {
@@ -35,8 +40,8 @@ public class TestController extends BaseController
         return R.ok(userList);
     }
 
-    @ApiOperation("获取用户详细")
-    @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
+    @Operation(summary = "获取用户详细")
+    @Parameter(name = "userId", description = "用户ID", required = true, in = ParameterIn.PATH)
     @GetMapping("/{userId}")
     public R<UserEntity> getUser(@PathVariable Integer userId)
     {
@@ -50,12 +55,12 @@ public class TestController extends BaseController
         }
     }
 
-    @ApiOperation("新增用户")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer", dataTypeClass = Integer.class),
-        @ApiImplicitParam(name = "username", value = "用户名称", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "password", value = "用户密码", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "mobile", value = "用户手机", dataType = "String", dataTypeClass = String.class)
+    @Operation(summary = "新增用户")
+    @Parameters({
+        @Parameter(name = "userId", description = "用户id", in = ParameterIn.QUERY),
+        @Parameter(name = "username", description = "用户名称", in = ParameterIn.QUERY),
+        @Parameter(name = "password", description = "用户密码", in = ParameterIn.QUERY),
+        @Parameter(name = "mobile", description = "用户手机", in = ParameterIn.QUERY)
     })
     @PostMapping("/save")
     public R<String> save(UserEntity user)
@@ -68,7 +73,7 @@ public class TestController extends BaseController
         return R.ok();
     }
 
-    @ApiOperation("更新用户")
+    @Operation(summary = "更新用户")
     @PutMapping("/update")
     public R<String> update(@RequestBody UserEntity user)
     {
@@ -85,8 +90,8 @@ public class TestController extends BaseController
         return R.ok();
     }
 
-    @ApiOperation("删除用户信息")
-    @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
+    @Operation(summary = "删除用户信息")
+    @Parameter(name = "userId", description = "用户ID", required = true, in = ParameterIn.PATH)
     @DeleteMapping("/{userId}")
     public R<String> delete(@PathVariable Integer userId)
     {
@@ -102,19 +107,19 @@ public class TestController extends BaseController
     }
 }
 
-@ApiModel(value = "UserEntity", description = "用户实体")
+@Schema(description = "用户实体")
 class UserEntity
 {
-    @ApiModelProperty("用户ID")
+    @Schema(description = "用户ID")
     private Integer userId;
 
-    @ApiModelProperty("用户名称")
+    @Schema(description = "用户名称")
     private String username;
 
-    @ApiModelProperty("用户密码")
+    @Schema(description = "用户密码")
     private String password;
 
-    @ApiModelProperty("用户手机")
+    @Schema(description = "用户手机")
     private String mobile;
 
     public UserEntity()

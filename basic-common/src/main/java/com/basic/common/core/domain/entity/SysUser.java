@@ -2,7 +2,7 @@ package com.basic.common.core.domain.entity;
 
 import java.util.Date;
 import java.util.List;
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;

@@ -55,15 +55,6 @@ token:
     secret: FE0xdyiJWkasfCB36TwNze5QL4grpRulVXP29hYS7ntjqZv81HAGIKMocOUmDb
     # 令牌有效期（默认30分钟）
     expireTime: 30
-  
-# MyBatis配置
-#mybatis:
-#    # 搜索指定包别名
-#    typeAliasesPackage: com.basic.**.domain
-#    # 配置mapper的扫描，找到所有的mapper.xml映射文件
-#    mapperLocations: classpath*:mapper/**/*Mapper.xml
-#    # 加载全局的配置文件
-#    configLocation: classpath:mybatis/mybatis-config.xml
 
 # MyBatis Plus配置
 mybatis-plus:
@@ -104,12 +95,21 @@ pagehelper:
   # 表示运行时获取数据源 注释helperDialect: mysql搭配使用
   autoRuntimeDialect: true
 
-# Swagger配置
-swagger:
-  # 是否开启swagger
-  enabled: true
-  # 请求前缀
-  pathMapping: /dev-api
+# ============================================================
+# springdoc-openapi 配置（取代原 springfox）
+# 访问地址：http://host:port/swagger-ui/index.html
+# 默认无需开启，springdoc 自动装配
+# ============================================================
+springdoc:
+  api-docs:
+    # OpenAPI JSON 路径
+    path: /v3/api-docs
+  swagger-ui:
+    # Swagger UI 路径
+    path: /swagger-ui/index.html
+    # 展示 operationId
+    operationsSorter: method
+    tags-sorter: alpha
 
 # 防止XSS攻击
 xss: 

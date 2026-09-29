@@ -48,11 +48,11 @@
           <el-col :span="8">
             <h4>基础设施</h4>
             <ul>
-              <li>Keycloak（统一认证）</li>
+              <li>Springdoc OpenAPI</li>
               <li>Nginx</li>
               <li>MinIO</li>
               <li>Quartz</li>
-              <li>Swagger</li>
+              <li>Yauaa（User-Agent 解析）</li>
             </ul>
           </el-col>
         </el-row>

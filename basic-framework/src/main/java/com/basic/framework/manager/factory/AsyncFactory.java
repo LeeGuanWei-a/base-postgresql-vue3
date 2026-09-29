@@ -14,7 +14,8 @@ import com.basic.system.domain.SysLogininfor;
 import com.basic.system.domain.SysOperLog;
 import com.basic.system.service.ISysLogininforService;
 import com.basic.system.service.ISysOperLogService;
-import eu.bitwalker.useragentutils.UserAgent;
+import nl.basjes.parse.useragent.UserAgent;
+import nl.basjes.parse.useragent.UserAgentAnalyzer;
 
 /**
  * 异步工厂（产生任务用）
@@ -37,7 +38,9 @@ public class AsyncFactory
     public static TimerTask recordLogininfor(final String username, final String status, final String message,
             final Object... args)
     {
-        final UserAgent userAgent = UserAgent.parseUserAgentString(ServletUtils.getRequest().getHeader("User-Agent"));
+        // yauaa 单例：避免每次请求都 newBuilder().build()（要加载 100+ 个 yaml 规则）
+        final UserAgent userAgent = SpringUtils.getBean(UserAgentAnalyzer.class)
+                .parse(ServletUtils.getRequest().getHeader("User-Agent"));
         final String ip = IpUtils.getIpAddr(ServletUtils.getRequest());
         return new TimerTask()
         {
@@ -54,9 +57,9 @@ public class AsyncFactory
                 // 打印信息到日志
                 sys_user_logger.info(s.toString(), args);
                 // 获取客户端操作系统
-                String os = userAgent.getOperatingSystem().getName();
+                String os = userAgent.getValue("OperatingSystemName");
                 // 获取客户端浏览器
-                String browser = userAgent.getBrowser().getName();
+                String browser = userAgent.getValue("AgentName");
                 // 封装对象
                 SysLogininfor logininfor = new SysLogininfor();
                 logininfor.setUserName(username);
