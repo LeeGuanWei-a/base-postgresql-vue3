@@ -72,8 +72,9 @@
   </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { listData } from '@/api/system/dict/data'
+import type { SysDictData, SysDictType } from '@/types/api/system/dict'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -82,13 +83,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible'])
 
-const loading = ref(false)
-const dataList = ref([])
+const loading = ref<boolean>(false)
+const dataList = ref<SysDictData[]>([])
 
-const normalCount = computed(() => dataList.value.filter(r => r.status === '0').length)
-const disabledCount = computed(() => dataList.value.filter(r => r.status !== '0').length)
+const normalCount = computed(() => dataList.value.filter((r: SysDictData) => r.status === '0').length)
+const disabledCount = computed(() => dataList.value.filter((r: SysDictData) => r.status !== '0').length)
 
-watch(() => props.visible, (val) => {
+watch(() => props.visible, (val: boolean) => {
   if (val) {
     loadData()
   } else {

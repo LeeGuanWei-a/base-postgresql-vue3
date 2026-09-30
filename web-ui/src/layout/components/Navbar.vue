@@ -56,21 +56,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ElMessageBox } from 'element-plus'
-import Breadcrumb from '@/components/Breadcrumb'
-import TopNav from './TopNav'
-import TopBar from './TopBar'
-import Logo from './Sidebar/Logo'
-import Hamburger from '@/components/Hamburger'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import HeaderSearch from '@/components/HeaderSearch'
+import Breadcrumb from '@/components/Breadcrumb/index.vue'
+import TopNav from './TopNav/index.vue'
+import TopBar from './TopBar/index.vue'
+import Logo from './Sidebar/Logo.vue'
+import Hamburger from '@/components/Hamburger/index.vue'
+import Screenfull from '@/components/Screenfull/index.vue'
+import SizeSelect from '@/components/SizeSelect/index.vue'
+import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
 import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
-import HeaderNotice from './HeaderNotice'
+import HeaderNotice from './HeaderNotice/index.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,11 +79,11 @@ const userStore = useUserStore()
 const lockStore = useLockStore()
 const settingsStore = useSettingsStore()
 
-function toggleSideBar() {
+function toggleSideBar(): void {
   appStore.toggleSideBar()
 }
 
-function handleCommand(command) {
+function handleCommand(command: string): void {
   switch (command) {
     case "setLayout":
       setLayout()
@@ -99,7 +99,7 @@ function handleCommand(command) {
   }
 }
 
-function logout() {
+function logout(): void {
   ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -112,7 +112,7 @@ function logout() {
 }
 
 const emits = defineEmits(['setLayout'])
-function setLayout() {
+function setLayout(): void {
   emits('setLayout')
 }
 
@@ -122,13 +122,13 @@ function lockScreen() {
   router.push('/lock')
 }
 
-async function toggleTheme(event) {
+async function toggleTheme(event?: MouseEvent): Promise<void> {
   const x = event?.clientX || window.innerWidth / 2
   const y = event?.clientY || window.innerHeight / 2
   const wasDark = settingsStore.isDark
 
   const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  const isSupported = document.startViewTransition && !isReducedMotion
+  const isSupported = typeof (document as any).startViewTransition === 'function' && !isReducedMotion
 
   if (!isSupported) {
     settingsStore.toggleTheme()

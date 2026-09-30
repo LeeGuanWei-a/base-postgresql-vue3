@@ -22,7 +22,8 @@
   </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type {  AjaxResult } from '@/types/api/common'
 import { getToken } from '@/utils/auth'
 
 const { proxy } = getCurrentInstance()
@@ -62,11 +63,11 @@ const props = defineProps({
 
 const emit = defineEmits(['success'])
 
-const uploadRef = ref(null)
-const visible = ref(false)
-const selectedFile = ref(null)
-const isUploading = ref(false)
-const updateSupport = ref(false)
+const uploadRef = ref<any>()
+const visible = ref<boolean>(false)
+const selectedFile = ref<any>(null)
+const isUploading = ref<boolean>(false)
+const updateSupport = ref<boolean>(false)
 const headers = { Authorization: 'Bearer ' + getToken() }
 
 const uploadUrl = computed(() => {
@@ -76,7 +77,7 @@ const uploadUrl = computed(() => {
 const templateUrl = computed(() => !!props.templateAction)
 
 // 打开对话框（供父组件通过 ref 调用）
-function open() {
+function open(): void {
   updateSupport.value = false
   isUploading.value = false
   visible.value = true
@@ -87,34 +88,34 @@ function open() {
 }
 
 // 关闭时清理
-function handleClose() {
+function handleClose(): void {
   isUploading.value = false
   selectedFile.value = null
   uploadRef.value?.clearFiles()
 }
 
 // 下载模板
-function handleDownloadTemplate() {
+function handleDownloadTemplate(): void {
   proxy.download(props.templateAction, {}, `${props.templateFileName}_${new Date().getTime()}.xlsx`)
 }
 
 // 上传进度
-function handleProgress() {
+function handleProgress(): void {
   isUploading.value = true
 }
 
 /** 文件选择处理 */
-const handleFileChange = (file, fileList) => {
+const handleFileChange = (file: any): void => {
   selectedFile.value = file
 }
 
 /** 文件删除处理 */
-const handleFileRemove = (file, fileList) => {
+const handleFileRemove = (file: any) => {
   selectedFile.value = null
 }
 
 // 上传成功
-function handleSuccess(response) {
+function handleSuccess(response: AjaxResult) {
   visible.value = false
   isUploading.value = false
   selectedFile.value = null

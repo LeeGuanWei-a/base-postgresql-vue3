@@ -76,38 +76,45 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Fuse from 'fuse.js'
 import { getNormalPath } from '@/utils/common'
 import { isHttp } from '@/utils/validate'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 
-const search = ref('')
-const options = ref([])
-const searchPool = ref([])
-const activeIndex = ref(-1)
-const show = ref(false)
-const fuse = ref(undefined)
-const headerSearchSelectRef = ref(null)
+interface SearchItem {
+  path: string
+  title: string[]
+  icon: string
+  query?: string
+}
+
+const search = ref<string>('')
+const options = ref<SearchItem[]>([])
+const searchPool = ref<SearchItem[]>([])
+const activeIndex = ref<number>(-1)
+const show = ref<boolean>(false)
+const fuse = ref<Fuse<SearchItem> | undefined>(undefined)
+const headerSearchSelectRef = ref<any>(null)
 const router = useRouter()
 const theme = computed(() => useSettingsStore().theme)
 const routes = computed(() => usePermissionStore().defaultRoutes)
 
-function click() {
+function click(): void {
   show.value = !show.value
   if (show.value) {
     options.value = searchPool.value
   }
 }
 
-function onDialogOpened() {
+function onDialogOpened(): void {
   nextTick(() => {
     headerSearchSelectRef.value && headerSearchSelectRef.value.focus()
   })
 }
 
-function close() {
+function close(): void {
   headerSearchSelectRef.value && headerSearchSelectRef.value.blur()
   search.value = ''
   options.value = searchPool.value
@@ -115,7 +122,7 @@ function close() {
   activeIndex.value = -1
 }
 
-function change(val) {
+function change(val: SearchItem): void {
   const p = val.path
   const query = val.query
   if (isHttp(p)) {
@@ -136,35 +143,28 @@ function change(val) {
   })
 }
 
-function initFuse(list) {
+function initFuse(list: SearchItem[]): void {
   fuse.value = new Fuse(list, {
     shouldSort: true,
     threshold: 0.2,
-    distance: 100,
     minMatchCharLength: 1,
-    keys: [{
-      name: 'title',
-      weight: 0.7
-    }, {
-      name: 'path',
-      weight: 0.3
-    }]
+    keys: ['title', 'path']
   })
 }
 
-function generateRoutes(routes, basePath = '', prefixTitle = []) {
-  let res = []
+function generateRoutes(routes: any, basePath = '', prefixTitle: string[] = []): SearchItem[] {
+  let res: SearchItem[] = []
   for (const r of routes) {
     if (r.hidden) { continue }
     const p = r.path.length > 0 && r.path[0] === '/' ? r.path : '/' + r.path
-    const data = {
+    const data: SearchItem = {
       path: !isHttp(r.path) ? getNormalPath(basePath + p) : r.path,
       title: [...prefixTitle],
       icon: ''
     }
     if (r.meta && r.meta.title) {
-      data.title = [...data.title, r.meta.title]
-      data.icon = r.meta.icon
+      data.title = [...data.title, r.meta.title as string]
+      data.icon = (r.meta.icon as string) || ''
       if (r.redirect !== "noRedirect") {
         res.push(data)
       }
@@ -182,17 +182,17 @@ function generateRoutes(routes, basePath = '', prefixTitle = []) {
   return res
 }
 
-function querySearch(query) {
+function querySearch(query: string): void {
   activeIndex.value = -1
   if (query !== '') {
     const q = query.toLowerCase()
-    const pathMatches = searchPool.value.filter(item =>
+    const pathMatches = searchPool.value.filter((item: SearchItem) =>
       item.path.toLowerCase().includes(q)
     )
-    const fuseMatches = fuse.value.search(query).map(item => item.item)
-    const merged = [...pathMatches]
-    fuseMatches.forEach(item => {
-      if (!merged.find(m => m.path === item.path)) {
+    const fuseMatches = (fuse.value?.search(query) ?? []).map((item: any) => item.item as SearchItem)
+    const merged: SearchItem[] = [...pathMatches]
+    fuseMatches.forEach((item: SearchItem) => {
+      if (!merged.find((m: SearchItem) => m.path === item.path)) {
         merged.push(item)
       }
     })
@@ -202,7 +202,7 @@ function querySearch(query) {
   }
 }
 
-function activeStyle(index) {
+function activeStyle(index: number): Record<string, string> {
   if (index !== activeIndex.value) return {}
   return {
     "background-color": theme.value,
@@ -210,7 +210,7 @@ function activeStyle(index) {
   }
 }
 
-function navigateResult(direction) {
+function navigateResult(direction: 'up' | 'down'): void {
   if (direction === "up") {
     activeIndex.value = activeIndex.value <= 0 ? options.value.length - 1 : activeIndex.value - 1
   } else if (direction === "down") {
@@ -218,13 +218,13 @@ function navigateResult(direction) {
   }
 }
 
-function selectActiveResult() {
+function selectActiveResult(): void {
   if (options.value.length > 0 && activeIndex.value >= 0) {
     change(options.value[activeIndex.value])
   }
 }
 
-function highlightText(text) {
+function highlightText(text: string): string {
   if (!text) return ''
   if (!search.value) return text
   const keyword = escapeRegExp(search.value)
@@ -232,7 +232,7 @@ function highlightText(text) {
   return text.replace(reg, '<span class="highlight">$1</span>')
 }
 
-function escapeRegExp(str) {
+function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
@@ -240,7 +240,7 @@ onMounted(() => {
   searchPool.value = generateRoutes(routes.value)
 })
 
-watch(searchPool, (list) => {
+watch(searchPool, (list: SearchItem[]) => {
   initFuse(list)
 })
 </script>

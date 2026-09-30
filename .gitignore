@@ -50,6 +50,7 @@ nbdist/
 node_modules
 .hbuilderx
 package-lock.json
+.vite/
 
 ### BASIC ###
 *.iml

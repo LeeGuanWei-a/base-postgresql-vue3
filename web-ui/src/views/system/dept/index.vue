@@ -153,28 +153,30 @@
    </div>
 </template>
 
-<script setup name="Dept">
+<script setup lang="ts" name="Dept">
 import { listDept, getDept, delDept, addDept, updateDept, updateDeptSort, listDeptExcludeChild } from "@/api/system/dept"
+import type { SysDept, DeptQueryParams } from '@/types/api/system/dept'
+import type { TreeSelect } from '@/types/api/common'
 
 const { proxy } = getCurrentInstance()
 const { sys_normal_disable } = useDict("sys_normal_disable")
 
-const deptList = ref([])
-const open = ref(false)
-const loading = ref(true)
-const showSearch = ref(true)
-const title = ref("")
-const deptOptions = ref([])
-const isExpandAll = ref(true)
-const refreshTable = ref(true)
-const originalOrders = ref({})
+const deptList = ref<any[]>([])
+const open = ref<boolean>(false)
+const loading = ref<boolean>(true)
+const showSearch = ref<boolean>(true)
+const title = ref<string>("")
+const deptOptions = ref<TreeSelect[]>([])
+const isExpandAll = ref<boolean>(true)
+const refreshTable = ref<boolean>(true)
+const originalOrders = ref<Record<number, number>>({})
 
 const data = reactive({
-  form: {},
+  form: {} as SysDept,
   queryParams: {
     deptName: undefined,
     status: undefined
-  },
+  } as DeptQueryParams,
   rules: {
     parentId: [{ required: true, message: "上级部门不能为空", trigger: "blur" }],
     deptName: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
@@ -229,7 +231,7 @@ function resetQuery() {
 }
 
 /** 新增按钮操作 */
-function handleAdd(row) {
+function handleAdd(row?: SysDept) {
   reset()
   listDept().then(response => {
     deptOptions.value = proxy.handleTree(response.data, "deptId")
@@ -251,13 +253,13 @@ function toggleExpandAll() {
 }
 
 /** 修改按钮操作 */
-function handleUpdate(row) {
+function handleUpdate(row: SysDept) {
   reset()
-  listDeptExcludeChild(row.deptId).then(response => {
+  listDeptExcludeChild(row.deptId!).then(response => {
     deptOptions.value = proxy.handleTree(response.data, "deptId")
   })
-  getDept(row.deptId).then(response => {
-    form.value = response.data
+  getDept(row.deptId!).then(response => {
+    form.value = response.data!
     open.value = true
     title.value = "修改部门"
   })
@@ -265,16 +267,16 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["deptRef"].validate(valid => {
+  proxy.$refs["deptRef"].validate((valid: boolean) => {
     if (valid) {
       if (form.value.deptId != undefined) {
-        updateDept(form.value).then(response => {
+        updateDept(form.value).then(() => {
           proxy.$modal.msgSuccess("修改成功")
           open.value = false
           getList()
         })
       } else {
-        addDept(form.value).then(response => {
+        addDept(form.value).then(() => {
           proxy.$modal.msgSuccess("新增成功")
           open.value = false
           getList()
@@ -285,7 +287,7 @@ function submitForm() {
 }
 
 /** 递归记录原始排序 */
-function recordOriginalOrders(list) {
+function recordOriginalOrders(list: SysDept[]) {
   list.forEach(item => {
     originalOrders.value[item.deptId] = item.orderNum
     if (item.children && item.children.length) {
@@ -296,13 +298,13 @@ function recordOriginalOrders(list) {
 
 /** 保存排序 */
 function handleSaveSort() {
-  const changedDeptIds = []
-  const changedOrderNums = []
-  const collectChanged = (list) => {
+  const changedDeptIds: number[] = []
+  const changedOrderNums: number[] = []
+  const collectChanged = (list: SysDept[]) => {
     list.forEach(item => {
-      if (String(originalOrders.value[item.deptId]) !== String(item.orderNum)) {
-        changedDeptIds.push(item.deptId)
-        changedOrderNums.push(item.orderNum)
+      if (String(originalOrders.value[item.deptId!]) !== String(item.orderNum)) {
+        changedDeptIds.push(item.deptId!)
+        changedOrderNums.push(item.orderNum!)
       }
       if (item.children && item.children.length) {
         collectChanged(item.children)
@@ -321,9 +323,9 @@ function handleSaveSort() {
 }
 
 /** 删除按钮操作 */
-function handleDelete(row) {
+function handleDelete(row: SysDept) {
   proxy.$modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?').then(function() {
-    return delDept(row.deptId)
+    return delDept(row.deptId!)
   }).then(() => {
     getList()
     proxy.$modal.msgSuccess("删除成功")

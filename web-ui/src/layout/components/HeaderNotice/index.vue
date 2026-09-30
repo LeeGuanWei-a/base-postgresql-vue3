@@ -37,24 +37,29 @@
   </div>
 </template>
 
-<script setup>
-import NoticeDetailView from './DetailView'
+<script setup lang="ts">
+import NoticeDetailView from './DetailView.vue'
 import { listNoticeTop, markNoticeRead, markNoticeReadAll } from '@/api/system/notice'
+import type { SysNotice } from '@/types/api/system/notice'
 
-const noticePopover = ref(null)
-const noticeList = ref([])
-const unreadCount = ref(0)
-const noticeLoading = ref(false)
-const noticeVisible = ref(false)
-const noticeLeaveTimer = ref(null)
-const { proxy } = getCurrentInstance()
+interface PopperElement extends HTMLElement {
+  _noticeBound?: boolean
+}
+
+const noticePopover = ref<InstanceType<typeof import('element-plus')['ElPopover']> | null>(null)
+const noticeList = ref<SysNotice[]>([])
+const unreadCount = ref<number>(0)
+const noticeLoading = ref<boolean>(false)
+const noticeVisible = ref<boolean>(false)
+const noticeLeaveTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+  const { proxy } = getCurrentInstance()
 
 // 加载顶部公告列表
-function loadNoticeTop() {
+function loadNoticeTop(): void {
   noticeLoading.value = true
   listNoticeTop().then(res => {
     noticeList.value = res.data || []
-    unreadCount.value = res.unreadCount !== undefined ? res.unreadCount : noticeList.value.filter(n => !n.isRead).length
+    unreadCount.value = res.unreadCount !== undefined ? res.unreadCount : noticeList.value.filter((n: SysNotice) => !n.isRead).length
   }).finally(() => {
     noticeLoading.value = false
   })
@@ -63,14 +68,14 @@ function loadNoticeTop() {
 onMounted(() => loadNoticeTop())
 
 // 鼠标移入铃铛区域
-function onNoticeEnter() {
-  clearTimeout(noticeLeaveTimer.value)
+function onNoticeEnter(): void {
+  clearTimeout(noticeLeaveTimer.value ?? undefined)
   noticeVisible.value = true
   nextTick(() => {
-    const popper = noticePopover.value?.popperRef?.contentRef
+    const popper = (noticePopover.value as any)?.popperRef?.contentRef as PopperElement | undefined
     if (popper && !popper._noticeBound) {
       popper._noticeBound = true
-      popper.addEventListener('mouseenter', () => clearTimeout(noticeLeaveTimer.value))
+      popper.addEventListener('mouseenter', () => clearTimeout(noticeLeaveTimer.value ?? undefined))
       popper.addEventListener('mouseleave', () => {
         noticeLeaveTimer.value = setTimeout(() => { noticeVisible.value = false }, 100)
       })
@@ -79,14 +84,14 @@ function onNoticeEnter() {
 }
 
 // 鼠标离开铃铛区域
-function onNoticeLeave() {
+function onNoticeLeave(): void {
   noticeLeaveTimer.value = setTimeout(() => { noticeVisible.value = false }, 150)
 }
 
 // 预览公告详情
-function previewNotice(item) {
+function previewNotice(item: SysNotice): void {
   if (!item.isRead) {
-    markNoticeRead(item.noticeId).catch(() => {})
+    markNoticeRead(item.noticeId!).catch(() => {})
     const idx = noticeList.value.indexOf(item)
     if (idx !== -1) noticeList.value[idx] = { ...item, isRead: true }
     unreadCount.value = Math.max(0, unreadCount.value - 1)
@@ -95,11 +100,11 @@ function previewNotice(item) {
 }
 
 // 全部已读
-function markAllRead() {
-  const ids = noticeList.value.map(n => n.noticeId).join(',')
+function markAllRead(): void {
+  const ids = noticeList.value.map((n: SysNotice) => n.noticeId).join(',')
   if (!ids) return
   markNoticeReadAll(ids).catch(() => {})
-  noticeList.value = noticeList.value.map(n => ({ ...n, isRead: true }))
+  noticeList.value = noticeList.value.map((n: SysNotice) => ({ ...n, isRead: true }))
   unreadCount.value = 0
 }
 </script>

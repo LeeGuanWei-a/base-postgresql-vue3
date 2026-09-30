@@ -1,22 +1,26 @@
-# Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus)
+# Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus + TypeScript)
 
-基于若依 RuoYi-Vue 3.9.2 改造,从 **Spring Boot 3.5.16** 升级到 **Spring Boot 4.1.1** 的实战记录。
+基于若依 RuoYi-Vue 3.9.2 改造,从 **Spring Boot 3.5.16** 升级到 **Spring Boot 4.1.1**,**前端从 JavaScript 升级到 TypeScript** 的实战记录。
 
-> 上一次 commit `a4c182a 升级到springboot3` 已经完成了 SB 2.7 → SB 3.5.16 的升级(JDK 17、Jakarta EE 9+、Spring Security 6 等)。
-> **本次升级** 是 SB 3.5.16 → SB 4.1.1。
+> 本分支 `springboot4_TypeScript` 基于 `springboot4` 切出,叠加了 `springboot2_TypeScript` / `springboot3_TypeScript` 分支里完成的**前端 JS → TS 化**改造。
+>
+> 仓库另有 `springboot2_TypeScript`(SB 2.5.14 + TS)、`springboot3`(SB 3.5.16 + JS)、`springboot3_TypeScript`(SB 3.5.16 + TS)等分支。
 
 ---
 
 ## 前端说明
 
-本仓库前端为 **JavaScript 版**(无 TypeScript):
+本仓库前端为 **TypeScript 版**:
 
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
-- 代码:纯 `.js` / `.vue`,**无 `typescript` 依赖**(package.json 不含 `typescript`)
-- 仓库另有 **TypeScript 版**前端,本次升级**未涉及**
+- 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
+- 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
+- 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
+- 类型目录:`src/types/api/**.ts`(通用 + 业务模块全覆盖)
+- vite 配置:`vite.config.ts`(TS 版,跟 springboot4 原 `vite.config.js` 中文乱码版不同)
 
-> 如果你看到的是 TS 版的代码,可能拉错分支/目录;本 README 仅描述当前仓库的 JS 版。
+> JS 版在 `springboot3` / `springboot4` 分支,package.json 不含 `typescript`,本分支**未涉及**。
 
 ---
 
@@ -416,3 +420,123 @@ public class BigNumberModuleConfig {
 - [ ] `springdoc 2.9 → 3.1` 跨多个小版本的 OpenAPI Schema 兼容性未验证(比如 `@Schema` annotation 的 deprecated 方法)
 - [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数(`pageNum` / `pageSize` / `orderBy`)兼容性是否完全保留未测
 - [ ] `druid 1.2.28`(版本号相同)内部 API 在 SB 3 → SB 4 之间是否有破坏性变更未细查
+
+---
+
+## 十一、前端 JS → TypeScript 化(本分支新增)
+
+> 本分支的 TS 化**复用**了 `springboot3_TypeScript` 分支的成果(整 web-ui 目录替换),后端仍是 SB 4.1.1。
+
+### 11.1 改了什么
+
+总计 ~197 个文件改动,git 把它识别为 ~50 个 `*.js` → `*.ts` rename + 一些 `.vue` / `.scss` modified + 新增 `src/types/**` 目录。
+
+| 改动类型 | 文件数 | 说明 |
+|---|---|---|
+| `*.js` → `*.ts` rename | ~50 | `src/api/**`、`src/directive/**`、`src/plugins/**`、`src/router/index.js`、`src/store/**`、`src/utils/**`、`src/main.js`、`src/permission.js`、`src/settings.js` 等 |
+| 新增 `src/types/**` | ~30 | `src/types/api/**.ts`(通用 + 业务模块全覆盖)、`components.d.ts`、`global.d.ts`、`index.ts` |
+| 新增 `auto-imports.d.ts` | 1 | unplugin-auto-import 自动生成 |
+| 新增 `tsconfig.json` | 1 | TS 编译配置 |
+| 新增 `.npmrc` | 1 | pnpm 镜像源配置 |
+| 新增 `src/assets/images/pay.png` | 1 | 支付二维码(占位图) |
+| 新增 `src/layout/components/Copyright/index.vue` | 1 | 版权信息组件 |
+| 新增 `src/layout/components/index.ts` | 1 | 组件统一出口 |
+| `vite.config.js` → `vite.config.ts` | 1 | **本分支额外改善**:springboot4 原 `vite.config.js` 有中文乱码,TS 版重写时用 TS + 干净中文 |
+| `package.json` 改 | 1 | 新增 `typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1` devDeps |
+| `pnpm-lock.yaml` 改 | 1 | lock 文件随之更新 |
+| 各种 `.vue` / `.scss` 微调 | ~100 | TS 化过程中对 `script setup` 类型标注、scss 变量引用等的伴随修改 |
+| 删除 `web-ui/.gitignore` | 1 | 根 `.gitignore` 统一管理 |
+| 删除 `web-ui/src/store/modules/app.js` / `web-ui/src/utils/auth.js` / `web-ui/src/layout/components/index.js` | 3 | 已被 `.ts` 替代 |
+| 保留 `web-ui/src/assets/styles/basic.scss` | 1 | springboot3_TypeScript 已带(TS 化时显式保留),基础平台主题色 `--el-color-primary: #1890ff` |
+
+### 11.2 应用方式
+
+```bash
+# 在 springboot4 分支基础上,整 web-ui 用 springboot3_TypeScript 的 TS 版替换
+git rm -r web-ui/
+git checkout springboot3_TypeScript -- web-ui/
+# springboot3_TypeScript 已经保留 basic.scss,不需要再单独恢复
+```
+
+### 11.3 `package.json` devDependencies
+
+```json
+{
+  "devDependencies": {
+    "@vue/tsconfig": "0.5.1",     // Vue 3 推荐 tsconfig 基础
+    "typescript": "5.6.3",          // TS 编译器
+    "vue-tsc": "2.1.10"             // .vue 文件类型检查
+  }
+}
+```
+
+### 11.4 `src/types/` 目录
+
+```
+src/types/
+├── api/
+│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
+│   ├── index.ts
+│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
+│   ├── menu.ts
+│   ├── monitor/
+│   │   ├── cache.ts
+│   │   ├── job.ts
+│   │   ├── jobLog.ts
+│   │   ├── logininfor.ts
+│   │   ├── online.ts
+│   │   └── operlog.ts
+│   ├── system/
+│   │   ├── config.ts
+│   │   ├── dept.ts
+│   │   ├── dict.ts
+│   │   ├── menu.ts
+│   │   ├── notice.ts
+│   │   ├── post.ts
+│   │   ├── role.ts
+│   │   └── user.ts
+│   └── tool/
+│       └── gen.ts
+├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 自动生成
+├── global.d.ts          ← 全局 window / module 声明
+└── index.ts             ← 类型统一出口
+```
+
+每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
+
+### 11.5 风险评估
+
+- **后端 API 兼容**:`springboot3_TypeScript` 实际是 SB 3.5.16 后端调通的前端代码,但本分支后端是 SB 4.1.1(Jackson 3 时代),API URL 没变,响应格式**基本兼容**(若依 API 是稳定契约)。**潜在差异**:
+  - `Long` 大数字:Jackson 3 默认输出 long(可能 JS 端丢精度),由 `BigNumberSerializer` 处理
+  - `LocalDateTime` / `LocalDate`:Jackson 3 默认输出 ISO-8601 字符串(JS 可解析)
+  - `null` 字段:Jackson 3 默认也包含 `@JsonInclude` 行为
+- **Jackson 2 → 3 序列化差异**:SB 4 的 `JsonMapper` 默认用 Jackson 3,序列化格式与 Jackson 2 略有差异(主要是 `writeBigDecimalAsPlain`、日期等)。前端如果依赖具体 JSON 字段顺序或格式,要验证。
+- **`basic.scss` 主题色**:已从 springboot3_TypeScript 保留。
+- **`pnpm-lock.yaml`**:lock 文件用 springboot3_TypeScript 的版本,可能与本仓库之前装的依赖不完全一致。建议你 `cd web-ui && pnpm install` 重新拉一遍。
+
+### 11.6 待办
+
+- [ ] `cd web-ui && pnpm install` 重新拉依赖(锁文件来自 springboot3_TypeScript)
+- [ ] `pnpm dev` 验证启动 + `pnpm build:prod` 验证生产构建
+- [ ] 打开若干 `.vue` 文件,看 `<script setup lang="ts">` 的类型推断是否完整
+- [ ] 调通 admin 登录 → `/getInfo` → 列表查询端到端,看 Jackson 3 序列化输出是否对前端 JS 友好
+- [ ] 检查 `vite.config.ts` 里的 `baseUrl: 'http://localhost:8080'` 是否需要改成你的后端地址
+- [ ] 验证 `RedisConfig` / `BigNumberModuleConfig` / `ResourcesConfig` 在 SB 4 + TS 链路下都正常
+- [ ] 验证 Druid 监控页(`/druid/login.html`)的 js/css 资源能正常加载(ResourcesConfig 已加 `/druid/**` 静态资源处理器)
+
+---
+
+## 十二、运行前 checklist(SB 4 + TS 综合)
+
+- [x] JDK 21 安装
+- [x] Node.js + pnpm(前端)
+- [ ] `cd web-ui && pnpm install` 拉依赖(lock 文件来自 springboot3_TypeScript)
+- [x] 7 个子模块 `parent.version` 一致为 `4.0.0`
+- [x] IDE 工程的 Project SDK 设为 JDK 21,Language level 21
+- [x] `mvn clean compile` 0 ERROR
+- [x] 应用启动成功(`(♥◠‿◠)ﾉﾞ  基础平台启动成功`)
+- [x] admin 登录成功
+- [x] `/getInfo` 200
+- [x] 在线用户列表正常
+- [x] Druid 监控页 `/druid/login.html` 可达(账号 `basic` / 密码 `123456`)
+- [ ] 前端 `pnpm dev` 启动成功 + 类型检查通过(`pnpm run type-check` 或 `vue-tsc --noEmit`)
