@@ -45,9 +45,10 @@
   </el-dialog>
 </template>
 
-<script setup name="ReadUsers">
+<script setup lang="ts" name="ReadUsers">
 import { Search } from "@element-plus/icons-vue"
 import { listNoticeReadUsers } from "@/api/system/notice"
+import type { NoticeReadUser, NoticeReadUserQueryParams, SysNotice } from "@/types/api/system/notice"
 
 const { proxy } = getCurrentInstance()
 
@@ -55,18 +56,18 @@ const visible = ref(false)
 const loading = ref(false)
 const noticeTitle = ref("")
 const total = ref(0)
-const userList = ref([])
+const userList = ref<NoticeReadUser[]>([])
 
-const queryParams = reactive({
+const queryParams = reactive<NoticeReadUserQueryParams>({
   pageNum: 1,
   pageSize: 10,
   noticeId: undefined,
   searchValue: undefined
 })
 
-function open(row) {
+function open(row: SysNotice) {
   queryParams.noticeId = row.noticeId
-  noticeTitle.value = row.noticeTitle
+  noticeTitle.value = row.noticeTitle ?? ""
   queryParams.searchValue = undefined
   queryParams.pageNum = 1
   visible.value = true

@@ -36,6 +36,10 @@ public class ResourcesConfig implements WebMvcConfigurer
                 .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/");
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        /** Druid 监控页静态资源(js / css / 字体等),来自 druid-1.2.28.jar:support/http/resources/ */
+        registry.addResourceHandler("/druid/**")
+                .addResourceLocations("classpath:/support/http/resources/");
     }
 
     /**

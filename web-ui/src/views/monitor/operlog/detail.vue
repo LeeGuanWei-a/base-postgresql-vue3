@@ -111,34 +111,36 @@
   </el-dialog>
 </template>
 
-<script setup>
-const props = defineProps({
-  visible: { type: Boolean, default: false },
-  row: { type: Object, default: () => ({}) }
-})
+<script setup lang="ts">
+const { proxy } = getCurrentInstance()
+import type { SysOperLog } from '@/types/api/monitor/operlog'
 
-const emit = defineEmits(['update:visible'])
+const props = defineProps<{
+  visible: boolean
+  row: SysOperLog
+}>()
+
+const emit = defineEmits<{(e: 'update:visible', val: boolean): void}>()
 
 const dialogVisible = computed({
   get: () => props.visible,
-  set: (val) => emit('update:visible', val)
+  set: (val: boolean) => emit('update:visible', val)
 })
 
- 
 const { sys_oper_type } = useDict('sys_oper_type')
 
-const form = computed(() => props.row || {})
-const typeLabel = computed(() => selectDictLabel(sys_oper_type.value, form.value.businessType) || '-')
+const form = computed<SysOperLog>(() => props.row || {})
+const typeLabel = computed<string>(() => selectDictLabel(sys_oper_type.value, form.value.businessType) || '-')
 
-function formatJson(str) {
+function formatJson(str?: string): string {
   if (!str) return '（无数据）'
   try { return JSON.stringify(JSON.parse(str), null, 2) } catch { return str }
 }
 
-function copyText(str) {
+function copyText(str?: string): void {
   const text = formatJson(str)
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => ElMessage({ message: '已复制', type: 'success', duration: 1500 }))
+    navigator.clipboard.writeText(text).then(() => proxy.$modal.msgSuccess({ message: '已复制', type: 'success', duration: 1500 }))
   } else {
     const ta = document.createElement('textarea')
     ta.value = text
@@ -146,7 +148,7 @@ function copyText(str) {
     ta.select()
     document.execCommand('copy')
     document.body.removeChild(ta)
-    ElMessage({ message: '已复制', type: 'success', duration: 1500 })
+    proxy.$modal.msgSuccess({ message: '已复制', type: 'success', duration: 1500 })
   }
 }
 </script>

@@ -125,31 +125,33 @@
   </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getUser } from '@/api/system/user'
-import { selectDictLabel } from '@/utils/common'
+import type { SysUser } from '@/types/api/system/user'
+import type { SysRole } from '@/types/api/system/role'
+import type { SysPost } from '@/types/api/system/post'
 
-const visible = ref(false)
-const loading = ref(false)
-const info = reactive({})
-const postOptions = ref([])
-const roleOptions = ref([])
+const visible = ref<boolean>(false)
+const loading = ref<boolean>(false)
+const info = reactive<SysUser>({})
+const postOptions = ref<SysPost[]>([])
+const roleOptions = ref<SysRole[]>([])
 
 const { sys_user_sex } = useDict("sys_user_sex")
 
 const sexLabel = computed(() => selectDictLabel(sys_user_sex.value, info.sex) || '-')
 
-const postNames = computed(() => {
+const postNames = computed<string>(() => {
   if (!postOptions.value.length || !info.postIds) return ''
-  return postOptions.value.filter(p => info.postIds?.includes(p.postId)).map(p => p.postName).join('、') || ''
+  return postOptions.value.filter((p: SysPost) => info.postIds?.includes(p.postId)).map((p: SysPost) => p.postName).join('、') || ''
 })
 
-const roleNames = computed(() => {
+const roleNames = computed<string>(() => {
   if (!roleOptions.value.length || !info.roleIds) return ''
-  return roleOptions.value.filter(r => info.roleIds?.includes(r.roleId)).map(r => r.roleName).join('、') || ''
+  return roleOptions.value.filter((r: SysRole) => info.roleIds?.includes(r.roleId)).map((r: SysRole) => r.roleName).join('、') || ''
 })
 
-const open = async (userId) => {
+const open = async (userId: number): Promise<void> => {
   visible.value = true
   loading.value = true
   try {
@@ -166,7 +168,7 @@ const open = async (userId) => {
   }
 }
 
-function handleClose() {
+const handleClose = (): void => {
   visible.value = false
 }
 

@@ -71,7 +71,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   // 树形数据
   treeData: {
@@ -189,30 +189,30 @@ const emit = defineEmits([
   'search'
 ])
 
-const treeRef = ref(null)
+const treeRef = ref<any>(null)
 
 // 响应式数据
-const searchKeyword = ref('')
-const collapsed = ref(props.defaultCollapsed)
-const sidebarWidth = ref(props.defaultCollapsed ? props.collapsedWidth : props.defaultWidth)
-const isResizing = ref(false)
-const startX = ref(0)
-const startWidth = ref(0)
-const saveWidthTimer = ref(null)
-const rafId = ref(null)
-const isLoadingFromStorage = ref(false)
-const expandedAll = ref(props.defaultExpandAll)
+const searchKeyword = ref<string>('')
+const collapsed = ref<boolean>(props.defaultCollapsed)
+const sidebarWidth = ref<number>(props.defaultCollapsed ? props.collapsedWidth : props.defaultWidth)
+const isResizing = ref<boolean>(false)
+const startX = ref<number>(0)
+const startWidth = ref<number>(0)
+const saveWidthTimer = ref<NodeJS.Timeout | null>(null)
+const rafId = ref<number | null>(null)
+const isLoadingFromStorage = ref<boolean>(false)
+const expandedAll = ref<boolean>(props.defaultExpandAll)
 
 // 计算属性
-const isExpandedAll = computed({
+const isExpandedAll = computed<boolean>({
   get: () => expandedAll.value,
-  set: (val) => {
+  set: (val: boolean) => {
     expandedAll.value = val
   }
 })
 
 // 节点过滤方法
-const filterNodeMethod = (value, data) => {
+const filterNodeMethod = (value: string, data: any): boolean => {
   if (props.filterMethod) {
     return props.filterMethod(value, data)
   }
@@ -221,7 +221,7 @@ const filterNodeMethod = (value, data) => {
 }
 
 // 监听折叠状态
-watch(collapsed, (newVal, oldVal) => {
+watch(collapsed, (newVal: boolean, oldVal: boolean) => {
   if (newVal !== oldVal) {
     handleCollapseChange(newVal)
     emit('collapsed-change', newVal)
@@ -229,7 +229,7 @@ watch(collapsed, (newVal, oldVal) => {
 })
 
 // 监听内部展开状态变化，触发实际树的展开/收起
-watch(expandedAll, (newVal) => {
+watch(expandedAll, (newVal: boolean) => {
   nextTick(() => {
     if (newVal) {
       expandAllNodes()
@@ -241,7 +241,7 @@ watch(expandedAll, (newVal) => {
 })
 
 // 监听搜索关键词
-watch(searchKeyword, (val) => {
+watch(searchKeyword, (val: string) => {
   if (treeRef.value) {
     treeRef.value.filter(val)
     emit('search', val)
@@ -249,7 +249,7 @@ watch(searchKeyword, (val) => {
 })
 
 // 清理定时器和动画帧
-const cleanup = () => {
+const cleanup = (): void => {
   if (rafId.value) {
     cancelAnimationFrame(rafId.value)
     rafId.value = null
@@ -261,7 +261,7 @@ const cleanup = () => {
 }
 
 // 处理收起/展开状态变化
-const handleCollapseChange = (isCollapsed) => {
+const handleCollapseChange = (isCollapsed: boolean): void => {
   if (isCollapsed) {
     saveWidthToStorage()
     sidebarWidth.value = props.collapsedWidth
@@ -272,7 +272,7 @@ const handleCollapseChange = (isCollapsed) => {
 }
 
 // 获取保存的宽度
-const getSavedWidth = () => {
+const getSavedWidth = (): number | null => {
   if (!props.enableStorage) {
     return null
   }
@@ -291,7 +291,7 @@ const getSavedWidth = () => {
 }
 
 // 保存宽度到本地存储
-const saveWidthToStorage = () => {
+const saveWidthToStorage = (): void => {
   if (collapsed.value || !props.enableStorage) return
   try {
     localStorage.setItem(props.storageKey, sidebarWidth.value.toString())
@@ -301,17 +301,17 @@ const saveWidthToStorage = () => {
 }
 
 // 切换侧边栏收起/展开状态
-const toggleCollapsed = () => {
+const toggleCollapsed = (): void => {
   collapsed.value = !collapsed.value
 }
 
 // 切换展开/折叠所有节点
-const toggleExpandAll = () => {
+const toggleExpandAll = (): void => {
   expandedAll.value = !expandedAll.value
 }
 
 // 展开所有节点
-const expandAllNodes = () => {
+const expandAllNodes = (): void => {
   if (!treeRef.value) return
   const allNodes = getAllNodes(treeRef.value.root)
   allNodes.forEach(node => {
@@ -322,13 +322,13 @@ const expandAllNodes = () => {
 }
 
 // 获取所有节点
-const getAllNodes = (rootNode) => {
-  const nodes = []
-  const traverse = (node) => {
+const getAllNodes = (rootNode: any): any[] => {
+  const nodes: any[] = []
+  const traverse = (node: any): void => {
     if (!node) return
     nodes.push(node)
     if (node.childNodes && node.childNodes.length) {
-      node.childNodes.forEach(child => traverse(child))
+      node.childNodes.forEach((child: any) => traverse(child))
     }
   }
   traverse(rootNode)
@@ -336,7 +336,7 @@ const getAllNodes = (rootNode) => {
 }
 
 // 收起所有节点
-const collapseAllNodes = () => {
+const collapseAllNodes = (): void => {
   if (!treeRef.value) return
   const allNodes = getAllNodes(treeRef.value.root)
   allNodes.forEach(node => {
@@ -347,86 +347,86 @@ const collapseAllNodes = () => {
 }
 
 // 处理刷新操作
-const handleRefresh = () => {
+const handleRefresh = (): void => {
   emit('refresh')
 }
 
 // 节点点击事件
-const onNodeClick = (data, node, e) => {
+const onNodeClick = (data: any, node: any, e: Event): void => {
   emit('node-click', data, node, e)
 }
 
 // 复选框选中事件
-const onCheck = (data, checkedInfo) => {
+const onCheck = (data: any, checkedInfo: any): void => {
   emit('check', data, checkedInfo)
 }
 
 // 节点展开事件
-const onNodeExpand = (data, node, e) => {
+const onNodeExpand = (data: any, node: any, e: Event): void => {
   emit('node-expand', data, node, e)
 }
 
 // 节点折叠事件
-const onNodeCollapse = (data, node, e) => {
+const onNodeCollapse = (data: any, node: any, e: Event): void => {
   emit('node-collapse', data, node, e)
 }
 
-const setCurrentKey = (key) => {
+const setCurrentKey = (key: string | number): void => {
   if (treeRef.value) {
     treeRef.value.setCurrentKey(key)
   }
 }
 
-const getCurrentNode = () => {
+const getCurrentNode = (): any | null => {
   if (treeRef.value) {
     return treeRef.value.getCurrentNode()
   }
   return null
 }
 
-const getCurrentKey = () => {
+const getCurrentKey = (): string | number | null => {
   if (treeRef.value) {
     return treeRef.value.getCurrentKey()
   }
   return null
 }
 
-const setCheckedKeys = (keys) => {
+const setCheckedKeys = (keys: (string | number)[]): void => {
   if (treeRef.value && props.showCheckbox) {
     treeRef.value.setCheckedKeys(keys)
   }
 }
 
-const getCheckedKeys = () => {
+const getCheckedKeys = (): (string | number)[] => {
   if (treeRef.value && props.showCheckbox) {
     return treeRef.value.getCheckedKeys()
   }
   return []
 }
 
-const getCheckedNodes = () => {
+const getCheckedNodes = (): any[] => {
   if (treeRef.value && props.showCheckbox) {
     return treeRef.value.getCheckedNodes()
   }
   return []
 }
 
-const clearSearch = () => {
+const clearSearch = (): void => {
   searchKeyword.value = ""
   if (treeRef.value) {
     treeRef.value.filter("")
   }
 }
 
-const filter = (value) => {
+const filter = (value: string): void => {
   searchKeyword.value = value
 }
 
-const startResize = (e) => {
+const startResize = (e: MouseEvent | TouchEvent): void => {
   e.preventDefault()
   e.stopPropagation()
   isResizing.value = true
-  startX.value = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX
+  startX.value = e.type === 'mousedown' ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
   startWidth.value = sidebarWidth.value
   
   if (e.type === 'mousedown') {
@@ -439,7 +439,7 @@ const startResize = (e) => {
   disableUserSelect()
 }
 
-const handleResizeMove = (e) => {
+const handleResizeMove = (e: MouseEvent | TouchEvent): void => {
   if (!isResizing.value) return
   if (rafId.value) {
     cancelAnimationFrame(rafId.value)
@@ -447,7 +447,7 @@ const handleResizeMove = (e) => {
   rafId.value = requestAnimationFrame(() => {
     e.preventDefault()
     e.stopPropagation()
-    const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX
+    const clientX = e.type === 'mousemove' ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
     const deltaX = clientX - startX.value
     const newWidth = startWidth.value + deltaX
     const clampedWidth = Math.max(props.minWidth, Math.min(props.maxWidth, newWidth))
@@ -457,7 +457,7 @@ const handleResizeMove = (e) => {
   })
 }
 
-const stopResize = () => {
+const stopResize = (): void => {
   if (!isResizing.value) return
   isResizing.value = false
   if (rafId.value) {
@@ -474,30 +474,32 @@ const stopResize = () => {
   saveWidthToStorage()
 }
 
-const disableUserSelect = () => {
-  document.body.style.userSelect = 'none'
-  document.body.style.webkitUserSelect = 'none'
-  document.body.style.mozUserSelect = 'none'
-  document.body.style.msUserSelect = 'none'
+const disableUserSelect = (): void => {
+  const bodyStyle: any = document.body.style
+  bodyStyle.userSelect = 'none'
+  bodyStyle.webkitUserSelect = 'none'
+  bodyStyle.mozUserSelect = 'none'
+  bodyStyle.msUserSelect = 'none'
 }
 
-const enableUserSelect = () => {
-  document.body.style.userSelect = ''
-  document.body.style.webkitUserSelect = ''
-  document.body.style.mozUserSelect = ''
-  document.body.style.msUserSelect = ''
+const enableUserSelect = (): void => {
+  const bodyStyle: any = document.body.style
+  bodyStyle.userSelect = ''
+  bodyStyle.webkitUserSelect = ''
+  bodyStyle.mozUserSelect = ''
+  bodyStyle.msUserSelect = ''
 }
 
-const resetWidth = () => {
+const resetWidth = (): void => {
   sidebarWidth.value = props.defaultWidth
   saveWidthToStorage()
 }
 
-const getCurrentWidth = () => {
+const getCurrentWidth = (): number => {
   return sidebarWidth.value
 }
 
-const setWidth = (width) => {
+const setWidth = (width: number): void => {
   if (typeof width === 'number' && width >= props.minWidth && width <= props.maxWidth) {
     sidebarWidth.value = width
     if (!collapsed.value) {

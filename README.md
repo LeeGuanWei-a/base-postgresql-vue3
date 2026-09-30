@@ -1,22 +1,25 @@
-# Basic Admin (Spring Boot 3.5.16 + Vue 3 + Element Plus)
+# Basic Admin (Spring Boot 3.5.16 + Vue 3 + Element Plus + TypeScript)
 
-基于若依 RuoYi-Vue 3.8.2 改造,从 **Spring Boot 2.5.14** 升级到 **Spring Boot 3.5.16** 的实战记录。
+基于若依 RuoYi-Vue 3.8.2 改造,从 **Spring Boot 2.5.14** 升级到 **Spring Boot 3.5.16**,**前端从 JavaScript 升级到 TypeScript** 的实战记录。
 
-> 本分支 `springboot3` 对应 commit `a4c182a 升级到springboot3`,基于 `5b344b7 first commit`(原始若依 RuoYi 3.8.2 + SB 2.5.14)做的一次性大版本升级。
+> 本分支 `springboot3_TypeScript` 基于 `springboot3` 切出,叠加了 `springboot2_TypeScript` 分支里完成的**前端 JS → TS 化**改造。
 >
-> **仓库另有 `springboot4` 分支**,在该分支上从 SB 3.5.16 继续升到了 SB 4.1.1(JDK 21、Jackson 3 等),**与本分支无关**。
+> 仓库另有 `springboot2_TypeScript`(SB 2.5.14 + TS)、`springboot4`(SB 4.1.1 + JS)等分支。
 
 ---
 
 ## 前端说明
 
-本仓库前端为 **JavaScript 版**(无 TypeScript):
+本仓库前端为 **TypeScript 版**:
 
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
-- 代码:纯 `.js` / `.vue`,**无 `typescript` 依赖**(package.json 不含 `typescript`)
+- 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
+- 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
+- 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
+- 类型目录:`src/types/api/**.ts`(通用 + 业务模块全覆盖)
 
-> 仓库另有 `TypeScript` 分支的前端(基于若依 RuoYi-Vue TS 版),本分支**未涉及**。
+> JS 版在 `springboot3` / `springboot4` 分支,package.json 不含 `typescript`,本分支**未涉及**。
 
 ---
 
@@ -259,3 +262,117 @@ javax.* 包名**全部改为** jakarta.*:
 - [x] JDK 17 安装
 - [x] 7 个子模块 `parent.version` 一致为 `3.9.2`
 - [x] IDE 工程的 Project SDK 设为 JDK 17,Language level 17
+- [x] `mvn clean compile` 0 ERROR
+- [x] 应用启动成功
+- [x] admin 登录成功
+- [x] `/getInfo` 200
+- [x] 在线用户列表正常
+
+---
+
+## 六、前端 JS → TypeScript 化(本分支新增)
+
+> 本分支的 TS 化**复用**了 `springboot2_TypeScript` 分支的成果(整 web-ui 目录替换),后端仍是 SB 3.5.16。
+
+### 6.1 改了什么
+
+总计 ~196 个文件改动,git 把它识别为 ~50 个 `*.js` → `*.ts` rename + 一些 `.vue` / `.scss` modified + 新增 `src/types/**` 目录。
+
+| 改动类型 | 文件数 | 说明 |
+|---|---|---|
+| `*.js` → `*.ts` rename | ~50 | `src/api/**`、`src/directive/**`、`src/plugins/**`、`src/router/index.js`、`src/store/**`、`src/utils/**`、`src/main.js`、`src/permission.js`、`src/settings.js` 等 |
+| 新增 `src/types/**` | ~30 | `src/types/api/**.ts`(通用 + 业务模块全覆盖)、`components.d.ts`、`global.d.ts`、`index.ts` |
+| 新增 `auto-imports.d.ts` | 1 | unplugin-auto-import 自动生成 |
+| 新增 `tsconfig.json` | 1 | TS 编译配置 |
+| 新增 `.npmrc` | 1 | pnpm 镜像源配置 |
+| 新增 `src/assets/images/pay.png` | 1 | 支付二维码(占位图) |
+| 新增 `src/layout/components/Copyright/index.vue` | 1 | 版权信息组件 |
+| 新增 `src/layout/components/index.ts` | 1 | 组件统一出口 |
+| `package.json` 改 | 1 | 新增 `typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1` devDeps |
+| `pnpm-lock.yaml` 改 | 1 | lock 文件随之更新 |
+| 各种 `.vue` / `.scss` 微调 | ~100 | TS 化过程中对 `script setup` 类型标注、scss 变量引用等的伴随修改 |
+| 删除 `web-ui/.gitignore` | 1 | 根 `.gitignore` 统一管理 |
+| 删除 `web-ui/src/store/modules/app.js` / `web-ui/src/utils/auth.js` / `web-ui/src/layout/components/index.js` | 3 | 已被 `.ts` 替代 |
+| 删除 `web-ui/src/assets/styles/basic.scss` | 1 | **本仓库**基础平台自定义主题色 `var(--el-color-primary: #1890ff)` 文件;TS 版 web-ui 没这文件,**已从 springboot3 单独 checkout 回来保留**(否则主题色变成 element-plus 默认蓝) |
+
+### 6.2 应用方式
+
+```bash
+# 在 springboot3 分支基础上,整 web-ui 用 springboot2_TypeScript 的 TS 版替换
+git rm -r web-ui/
+git checkout springboot2_TypeScript -- web-ui/
+# 恢复 springboot3 自己的 basic.scss(主题色)
+git checkout springboot3 -- web-ui/src/assets/styles/basic.scss
+```
+
+### 6.3 新增 `package.json` devDependencies
+
+```json
+{
+  "devDependencies": {
+    "@vue/tsconfig": "0.5.1",     // Vue 3 推荐 tsconfig 基础
+    "typescript": "5.6.3",          // TS 编译器
+    "vue-tsc": "2.1.10"             // .vue 文件类型检查
+  }
+}
+```
+
+### 6.4 `src/types/` 目录
+
+```
+src/types/
+├── api/
+│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
+│   ├── index.ts
+│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
+│   ├── menu.ts
+│   ├── monitor/
+│   │   ├── cache.ts
+│   │   ├── job.ts
+│   │   ├── jobLog.ts
+│   │   ├── logininfor.ts
+│   │   ├── online.ts
+│   │   └── operlog.ts
+│   ├── system/
+│   │   ├── config.ts
+│   │   ├── dept.ts
+│   │   ├── dict.ts
+│   │   ├── menu.ts
+│   │   ├── notice.ts
+│   │   ├── post.ts
+│   │   ├── role.ts
+│   │   └── user.ts
+│   └── tool/
+│       └── gen.ts
+├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 自动生成
+├── global.d.ts          ← 全局 window / module 声明
+└── index.ts             ← 类型统一出口
+```
+
+每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
+
+### 6.5 风险评估
+
+- **后端 API 兼容**:`springboot2_TypeScript` 实际是 SB 2.5.14 后端调通的前端代码,但本分支后端是 SB 3.5.16,API URL 和响应格式未变(若依后端 API 是稳定契约),所以**兼容**。
+- **`basic.scss` 主题色**:TS 版没带,会丢失本仓库自定义的 `--el-color-primary: #1890ff` 蓝色品牌色。已**手动恢复**。
+- **`pnpm-lock.yaml`**:lock 文件用 springboot2_TypeScript 的版本,可能与本仓库之前装的依赖不完全一致。建议你 `cd web-ui && pnpm install` 重新拉一遍。
+
+### 6.6 待办
+
+- [ ] `cd web-ui && pnpm install` 重新拉依赖(锁文件来自 springboot2_TypeScript)
+- [ ] `pnpm dev` 验证启动 + `pnpm build:prod` 验证生产构建
+- [ ] 打开若干 `.vue` 文件,看 `<script setup lang="ts">` 的类型推断是否完整
+- [ ] 调通 admin 登录 → `/getInfo` → 列表查询端到端,看类型不匹配是否报错
+
+---
+
+## 七、运行前 checklist(springboot3 + TS 综合)
+
+- [x] JDK 17 安装
+- [x] Node.js + pnpm(前端)
+- [ ] `cd web-ui && pnpm install` 拉依赖(lock 文件来自 springboot2_TypeScript)
+- [x] 7 个子模块 `parent.version` 一致为 `3.9.2`
+- [x] IDE 工程的 Project SDK 设为 JDK 17,Language level 17
+- [x] `mvn clean compile` 0 ERROR
+- [x] 应用启动成功
+- [ ] 前端 `pnpm dev` 启动成功 + 类型检查通过(`pnpm run type-check` 或 `vue-tsc --noEmit`)

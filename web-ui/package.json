@@ -1,7 +1,7 @@
 {
   "name": "basic-platform-ui",
-  "version": "4.0.0",
-  "description": "基础平台 - RuoYi-Vue3",
+  "version": "3.9.2",
+  "description": "基础平台管理系统",
   "author": "basic",
   "license": "MIT",
   "type": "module",
@@ -34,20 +34,20 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
+    "@vue/tsconfig": "0.5.1",
     "sass-embedded": "1.97.2",
+    "typescript": "5.6.3",
     "unplugin-auto-import": "0.18.6",
     "unplugin-vue-setup-extend-plus": "1.0.1",
     "vite": "6.4.1",
     "vite-plugin-compression": "0.5.1",
-    "vite-plugin-svg-icons": "2.0.1"
+    "vite-plugin-svg-icons": "2.0.1",
+    "vue-tsc": "2.1.10"
   },
   "overrides": {
     "quill": "2.0.2"
   },
   "resolutions": {
     "quill": "2.0.2"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }

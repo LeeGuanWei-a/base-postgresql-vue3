@@ -9,6 +9,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.basic.common.constant.HttpStatus;
 import com.basic.common.core.domain.AjaxResult;
 import com.basic.common.exception.DemoModeException;
@@ -110,5 +111,16 @@ public class GlobalExceptionHandler
     public AjaxResult handleDemoModeException(DemoModeException e)
     {
         return AjaxResult.error("演示模式，不允许操作");
+    }
+
+    /**
+     * 静态资源不存在(Druid 监控页 / favicon / 错地址等),只打 WARN 不打 ERROR,
+     * 返回 404,避免污染日志。
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public AjaxResult handleNoResourceFoundException(NoResourceFoundException e, HttpServletRequest request)
+    {
+        log.warn("静态资源不存在: uri={}, resourcePath={}", request.getRequestURI(), e.getResourcePath());
+        return AjaxResult.error(HttpStatus.NOT_FOUND, "资源不存在: " + request.getRequestURI());
     }
 }

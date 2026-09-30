@@ -99,13 +99,13 @@
   </div>
 </template>
 
-<script setup name="Index">
+<script setup lang="ts" name="Index">
 import { useRouter } from 'vue-router'
 
-const version = ref('4.0.0')
+const version = ref<string>('4.0.0')
 const router = useRouter()
 
-function goRoute(path) {
+function goRoute(path: string): void {
   router.push(path)
 }
 </script>

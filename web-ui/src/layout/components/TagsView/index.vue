@@ -68,23 +68,23 @@
   </div>
 </template>
 
-<script setup>
-import ScrollPane from './ScrollPane'
+<script setup lang="ts">
+import ScrollPane from './ScrollPane.vue'
 import { getNormalPath } from '@/utils/common'
 import useTagsViewStore from '@/store/modules/tagsView'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 
-const visible = ref(false)
-const top = ref(0)
-const left = ref(0)
-const selectedTag = ref({})
-const affixTags = ref([])
-const scrollPaneRef = ref(null)
-const canScrollLeft = ref(false)
-const canScrollRight = ref(false)
-const isFullscreen = ref(false)
-const hiddenElements = ref([])
+const visible = ref<boolean>(false)
+const top = ref<number>(0)
+const left = ref<number>(0)
+const selectedTag = ref<any>({})
+const affixTags = ref<any[]>([])
+const scrollPaneRef = ref<any>(null)
+const canScrollLeft = ref<boolean>(false)
+const canScrollRight = ref<boolean>(false)
+const isFullscreen = ref<boolean>(false)
+const hiddenElements = ref<any>([])
 
 const { proxy } = getCurrentInstance()
 const route = useRoute()
@@ -99,14 +99,14 @@ const tagsViewPersist = computed(() => useSettingsStore().tagsViewPersist)
 const tagsViewStyle = computed(() => useSettingsStore().tagsViewStyle)
 
 // 下拉菜单针对当前激活的 tag
-const selectedDropdownTag = computed(() => visitedViews.value.find(v => isActive(v)) || {})
+const selectedDropdownTag = computed(() => visitedViews.value.find((v: any) => isActive(v)) || {})
 
 watch(route, () => {
   addTags()
   moveToCurrentTag()
 })
 
-watch(visible, (value) => {
+watch(visible, (value: boolean) => {
   if (value) {
     document.body.addEventListener('click', closeMenu)
   } else {
@@ -130,30 +130,30 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeyDown)
 })
 
-function handleKeyDown(event) {
+function handleKeyDown(event: KeyboardEvent): void {
   // 当按下Esc键且处于全屏状态时，退出全屏
   if (event.key === 'Escape' && isFullscreen.value) {
     toggleFullscreen()
   }
 }
 
-function isActive(r) {
+function isActive(r: any): boolean {
   return r.path === route.path
 }
 
-function tagActiveStyle(tag) {
+function tagActiveStyle(tag: any): Record<string, string> {
   if (!isActive(tag) || tagsViewStyle.value !== 'card') return {}
   return {
-    'background-color': theme.value,
-    'border-color': theme.value
+    "background-color": theme.value,
+    "border-color": theme.value
   }
 }
 
-function isAffix(tag) {
+function isAffix(tag: any): boolean {
   return tag && tag.meta && tag.meta.affix
 }
 
-function isFirstView() {
+function isFirstView(): boolean {
   try {
     const tag = selectedTag.value && selectedTag.value.fullPath ? selectedTag.value : selectedDropdownTag.value
     return tag.fullPath === '/index' || tag.fullPath === visitedViews.value[1].fullPath
@@ -162,7 +162,7 @@ function isFirstView() {
   }
 }
 
-function isLastView() {
+function isLastView(): boolean {
   try {
     const tag = selectedTag.value && selectedTag.value.fullPath ? selectedTag.value : selectedDropdownTag.value
     return tag.fullPath === visitedViews.value[visitedViews.value.length - 1].fullPath
@@ -171,8 +171,8 @@ function isLastView() {
   }
 }
 
-function filterAffixTags(routes, basePath = '') {
-  let tags = []
+function filterAffixTags(routes: any[], basePath = ''): any[] {
+  const tags: any[] = []
   routes.forEach(route => {
     if (route.meta && route.meta.affix) {
       const tagPath = getNormalPath(basePath + '/' + route.path)
@@ -186,38 +186,38 @@ function filterAffixTags(routes, basePath = '') {
     if (route.children) {
       const tempTags = filterAffixTags(route.children, route.path)
       if (tempTags.length >= 1) {
-        tags = [...tags, ...tempTags]
+        tags.push(...tempTags)
       }
     }
   })
   return tags
 }
 
-function initTags() {
-  if (tagsViewPersist.value) {
+function initTags(): void {
+  if (tagsViewPersist) {
     useTagsViewStore().loadPersistedViews()
   }
   const res = filterAffixTags(routes.value)
   affixTags.value = res
   for (const tag of res) {
     if (tag.name) {
-      useTagsViewStore().addAffixView(tag)
+       useTagsViewStore().addAffixView(tag)
     }
   }
 }
 
-function addTags() {
+function addTags(): void {
   const { name } = route
   if (name) {
     useTagsViewStore().addView(route)
   }
 }
 
-function moveToCurrentTag() {
+function moveToCurrentTag(): void {
   nextTick(() => {
     for (const r of visitedViews.value) {
       if (r.path === route.path) {
-        scrollPaneRef.value.moveToTarget(r)
+        scrollPaneRef.value?.moveToTarget(r)
         if (r.fullPath !== route.fullPath) {
           useTagsViewStore().updateVisitedView(route)
         }
@@ -226,17 +226,17 @@ function moveToCurrentTag() {
   })
 }
 
-function scrollLeft() {
+function scrollLeft(): void {
   if (!canScrollLeft.value) return
-  scrollPaneRef.value.scrollToStart()
+  scrollPaneRef.value?.scrollToStart()
 }
 
-function scrollRight() {
+function scrollRight(): void {
   if (!canScrollRight.value) return
-  scrollPaneRef.value.scrollToEnd()
+  scrollPaneRef.value?.scrollToEnd()
 }
 
-function updateArrowState() {
+function updateArrowState(): void {
   nextTick(() => {
     if (scrollPaneRef.value) {
       const state = scrollPaneRef.value.getScrollState()
@@ -247,9 +247,9 @@ function updateArrowState() {
 }
 
 function toggleFullscreen() {
-  const mainContainer = document.querySelector('.main-container')
-  const navbar = document.querySelector('.navbar')
-  const sidebar = document.querySelector('.sidebar-container')
+  const mainContainer = document.querySelector('.main-container') as HTMLElement | null
+  const navbar = document.querySelector('.navbar') as HTMLElement | null
+  const sidebar = document.querySelector('.sidebar-container') as HTMLElement | null
   if (!mainContainer) return
 
   if (!isFullscreen.value) {
@@ -267,18 +267,19 @@ function toggleFullscreen() {
   } else {
     mainContainer.classList.remove('fullscreen-mode')
     document.body.style.overflow = ''
-    hiddenElements.value.forEach(item => {
+    hiddenElements.value.forEach((item: any) => {
       if (item.el) {
         item.el.style.display = item.originalDisplay
       }
     })
     hiddenElements.value = []
-    document.querySelector('.tags-action-btn').blur()
+    const tagsBtn = document.querySelector('.tags-action-btn') as HTMLElement | null
+    tagsBtn?.blur()
     isFullscreen.value = false
   }
 }
 
-function handleDropdownCommand(command) {
+function handleDropdownCommand(command: string): void {
   const tag = selectedDropdownTag.value
   selectedTag.value = tag
   switch (command) {
@@ -292,54 +293,54 @@ function handleDropdownCommand(command) {
   }
 }
 
-function refreshSelectedTag(view) {
+function refreshSelectedTag(view: any): void {
   proxy.$tab.refreshPage(view)
   if (route.meta.link) {
     useTagsViewStore().delIframeView(route)
   }
 }
 
-function closeSelectedTag(view) {
-  proxy.$tab.closePage(view).then(({ visitedViews }) => {
+function closeSelectedTag(view: any): void {
+  proxy.$tab.closePage(view).then(({ visitedViews }: any) => {
     if (isActive(view)) {
       toLastView(visitedViews, view)
     }
   })
 }
 
-function closeRightTags() {
-  proxy.$tab.closeRightPage(selectedTag.value).then(visitedViews => {
-    if (!visitedViews.find(i => i.fullPath === route.fullPath)) {
+function closeRightTags(): void {
+  proxy.$tab.closeRightPage(selectedTag.value).then((visitedViews: any) => {
+    if (!visitedViews.find((i: any) => i.fullPath === route.fullPath)) {
       toLastView(visitedViews)
     }
   })
 }
 
-function closeLeftTags() {
-  proxy.$tab.closeLeftPage(selectedTag.value).then(visitedViews => {
-    if (!visitedViews.find(i => i.fullPath === route.fullPath)) {
+function closeLeftTags(): void {
+  proxy.$tab.closeLeftPage(selectedTag.value).then((visitedViews: any) => {
+    if (!visitedViews.find((i: any) => i.fullPath === route.fullPath)) {
       toLastView(visitedViews)
     }
   })
 }
 
-function closeOthersTags() {
+function closeOthersTags(): void {
   router.push(selectedTag.value).catch(() => { })
   proxy.$tab.closeOtherPage(selectedTag.value).then(() => {
     moveToCurrentTag()
   })
 }
 
-function closeAllTags(view) {
-  proxy.$tab.closeAllPage().then(({ visitedViews }) => {
-    if (affixTags.value.some(tag => tag.path === route.path)) {
+function closeAllTags(view: any): void {
+  proxy.$tab.closeAllPage().then(({ visitedViews }: any) => {
+    if (affixTags.value.some((tag: any) => tag.path === route.path)) {
       return
     }
     toLastView(visitedViews, view)
   })
 }
 
-function toLastView(visitedViews, view) {
+function toLastView(visitedViews: any[], view?: any): void {
   const latestView = visitedViews.slice(-1)[0]
   if (latestView) {
     router.push(latestView.fullPath)
@@ -352,18 +353,18 @@ function toLastView(visitedViews, view) {
   }
 }
 
-function openMenu(tag, e) {
+function openMenu(tag: any, e: MouseEvent): void {
   left.value = e.clientX
   top.value = e.clientY
   visible.value = true
   selectedTag.value = tag
 }
 
-function closeMenu() {
+function closeMenu(): void {
   visible.value = false
 }
 
-function handleScroll() {
+function handleScroll(): void {
   closeMenu()
   updateArrowState()
 }
