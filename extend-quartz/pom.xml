@@ -5,7 +5,7 @@
     <parent>
         <artifactId>basic</artifactId>
         <groupId>com.basic</groupId>
-        <version>3.9.2</version>
+        <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,10 +17,10 @@
 
     <dependencies>
 
-        <!-- 定时任务 -->
+        <!-- 定时任务(Spring Boot 4 自动装配 Scheduler Bean,无需再写 ScheduleConfig) -->
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
 
         <!-- 通用工具 -->

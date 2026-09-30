@@ -5,7 +5,7 @@
     <parent>
         <artifactId>basic</artifactId>
         <groupId>com.basic</groupId>
-        <version>3.9.2</version>
+        <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,10 +29,10 @@
             <artifactId>basic-common</artifactId>
         </dependency>
 
-        <!-- 阿里数据库连接池 (Spring Boot 3 专用) -->
+        <!-- 阿里数据库连接池 (Spring Boot 4 专用) -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
     </dependencies>

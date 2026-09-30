@@ -63,7 +63,7 @@ spring:
       webStatFilter:
         enabled: false
       statViewServlet:
-        enabled: false
+        enabled: true
         # 设置白名单，不填则允许所有访问
         allow:
         url-pattern: /druid/*

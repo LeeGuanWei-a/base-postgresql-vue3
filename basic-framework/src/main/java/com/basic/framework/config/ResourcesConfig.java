@@ -14,10 +14,14 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 通用配置
- * 
+ * 通用配置（Spring Boot 4 + Jackson 3）
+ * <p>
+ * BigNumberSerializer/ToStringSerializer 的注册已经拆到 {@link BigNumberModuleConfig}，
+ * 这里只保留 addResourceHandlers / addInterceptors / corsFilter，跟 ruoyi-vue 4.1.0 风格一致。
+ *
  * @author basic
  */
+@SuppressWarnings("deprecation")
 @Configuration
 public class ResourcesConfig implements WebMvcConfigurer
 {

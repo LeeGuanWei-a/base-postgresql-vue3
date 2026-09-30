@@ -1,6 +1,6 @@
 package com.basic.system.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.basic.common.annotation.DataSource;
 import com.basic.common.constant.Constants;
 import com.basic.common.constant.UserConstants;

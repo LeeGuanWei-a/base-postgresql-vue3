@@ -85,7 +85,13 @@ public class TokenService
             }
             catch (Exception e)
             {
-
+                log.error("从 Redis 读取 LoginUser 失败, 自动删除失效 key, error={}", e.getMessage(), e);
+                // 反序列化失败（旧格式数据 / Jackson 升级不兼容），主动删 key，下次请求前端会重登录
+                try {
+                    Claims claims = parseToken(token);
+                    String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
+                    redisCache.deleteObject(getTokenKey(uuid));
+                } catch (Exception ignore) { }
             }
         }
         return null;

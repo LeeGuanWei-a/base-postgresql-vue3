@@ -5,7 +5,7 @@
     <parent>
         <artifactId>basic</artifactId>
         <groupId>com.basic</groupId>
-        <version>3.9.2</version>
+        <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,22 +17,22 @@
 
     <dependencies>
 
-        <!-- SpringBoot Web容器 -->
+        <!-- SpringBoot Web容器 (Spring Boot 4 改名为 webmvc) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
-        <!-- SpringBoot 拦截器 -->
+        <!-- SpringBoot AOP (Spring Boot 4 改名为 aspectj) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
         </dependency>
 
-        <!-- 阿里数据库连接池 (Spring Boot 3 专用) -->
+        <!-- 阿里数据库连接池 (Spring Boot 4 专用) -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
         <!-- 验证码 -->
@@ -57,6 +57,27 @@
         <dependency>
             <groupId>com.basic</groupId>
             <artifactId>basic-admin-core</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus 拦截器主类(MybatisPlusInterceptor / OptimisticLockerInnerInterceptor)
+             在 extension jar 中 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus 3.5.13+ 把 PaginationInnerInterceptor / BlockAttackInnerInterceptor 等
+             移到 jsqlparser 子模块,且官方标为 <optional>true</optional>,不会随 starter 传递 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
+        </dependency>
+
+        <!-- Jackson JSR310(Java 8 时间类型序列化/反序列化),
+             Spring Boot 4.1.1 starter-json 不再默认传递 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
     </dependencies>

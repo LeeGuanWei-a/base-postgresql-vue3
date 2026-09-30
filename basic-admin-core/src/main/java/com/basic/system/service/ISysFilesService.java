@@ -1,6 +1,6 @@
 package com.basic.system.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.basic.system.domain.SysConfig;
 import com.basic.system.domain.SysFiles;
 

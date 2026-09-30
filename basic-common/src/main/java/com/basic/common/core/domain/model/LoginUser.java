@@ -4,6 +4,7 @@ import com.basic.common.core.domain.entity.SysUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -264,6 +265,11 @@ public class LoginUser implements UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        return null;
+        if (permissions == null || permissions.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return permissions.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

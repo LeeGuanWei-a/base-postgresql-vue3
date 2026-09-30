@@ -1,7 +1,7 @@
 package com.core.service.impl;
 
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.core.domain.Demo;
 import com.core.mapper.DemoMapper;
 import com.core.service.DemoService;

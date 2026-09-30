@@ -76,14 +76,22 @@ public class RedisCache
 
     /**
      * 获得缓存的基本对象。
-     *
-     * @param key 缓存键值
-     * @return 缓存键值对应的数据
+     * 反序列化失败时（旧格式 / Jackson 升级不兼容）记录日志并自动删除失效 key，返回 null，
+     * 避免一次脏数据把整条业务请求搞挂。
      */
     public <T> T getCacheObject(final String key)
     {
         ValueOperations<String, T> operation = redisTemplate.opsForValue();
-        return operation.get(key);
+        try {
+            return operation.get(key);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(RedisCache.class)
+                    .error("从 Redis 读取 key={} 失败，自动删除失效 key, error={}", key, e.getMessage());
+            try {
+                redisTemplate.delete(key);
+            } catch (Exception ignore) { }
+            return null;
+        }
     }
 
     /**
