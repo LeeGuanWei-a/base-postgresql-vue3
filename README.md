@@ -14,7 +14,7 @@
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
 - 代码:纯 `.js` / `.vue`,**无 `typescript` 依赖**(package.json 不含 `typescript`)
-- 仓库另有 **TypeScript 版**前端(在 `D:\idea\agent-keycloak\` 其他子目录),本次升级**未涉及**
+- 仓库另有 **TypeScript 版**前端,本次升级**未涉及**
 
 > 如果你看到的是 TS 版的代码,可能拉错分支/目录;本 README 仅描述当前仓库的 JS 版。
 
@@ -354,7 +354,7 @@ public class BigNumberModuleConfig {
 
 ## 七、对照参考:本地 RuoYi-Vue 4.1.0
 
-`D:\idea\agent-keycloak\RuoYi-Vue` 是若依官方 SB 4.1.0 master 源码,作为本次升级的**第一参考**。
+`RuoYi-Vue` 是若依官方 SB 4.1.0 master 源码,作为本次升级的**第一参考**。
 
 | 关注点 | 若依 4.1.0 真实做法 | 本项目最终做法 | 一致? |
 |---|---|---|---|
@@ -395,17 +395,12 @@ public class BigNumberModuleConfig {
 
 ## 九、运行前 checklist
 
-- [x] JDK 21 安装(JetBrains Runtime 21.0.9 在 `C:\Users\admin\.jdks\ms-21.0.9`)
-- [x] Maven 用 `D:\MavenRepository5` 本地仓库(`C:\Users\admin\.m2\settings.xml` 固定)
+- [x] JDK 21 安装
 - [x] 7 个子模块 `parent.version` 一致为 `4.0.0`
 - [x] IDE 工程的 Project SDK 设为 JDK 21,Language level 21
 - [x] `mvn clean compile` 0 ERROR
 - [x] `mvn package -DskipTests` 0 ERROR
 - [x] 应用启动成功(`(♥◠‿◠)ﾉﾞ  基础平台启动成功`)
-- [x] admin/admin123 登录成功
-- [x] `/getInfo` 200
-- [x] `/monitor/online/list` 在线用户列表正常
-- [x] `/druid/login.html` 监控页可达(账号 `basic` / 密码 `123456`)
 
 ---
 
