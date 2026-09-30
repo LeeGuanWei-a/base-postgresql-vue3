@@ -376,3 +376,128 @@ src/types/
 - [x] `mvn clean compile` 0 ERROR
 - [x] 应用启动成功
 - [ ] 前端 `pnpm dev` 启动成功 + 类型检查通过(`pnpm run type-check` 或 `vue-tsc --noEmit`)
+
+---
+
+## 八、数据库脚本 (`file-sql/basicdb-vue3.sql`)
+
+> 本分支运行所需的 **PostgreSQL 全库结构 + 初始化数据** 都在 `file-sql/basicdb-vue3.sql`。
+> 其它 `file-sql/*.sql` 是历史中间产物,本分支**不直接使用**;真正要执行的就是这一个。
+
+### 8.1 脚本基本信息
+
+| 项 | 值 |
+|---|---|
+| 文件路径 | `file-sql/basicdb-vue3.sql` |
+| 来源 | `pg_dump` 导出(导出自 PostgreSQL 15.1,导出工具 pg_dump 17.0) |
+| 数据库角色 | 所有对象 `OWNER TO system`(导入前**必须**先有 `system` 角色) |
+| Schema | `basicdb`(脚本里所有表/函数/序列都在该 schema 下) |
+| 表数量 | **34 张**(`gen_*` 2 + `qrtz_*` 11 + `sys_*` 21) |
+| 函数数量 | 5 个(`date_format` / `exec` / `find_in_set` / `ifnull` / `tabledef`) |
+| 数据加载方式 | `COPY ... FROM stdin;`(原生 psql `\copy` 流式导入,**不**走 `INSERT`) |
+| PostgreSQL 要求 | **>= 15.1** |
+
+### 8.2 表清单(共 34 张,均位于 `basicdb` schema)
+
+#### 代码生成(`gen_*`,2 张)
+
+| 表 | 用途 |
+|---|---|
+| `gen_table` | 代码生成业务表配置 |
+| `gen_table_column` | 代码生成字段配置 |
+
+#### 定时任务(`qrtz_*`,11 张)
+
+`qrtz_blob_triggers` / `qrtz_calendars` / `qrtz_cron_triggers` / `qrtz_fired_triggers` /
+`qrtz_job_details` / `qrtz_locks` / `qrtz_paused_trigger_grps` / `qrtz_scheduler_state` /
+`qrtz_simple_triggers` / `qrtz_simprop_triggers` / `qrtz_triggers`
+
+#### 业务系统(`sys_*`,21 张)
+
+| 表 | 用途 |
+|---|---|
+| `sys_config` | 全局参数 |
+| `sys_demo` | 演示样例 |
+| `sys_dept` | 部门 |
+| `sys_dict_data` | 字典值 |
+| `sys_dict_type` | 字典类型 |
+| `sys_files` | 文件 |
+| `sys_i18n` | 国际化文案 |
+| `sys_job` | 定时任务 |
+| `sys_job_log` | 定时任务日志 |
+| `sys_logininfor` | 登录日志 |
+| `sys_menu` | 菜单(含 `is_resource` / `show_tags` / `menu_name_en` / `menu_name_zh_hant` 等扩展列) |
+| `sys_notice` | 通知公告 |
+| `sys_oper_log` | 操作日志 |
+| `sys_post` | 岗位 |
+| `sys_role` | 角色 |
+| `sys_role_dept` | 角色-部门关联 |
+| `sys_role_menu` | 角色-菜单关联 |
+| `sys_sms_message` | 短信发送记录 |
+| `sys_user` | 用户 |
+| `sys_user_post` | 用户-岗位关联 |
+| `sys_user_role` | 用户-角色关联 |
+
+### 8.3 恢复步骤(全新数据库)
+
+```bash
+# 1) 建 system 角色和 basicdb 库(SQL 脚本本身不建角色,必须先建好)
+psql -U postgres -h localhost -c "CREATE ROLE system LOGIN PASSWORD 'system';"
+psql -U postgres -h localhost -c "CREATE DATABASE basicdb OWNER system;"
+
+# 2) 导入 schema + 数据
+psql -U system -h localhost -d basicdb -f file-sql/basicdb-vue3.sql
+
+# 3) 验证(应返回 34)
+psql -U system -h localhost -d basicdb -c \
+  "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb';"
+```
+
+### 8.4 重新备份成同款脚本
+
+```bash
+pg_dump -U system -h localhost -d basicdb \
+  --schema=basicdb --no-owner --no-privileges \
+  --file=file-sql/basicdb-vue3.sql
+```
+
+- 加 `--no-owner --no-privileges` 后,导出的脚本**不再**带 `OWNER TO system`、可移植到任意环境。
+- 不加这两个开关,导出结果与本仓库现存的 `basicdb-vue3.sql` 格式一致。
+- 脚本里所有 `data` 段都用了 `COPY ... FROM stdin;`,导入端必须用 `psql`。
+
+### 8.5 默认账号
+
+| 用户名 | 密码(明文) | 备注 |
+|---|---|---|
+| `admin` | `admin123` | 超级管理员,登录后请立刻改密 |
+
+要重置可执行同目录的 `reset-admin-password.sql`。
+
+### 8.6 与应用连接配置
+
+```yaml
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb
+    username: system
+    password: system
+```
+
+> `currentSchema=basicdb` 必须加,否则 MyBatis 找不到 `sys_user` / `sys_menu` 等表
+> (脚本里所有表都建在 `basicdb` schema 下,不是 `public`)。
+
+### 8.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
+
+| 文件 | 角色 |
+|---|---|
+| `basic-sql-2023-03-02.sql` | 早期 MySQL 5.7 全库脚本,**非 PostgreSQL**,本分支不要混用 |
+| `quartz.sql` | 单独的 Quartz 建表脚本,**已被 `basicdb-vue3.sql` 内置的 11 张 `qrtz_*` 表覆盖** |
+| `ry_20210908.sql` | RuoYi 3.8.2 原始 MySQL 全库脚本,**非 PostgreSQL**,对照用 |
+| `reset-admin-password.sql` | 把 `admin` 密码重置回 `admin123` 的小工具,按需手动跑 |
+| `reset-all-passwords.sql` | 把**所有**用户密码统一重置回默认的小工具,慎用 |
+| `fix-sys-menu-component.sql` | 修 `sys_menu.component` 路径里 `system` 写错的,按需手动跑 |
+| `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
+
+> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了。**
