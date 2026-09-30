@@ -1,1 +1,177 @@
-springboot2+vue3+elementplus,ts版本
+# Basic Admin (Spring Boot 2.5.14 + Vue 3 + Element Plus + TypeScript)
+
+基于若依 RuoYi-Vue 3.8.2 改造,在 `first commit` 基础上**只做了前端 JS → TS 改造**,**后端没动**(仍是 Spring Boot 2.5.14 + JDK 11)。
+
+> 本分支 `TypeScript` 对应 commit `e10e3ca 前端`(`5b344b7 first commit` 的 JS 版本基础上,加 commit `567b5a5 前端替换成ts` 和后续的 `e10e3ca 前端` 微调)。
+>
+> 仓库另有 `springboot3` / `springboot4` 分支,后端升级到 SB 3.5.16 / SB 4.1.1,**与本分支无关**。
+
+---
+
+## 前端说明
+
+本仓库前端为 **TypeScript 版**:
+
+- 框架:Vue 3.5.26 + Element Plus 2.13.1
+- 构建:Vite 6.4.1
+- 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
+- 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
+- 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
+
+> 仓库另有 `springboot3` / `springboot4` 分支,前端是 **JavaScript 版**(`package.json` 不含 `typescript`),本分支**未涉及**。
+
+---
+
+## 一、当前后端状态(基于 `git show HEAD:pom.xml`)
+
+> 本分支**后端没升级**。基于若依 RuoYi-Vue 3.8.2 原始 SB 2.x 配置。
+
+| 组件 | 版本 |
+|---|---|
+| **JDK** | **11** |
+| Spring Boot | **2.5.14** |
+| Spring Framework | 5.3.x |
+| Spring Security | 5.5.x |
+| MyBatis-Plus | 3.5.1 |
+| Druid | 1.2.8(`druid-spring-boot-starter`,无 `-3-` 写法) |
+| PageHelper | 1.4.1 |
+| swagger | springfox 3.0.0 |
+| Hutool | hutool-bom 5.8.3(bom 模式) |
+| bitwalker | 1.21(用户代理字符串解析) |
+| kaptcha | 2.3.2 |
+| poi | 4.1.2 |
+| commons-io | 2.11.0 |
+| oshi | 6.1.6 |
+| jakarta.servlet | (用 javax.servlet) |
+
+---
+
+## 二、git 历史(5 个 commit)
+
+```
+e10e3ca  前端                       ← 当前 HEAD
+1a06798  md                         ← README
+14b851a  修复sql bug,锁屏解锁功能
+567b5a5  前端替换成ts               ← 本次 TS 化主 commit
+5b344b7  first commit               ← 若依 RuoYi 3.8.2 原始
+```
+
+---
+
+## 三、前端 JS → TS 改造详情(基于 `git show 567b5a5` 和 `e10e3ca`)
+
+### 3.1 主 commit `567b5a5 前端替换成ts`
+
+把 `web-ui/src/api/**` 下所有 `*.js` 改名为 `*.ts`,并加 `types/` 目录。
+
+| 旧文件 | 新文件 | 内容 |
+|---|---|---|
+| `src/api/login.js` | `src/api/login.ts` | 登录 / 注销 / 获取用户信息 |
+| `src/api/menu.js` | `src/api/menu.ts` | 获取路由菜单 |
+| `src/api/monitor/cache.js` | `src/api/monitor/cache.ts` | 缓存监控 |
+| `src/api/monitor/job.js` | `src/api/monitor/job.ts` | 定时任务 |
+| `src/api/monitor/jobLog.js` | `src/api/monitor/jobLog.ts` | 任务日志 |
+| `src/api/monitor/online.js` | `src/api/monitor/online.ts` | 在线用户 |
+| `src/api/monitor/operlog.js` | `src/api/monitor/operlog.ts` | 操作日志 |
+| `src/api/monitor/server.js` | `src/api/monitor/server.ts` | 服务器监控 |
+| `src/api/system/config.js` | `src/api/system/config.ts` | 参数配置 |
+| `src/api/system/dept.js` | `src/api/system/dept.ts` | 部门管理 |
+| `src/api/system/dict/data.js` | `src/api/system/dict/data.ts` | 字典数据 |
+| `src/api/system/dict/type.js` | `src/api/system/dict/type.ts` | 字典类型 |
+| `src/api/system/menu.js` | `src/api/system/menu.ts` | 菜单管理 |
+| `src/api/system/notice.js` | `src/api/system/notice.ts` | 通知公告 |
+| `src/api/system/post.js` | `src/api/system/post.ts` | 岗位管理 |
+| `src/api/system/role.js` | `src/api/system/role.ts` | 角色管理 |
+| `src/api/system/user.js` | `src/api/system/user.ts` | 用户管理 |
+| `src/api/tool/gen.js` | `src/api/tool/gen.ts` | 代码生成 |
+
+`src/utils/auth.ts` 也被改写(从 `.js` 转 `.ts`)。
+
+### 3.2 新增 `web-ui/src/types/` 目录(全量 TypeScript 类型)
+
+```
+src/types/
+├── api/
+│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
+│   ├── index.ts
+│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
+│   ├── menu.ts
+│   ├── monitor/
+│   │   ├── cache.ts
+│   │   ├── job.ts
+│   │   ├── jobLog.ts
+│   │   ├── logininfor.ts
+│   │   ├── online.ts
+│   │   └── operlog.ts
+│   ├── system/
+│   │   ├── config.ts
+│   │   ├── dept.ts
+│   │   ├── dict.ts
+│   │   ├── menu.ts
+│   │   ├── notice.ts
+│   │   ├── post.ts
+│   │   ├── role.ts
+│   │   └── user.ts
+│   └── tool/
+│       └── gen.ts
+├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 的自动生成
+├── global.d.ts          ← 全局 window / module 声明
+└── index.ts             ← 类型统一出口
+```
+
+每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
+
+### 3.3 `package.json` 新增依赖
+
+```json
+{
+  "devDependencies": {
+    "@vue/tsconfig": "0.5.1",      // Vue 3 推荐 tsconfig 基础
+    "typescript": "5.6.3",          // TS 编译器
+    "vue-tsc": "2.1.10"             // .vue 文件的类型检查(走 tsc 也能过 .ts)
+  }
+}
+```
+
+> 注意:Spring Boot 2 时代的 JS 版分支,后端是 SB 2.5.14,所以 `package.json` 里的 `devDependencies` **没动**到与 SB 相关的部分(只是加了 TS 工具链)。
+
+### 3.4 后续 commit `e10e3ca 前端`
+
+在 `567b5a5` 基础上又做了一次小调整:
+- `web-ui/.env.development` / `.env.staging`:Vite 环境变量
+- `web-ui/.gitignore` / `web-ui/.npmrc`:Node 工程配置
+- `web-ui/src/App.vue`:根组件微调
+- `web-ui/src/assets/images/pay.png`:新增 140 KB 图片(可能是支付二维码)
+- `web-ui/README.md`:**删除**(原 web-ui 自己的 README 删了,改用根目录 README)
+
+> 这个 commit 主要补一些环境配置和图片,跟 TS 化**没直接关系**。
+
+### 3.5 后端代码改动
+
+> 本分支**后端没动**(仍 SB 2.5.14 + JDK 11 + JS 化之前的原始版本)。
+
+仅 `SysLoginController.java` / `SysDeptMapper.java` / `SysMenuMapper.java` 在 commit `14b851a 修复sql bug,锁屏解锁功能` 中改过,**但那是 SB 2.5.14 时代的事**。
+
+---
+
+## 四、运行前 checklist
+
+- [x] JDK 11 安装
+- [x] Maven 用 `D:\MavenRepository5` 本地仓库
+- [x] Node.js + pnpm(前端用)
+- [x] `cd web-ui && pnpm install && pnpm dev` 启动前端
+- [x] 后端 mvn 启动(SB 2.5.14 时代,默认 `8080` 端口)
+- [x] 前端通过 Vite 代理访问后端(`vite.config.ts` 配 `proxy`)
+
+---
+
+## 五、未做 / 后续可优化
+
+> 这些是**本分支没做**的,如果想继续演进,可以参考 `springboot3` / `springboot4` 分支的 diff。
+
+- [ ] 后端 SB 2.5.14 → 3.5.16(见 `springboot3` 分支 README)
+- [ ] 后端 SB 3.5.16 → 4.1.1(见 `springboot4` 分支 README)
+- [ ] 前端如果从 TS 改成 `<script setup lang="ts">` 全量 Composition API 风格(本分支只换了 `.js` → `.ts`,业务代码 `<script>` 风格没全部改)
+- [ ] `tsconfig.json` 严格度调高(`strict: true` 开启后会有大量 `any` 报错需要修)
+- [ ] Pinia store / Router / Axios 二次封装的类型补全(目前 `src/store/modules/app.ts` 已有,其他 store 待补)
+- [ ] `vite.config.ts` 配 proxy 时硬编码了 IP,改用环境变量
