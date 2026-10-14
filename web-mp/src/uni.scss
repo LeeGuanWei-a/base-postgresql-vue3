@@ -1,0 +1,36 @@
+/* uview-plus 3 主题变量（必须先引入，后面所有 .vue / .scss 才能用 $u-* 变量） */
+@import 'uview-plus/theme.scss';
+
+/* uview-plus 3 全局样式（按钮、单元格、图标、tag、avatar 等所有组件的默认样式）——
+   在 App.vue 里 @import，因为 uni.scss 在 vite-vue 编译时不一定注入 */
+
+/* uview-plus 也用 $uni-* 这套 uniapp 系统变量，下面手动对齐。 */
+$uni-color-primary: #4368e3;
+$uni-color-success: #19be6b;
+$uni-color-warning: #ff9900;
+$uni-color-error: #ed3f14;
+
+$uni-text-color: #303133;
+$uni-text-color-inverse: #fff;
+$uni-text-color-grey: #909399;
+$uni-text-color-placeholder: #c0c4cc;
+$uni-text-color-disable: #c0c4cc;
+
+$uni-bg-color: #ffffff;
+$uni-bg-color-grey: #f8f8f8;
+$uni-bg-color-hover: #f1f1f1;
+$uni-bg-color-mask: rgba(0, 0, 0, 0.4);
+
+$uni-border-color: #ebeef5;
+
+$uni-font-size-sm: 24rpx;
+$uni-font-size-base: 28rpx;
+$uni-font-size-lg: 32rpx;
+
+$uni-spacing-row-sm: 10rpx;
+$uni-spacing-row-base: 20rpx;
+$uni-spacing-row-lg: 30rpx;
+
+$uni-spacing-col-sm: 8rpx;
+$uni-spacing-col-base: 16rpx;
+$uni-spacing-col-lg: 24rpx;
