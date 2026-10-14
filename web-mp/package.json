@@ -1,0 +1,52 @@
+{
+  "name": "basic-platform-mp",
+  "version": "1.0.0",
+  "description": "基础平台 - 移动端 (Vue3 + uview-plus 3 + uniapp 3, TypeScript)",
+  "private": true,
+  "scripts": {
+    "sync": "node ./sync-config.cjs",
+    "fixup:mp": "node ./scripts/fixup-mp-components.cjs",
+    "fixup:mp:watch": "node ./scripts/fixup-mp-components.cjs --watch",
+    "predev:h5": "npm run sync",
+    "prebuild:h5": "npm run sync",
+    "predev:mp-weixin": "npm run sync && node -e \"const{spawn}=require('child_process');const p=spawn('node',['./scripts/fixup-mp-components.cjs','--watch'],{detached:true,stdio:'ignore',cwd:process.cwd()});p.unref();\"",
+    "prebuild:mp-weixin": "npm run sync",
+    "predev:app": "npm run sync",
+    "prebuild:app": "npm run sync",
+    "postdev:mp-weixin": "npm run fixup:mp",
+    "postbuild:mp-weixin": "npm run fixup:mp",
+    "dev:h5": "uni",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "dev:app": "uni -p app",
+    "build:h5": "uni build",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "build:app": "uni build -p app",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-4060620250520001",
+    "@dcloudio/uni-app-harmony": "3.0.0-4060620250520001",
+    "@dcloudio/uni-app-plus": "3.0.0-4060620250520001",
+    "@dcloudio/uni-components": "3.0.0-4060620250520001",
+    "@dcloudio/uni-h5": "3.0.0-4060620250520001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-4060620250520001",
+    "clipboard": "^2.0.11",
+    "dayjs": "^1.11.23",
+    "jsencrypt": "^3.5.4",
+    "pinia": "2.0.36",
+    "uview-plus": "3.3.62",
+    "vue": "3.4.21",
+    "vue-i18n": "9.13.1"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-automator": "3.0.0-4060620250520001",
+    "@dcloudio/uni-cli-shared": "3.0.0-4060620250520001",
+    "@dcloudio/uni-stacktracey": "3.0.0-4060620250520001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-4060620250520001",
+    "@types/node": "^20.11.0",
+    "sass": "1.77.6",
+    "typescript": "^5.4.5",
+    "vite": "5.2.8",
+    "vue-tsc": "^2.0.19"
+  }
+}
