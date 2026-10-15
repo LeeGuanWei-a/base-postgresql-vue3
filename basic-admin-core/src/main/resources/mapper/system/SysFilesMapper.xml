@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.basic.system.mapper.SysFilesMapper">
-    
+
+    <select id="getListByProcessInstanceId" resultType="com.basic.system.domain.SysFiles">
+        SELECT * FROM sys_files
+        WHERE is_del = '0' AND process_instance_id = #{processInstanceId}
+    </select>
+
+    <select id="getFilesByAbsolutePath" resultType="com.basic.system.domain.SysFiles">
+        SELECT * FROM sys_files
+        WHERE absolute_path = #{absolutePath} AND is_del = '0'
+    </select>
 
 </mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false">
+    <defaultCache eternal="true" maxElementsInMemory="100" overflowToDisk="true"/>
+    <cache name="flowable-deployment-cache" eternal="true" maxElementsInMemory="100" overflowToDisk="true"/>
+    <cache name="flowable-process-definition-cache" eternal="true" maxElementsInMemory="100" overflowToDisk="true"/>
+    <cache name="flowable-bpmn-model-cache" eternal="true" maxElementsInMemory="100" overflowToDisk="true"/>
+</ehcache>

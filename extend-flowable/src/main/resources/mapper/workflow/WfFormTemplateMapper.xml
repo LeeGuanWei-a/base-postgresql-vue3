@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfFormTemplateMapper">
+
+    <resultMap type="com.basic.workflow.domain.WfFormTemplate" id="WfFormTemplateResult">
+        <result property="formId" column="form_id"/>
+        <result property="formName" column="form_name"/>
+        <result property="imgUrl" column="img_url"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!--    查询表单模板列表-->
+    <select id="selectFormTemplateVoList" resultType="com.basic.workflow.domain.vo.WfFormTemplateVo">
+        SELECT
+        wft.form_id AS formId,
+        wft.form_name AS formName,
+        wft.content AS content,
+        wft.img_url AS imgUrl,
+        su.nick_name as createName,
+        wft.update_by as updateBy,
+        wft.update_time as updateTime,
+        wft.create_time as createTime,
+        wft.create_by as createBy
+        FROM wf_form_template wft
+        LEFT JOIN sys_user su on wft.create_by = su.user_name
+        <where>
+            wft.del_flag ='0'
+            <if test="formName != null and formName != ''">and wft.form_name like '%' || #{formName}
+              || '%'
+            </if>
+        </where>
+        order by wft.create_time desc
+    </select>
+</mapper>

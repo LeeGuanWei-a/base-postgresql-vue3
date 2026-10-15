@@ -80,6 +80,12 @@
             <artifactId>business-core</artifactId>
         </dependency>
 
+        <!-- 流程引擎模块（基于 Flowable 6.8.0） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>extend-flowable</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

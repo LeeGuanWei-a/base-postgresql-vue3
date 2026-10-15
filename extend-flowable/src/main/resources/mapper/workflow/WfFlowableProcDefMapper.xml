@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.basic.workflow.mapper.WfFlowableProcDefMapper">
+  <!--    查询流程定义-->
+  <select id="selectProcDefByModelKey" resultType="java.util.Map">
+    SELECT RES.*
+    from ACT_RE_PROCDEF RES
+    WHERE RES.VERSION_ = (select max(VERSION_)
+    from ACT_RE_PROCDEF
+    where KEY_ = RES.KEY_)
+    <if test="processDefinitionKey!=null and processDefinitionKey!=''">and RES.KEY_
+      =#{processDefinitionKey}
+    </if>
+    limit 1
+  </select>
+</mapper>

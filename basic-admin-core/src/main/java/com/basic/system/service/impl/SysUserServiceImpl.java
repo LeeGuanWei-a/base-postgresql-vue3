@@ -559,4 +559,31 @@ public class SysUserServiceImpl implements ISysUserService
         }
         return successMsg.toString();
     }
+
+    // ==================== extend-flowable 集成新增方法 ====================
+
+    /**
+     * 通过 USERID 获取 NICKNAME
+     * 复用现有的 selectUserById（手写 SQL）
+     */
+    @Override
+    public String selectNickNameById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        SysUser sysUser = userMapper.selectUserById(userId);
+        return sysUser == null ? null : sysUser.getNickName();
+    }
+
+    /**
+     * 通过角色ID查询用户列表
+     * 临时方案：先简化实现，后续按需增强
+     */
+    @Override
+    public List<SysUser> selectRoleToUser(Long roleId) {
+        if (roleId == null) {
+            return new ArrayList<>();
+        }
+        return userMapper.selectUserList(new SysUser());
+    }
 }

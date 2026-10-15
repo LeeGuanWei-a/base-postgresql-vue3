@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfFormCategoryMapper">
+
+    <resultMap type="com.basic.workflow.domain.WfFormCategory" id="WfFormCategoryResult">
+        <result property="id" column="id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="parent" column="parent"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <!--    查询自定义表单的分类-->
+    <select id="selectWfFormCategoryList" resultType="com.basic.workflow.domain.WfFormCategory">
+        SELECT
+            id,
+            category_name,
+            parent
+        FROM wf_form_category
+        <where>
+            <if test="parent != null and parent != ''">and parent = #{parent}</if>
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

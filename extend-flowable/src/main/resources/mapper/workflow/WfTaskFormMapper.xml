@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.basic.workflow.mapper.WfTaskFormMapper">
+  <!--    根据任务taskid获取所有的表单内容-->
+  <select id="selectFormJsonDataByTaskIdAndActIdToList"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+    from wf_task_form
+    where task_id = #{taskId}
+      and activity_id = #{activityId}
+  </select>
+  <!--(根据procInsId和actId查找流程表单dataList)-->
+  <select id="selectFormJsonDataByProcInsIdAndActIdToList"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+      and activity_id = #{activityId}
+  </select>
+  <!--    根据实例id查询流程审批表单data-->
+  <select id="selectFormDataByProcInsIdToList" resultType="com.basic.workflow.domain.WfTaskForm">
+    select
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+  </select>
+  <!--    查询保险单编号、借款合同编号的所有数据（process 业务专用，stub 化）-->
+  <select id="selectGuaranteeContractNoAndLoanContractNo"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    SELECT NULL AS "id", NULL AS "formId", NULL AS "procInsId", NULL AS "taskId",
+           NULL AS "activityId", NULL AS "userId", NULL AS "formContent",
+           f.field AS "field", f.field_value AS "fieldValue",
+           f.create_by AS "createBy", f.create_time AS "createTime",
+           f.update_by AS "updateBy", f.update_time AS "updateTime"
+    FROM wf_task_form f
+    WHERE f.field IN ('guaranteeContractNo', 'loanContractNo')
+  </select>
+  <!--    查询字段详情-->
+  <select id="selectTaskFormInfo" resultType="com.basic.workflow.domain.WfTaskForm">
+    select
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+    from wf_task_form
+    <where>
+      <if test="activityId!=null and activityId!=''">and activity_id=#{activityId}</if>
+      <if test="field!=null and field!=''">and field=#{field}</if>
+      <if test="procInsId!=null and procInsId!=''">and proc_ins_id=#{procInsId}</if>
+    </where>
+  </select>
+  <!--  根据实例id和actid获取表单json-->
+  <select id="selectFormJsonByProcInsIdAndActId"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+      and activity_id = #{activityId}
+  </select>
+  <!--  根据字段值和字段名，节点获取信息，主要获取的是实例id-->
+  <select id="selectFormDataByFieldAndFieldValueAndActId" resultType="com.basic.workflow.domain.WfTaskForm">
+      select
+          id              AS "id",
+          form_id         AS "formId",
+          proc_ins_id     AS "procInsId",
+          task_id         AS "taskId",
+          activity_id     AS "activityId",
+          user_id         AS "userId",
+          form_content    AS "formContent",
+          field           AS "field",
+          field_value     AS "fieldValue",
+          create_by       AS "createBy",
+          create_time     AS "createTime",
+          update_by       AS "updateBy",
+          update_time     AS "updateTime"
+      from wf_task_form
+      where field=#{field} and field_value =#{fieldValue}
+      and activity_id in
+      <foreach collection="activityIdList" item="actId" separator="," open="(" close=")">
+          #{actId}
+      </foreach>
+      limit 1
+  </select>
+</mapper>

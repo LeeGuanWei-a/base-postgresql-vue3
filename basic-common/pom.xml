@@ -59,11 +59,12 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- 阿里JSON解析器 -->
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba.fastjson2</groupId>-->
-<!--            <artifactId>fastjson2</artifactId>-->
-<!--        </dependency>-->
+        <!-- 阿里JSON解析器（与 process/extend-flowable 保持一致，使用 fastjson 1.x） -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
 
 
         <!-- io常用工具类 -->

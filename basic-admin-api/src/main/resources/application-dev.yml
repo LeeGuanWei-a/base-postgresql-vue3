@@ -29,7 +29,7 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:postgresql://192.168.170.125:54321/basicdb-vue3?useSSL=false&currentSchema=basicdb
+        url: jdbc:postgresql://192.168.170.125:54321/basicdb-vue3?useSSL=false&currentSchema=basicdb_flowable
         username: system
         password: '12354'
         validationQuery: SELECT 1

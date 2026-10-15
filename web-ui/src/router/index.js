@@ -89,6 +89,76 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  // ==================== 工作流 hidden 路由（操作型页面，不在侧边栏显示）====================
+  {
+    path: '/workflow/category/dataForm',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/category/dataForm'),
+        name: 'WfCategoryForm',
+        meta: { title: '流程分类表单', activeMenu: '/workflow/category' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/model/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/model/design'),
+        name: 'WfModelDesign',
+        meta: { title: '流程设计器', activeMenu: '/workflow/model' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/process/start',
+    component: Layout,
+    // 兼容两种访问方式：
+    // 1) 从「流程模型」列表点「发起」按钮进入（隐藏路由，activeMenu 指向 /workflow/model）
+    // 2) 直接点左侧菜单「测试启动流程」进入（独立菜单项，由后端菜单数据驱动）
+    // activeMenu 留空，让前端按实际路由路径自动匹配高亮
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/process/start'),
+        name: 'WfProcessStart',
+        meta: { title: '测试启动流程', activeMenu: '' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/process/detail',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/process/detail'),
+        name: 'WfProcessDetail',
+        meta: { title: '流程详情', activeMenu: '/workflow/task/todo' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/form/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/form/design'),
+        name: 'WfFormDesign',
+        meta: { title: '表单设计器', activeMenu: '/workflow/form' }
+      }
+    ]
   }
 ]
 

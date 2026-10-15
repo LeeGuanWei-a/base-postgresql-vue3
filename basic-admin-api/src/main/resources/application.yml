@@ -18,6 +18,11 @@ server:
 
 # Spring配置
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  cache:
+    ehcache:
+      config: classpath:/ehcache/flow-ehcache.xml
   # 资源信息
   messages:
     # 国际化资源文件路径
@@ -70,8 +75,12 @@ mybatis-plus:
   # 搜索指定包别名
   typeAliasesPackage: com.basic.**.domain, com.core.**.domain, com.core.domain
   # 配置mapper的扫描，找到所有的mapper.xml映射文件
-  mapperLocations: classpath*:mapper/**/*Mapper.xml,classpath*:mapper/*Mapper.xml
-  # 加载全局的配置文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml,classpath:/META-INF/flow-mybatis-mappings/*/xml/*.xml,classpath:/META-INF/modeler-mybatis-mappings/*.xml
+  # 加载全局的配置文件（Flowable Modeler XML 引用 ${blobType} / ${boolValue}）
+  configuration-properties:
+    blobType: BLOB
+    boolValue: TRUE
+    prefix:
 #  configLocation: classpath:mybatis/mybatis-config.xml
   global-config:
     db-config:
@@ -129,3 +138,18 @@ management:
       exposure:
         include: "shutdown"
       base-path: /monito
+
+# Flowable 配置
+flowable:
+  # 异步执行器开启
+  async-executor-activate: true
+  # 库与数据库表结构不一致时，会自动将数据库表结构升级至新版本
+  database-schema-update: true
+  idm:
+    enabled: false
+  common:
+    app:
+      idm-admin:
+        password: test
+        user: test
+      idm-url: http://localhost:8080/flowable-demo

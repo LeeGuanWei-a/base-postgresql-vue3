@@ -7,6 +7,11 @@ import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import locale from 'element-plus/es/locale/lang/zh-cn'
 
+// 表单设计器 vform3（vue3 + element-plus 版）。
+// 样式需在 element-plus 之后引入，以保证其组件样式优先级正确。
+import VForm3 from 'vform3-builds'
+import 'vform3-builds/dist/designer.style.css'
+
 import '@/assets/styles/index.scss' // global css
 
 import App from './App'
@@ -80,5 +85,8 @@ app.use(ElementPlus, {
   // 支持 large、default、small
   size: Cookies.get('size') || 'default'
 })
+
+// 表单设计器（vform3）：须在 ElementPlus 之后注册，其内部组件依赖 element-plus
+app.use(VForm3)
 
 app.mount('#app')

@@ -42,6 +42,29 @@ public class SysFiles extends BaseEntity
     @Excel(name = "删除标识")
     private String isDel="0";
 
+    /** 任务id */
+    @Excel(name = "任务id")
+    private String taskId;
+
+    /** 流程实例id */
+    @Excel(name = "流程实例id")
+    private String processInstanceId;
+
+    /** 上传人id */
+    private Long userId;
+
+    /** 上传人name */
+    private String nickName;
+
+    /** 对应model模块 */
+    private String activityId;
+
+    /** 访问URL */
+    private String url;
+
+    /** 上传类型：1 受限 2 公开 */
+    private String uploadType;
+
     /** 备注 */
     private String remark;
 
@@ -107,6 +130,62 @@ public class SysFiles extends BaseEntity
     public String getIsDel()
     {
         return isDel;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getActivityId() {
+        return activityId;
+    }
+
+    public void setActivityId(String activityId) {
+        this.activityId = activityId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUploadType() {
+        return uploadType;
+    }
+
+    public void setUploadType(String uploadType) {
+        this.uploadType = uploadType;
     }
 
     public String getRemark() {

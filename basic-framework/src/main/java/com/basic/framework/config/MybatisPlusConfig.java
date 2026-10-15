@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -58,5 +61,14 @@ public class MybatisPlusConfig {
     public BlockAttackInnerInterceptor blockAttackInnerInterceptor()
     {
         return new BlockAttackInnerInterceptor();
+    }
+
+    /**
+     * 为 Flowable Modeler 提供独立的 SqlSessionTemplate（process 同款）
+     */
+    @Bean(destroyMethod = "clearCache")
+    @Qualifier("flowableModeler")
+    public SqlSessionTemplate modelerSqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionTemplate(sqlSessionFactory);
     }
 }

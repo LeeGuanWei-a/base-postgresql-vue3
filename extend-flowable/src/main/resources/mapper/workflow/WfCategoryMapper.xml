@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfCategoryMapper">
+
+    <resultMap type="com.basic.workflow.domain.WfCategory" id="FlowCategoryResult">
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="code" column="code"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="parent" column="parent"/>
+        <result property="url" column="url"/>
+    </resultMap>
+    <!--    修改流程分类-->
+    <update id="updateCategory">
+        update wf_category
+        <set>
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            <if test="parent != null and parent != ''">parent = #{parent},</if>
+            <if test="url != null and url != ''">url = #{url},</if>
+        </set>
+        where category_id = #{categoryId}
+    </update>
+    <!--        查询列表（去 process 业务定制：org_id / deptIds / jk_financeagency / wf_category_org_link）-->
+    <select id="queryCategoryList" resultType="com.basic.workflow.domain.vo.WfCategoryVo">
+        select
+            ca.category_id   AS categoryId,
+            ca.category_name AS categoryName,
+            ca.code          AS code,
+            ca.remark        AS remark,
+            ca.parent        AS parent,
+            ca.url           AS url,
+            ca.create_by     AS createBy,
+            ca.create_time   AS createTime,
+            ca.update_by     AS updateBy,
+            ca.update_time   AS updateTime,
+            ca.del_flag      AS delFlag,
+            ca.category_name AS name
+        from wf_category ca
+        <where>
+            ca.del_flag = '0'
+            <if test="categoryId!=null and categoryId !=''">
+                and ca.category_id = #{categoryId}
+            </if>
+            <if test="categoryName!=null and categoryName !=''">
+              and ca.category_name like '%' || #{categoryName} || '%'
+            </if>
+            <if test="code!=null  and code !=''">
+              and ca.code like '%' || #{code} || '%'
+            </if>
+            <if test="parent!=null  and parent !=''">
+                and ca.parent = #{parent}
+            </if>
+            <if test="codes != null and codes !=''">
+                and ca.code in
+                <foreach item="item" index="index" collection="codes" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by ca.create_time desc
+    </select>
+    <!--    根据 code获取路由地址-->
+    <select id="getCategoryToUrl" resultType="com.basic.workflow.domain.vo.WfCategoryVo">
+        select * from wf_category
+        <where>
+            <if test="code!=null and code !=''">and code = #{code}</if>
+            and del_flag='0'
+        </where>
+    </select>
+    <select id="selectWfCategoryByOrgIdAndCode" resultType="com.basic.workflow.domain.WfCategory">
+        select * from wf_category where code = #{code} and del_flag='0'
+    </select>
+
+</mapper>
