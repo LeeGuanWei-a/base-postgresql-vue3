@@ -1,390 +1,316 @@
 # Basic Admin (Spring Boot 3.5.16 + Vue 3 + Element Plus + TypeScript)
 
-基于若依 RuoYi-Vue 3.8.2 改造,从 **Spring Boot 2.5.14** 升级到 **Spring Boot 3.5.16**,**前端从 JavaScript 升级到 TypeScript** 的实战记录。
+基于若依 RuoYi-Vue 3.8.2 改造,与 `springboot3` 分支**唯一区别**:**前端两端(`web-ui` / `web-mp`)从 JavaScript 升级到 TypeScript**;后端完全保持 `springboot3` 的 SB 3.5.16 / JDK 17 / Security 6 / Jakarta EE / springdoc 升级。
 
-> 本分支 `springboot3_TypeScript` 基于 `springboot3` 切出,叠加了 `springboot2_TypeScript` 分支里完成的**前端 JS → TS 化**改造。
->
-> 仓库另有 `springboot2_TypeScript`(SB 2.5.14 + TS)、`springboot4`(SB 4.1.1 + JS)等分支。
+> 当前分支:`springboot3_TypeScript` ——「**springboot3 + 前端全量 TypeScript 化**」。
+> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3_TypeScript**。
 
 ---
 
 ## 前端说明
 
-本仓库前端为 **TypeScript 版**:
+本分支前端**两端都是 TypeScript 版**(区别于 `springboot3` 的 JS 版):
+
+### 1.1 PC 管理端 `web-ui/`
 
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
 - 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
 - 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
 - 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
-- 类型目录:`src/types/api/**.ts`(通用 + 业务模块全覆盖)
+- API 层:`src/api/**` 全部从 `.js` → `.ts`,并新增 `src/types/api/**.ts` 全量类型定义
 
-> JS 版在 `springboot3` / `springboot4` 分支,package.json 不含 `typescript`,本分支**未涉及**。
+> JS 版在 `springboot3` / `springboot4` 分支,本分支**未涉及**。
+
+### 1.2 移动端 `web-mp/`(本分支新增,与 `springboot3` 一致,但额外做 TS 化)
+
+- 框架:**uni-app 3.0 (alpha)** + Vue 3.4.21(组合式 API `<script setup lang="ts">`)
+- UI:**uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀)
+- 语言:**TypeScript ^5.4.5**(`tsconfig.json` 已配,`vue-tsc ^2.0.19` 做类型检查)
+- 构建:Vite 5.2.8
+- 一份代码同时跑 **H5 / 微信小程序 / Android / iOS / 其它小程序**
+- 状态管理:Pinia 2.0.36
+- 加密:jsencrypt(对接后端 RSA 登录)
+
+> 详细说明见下文**「九、移动端 `web-mp`」** 章节。
 
 ---
 
-## 一、升级前后对照(基于 `git diff 5b344b7..a4c182a`)
+## 一、当前后端状态(基于 `git show HEAD:pom.xml`)
 
-| 组件 | SB 2.5.14 (起点,5b344b7) | SB 3.5.16 (本次升级,a4c182a) |
+> 本分支**后端与 `springboot3` 完全一致**:Spring Boot 3.5.16 + JDK 17 + Spring 6 + Security 6 + Jakarta EE + springdoc。
+
+| 组件 | 版本 | 与 master 的差异 |
 |---|---|---|
-| **JDK** | **11** | **17** |
-| Spring Boot | 2.5.14 | **3.5.16** |
-| Spring Framework | 5.3.x | **6.1.x** |
-| Spring Security | 5.5.x | **6.x** |
-| MyBatis-Plus | 3.5.1 | **3.5.7** |
-| MyBatis-Spring-Boot-Starter | (注释掉,未启用) | **3.0.5** |
-| Druid | 1.2.8 | **1.2.28**(`druid-spring-boot-starter` → `druid-spring-boot-3-starter`) |
-| PageHelper | 1.4.1 | **2.1.1** |
-| Springdoc-openapi | — (用 springfox 3.0.0) | **2.9.0** |
-| Hutool | hutool-bom 5.8.3 | **hutool-core 5.8.27** |
-| yauaa(User-Agent 解析) | bitwalker 1.21 | **yauaa 8.2.0**(换库) |
-| Lombok | 未指定 | **1.18.46** |
-| kaptcha | 2.3.2 | **2.3.3** |
-| poi | 4.1.2 | **5.5.1** |
-| commons-io | 2.11.0 | **2.22.0** |
-| oshi | 6.1.6 | **7.4.4** |
-| swagger | springfox 3.0.0 | **移除,springdoc 替代** |
-| jakarta.servlet | (javax.servlet) | **jakarta.servlet-api 6.x** |
-| fastjson | 2.0.4(注释掉,未启用) | **移除** |
+| **JDK** | **17** | ★ 由 11 升到 17 |
+| Spring Boot | **3.5.16** | ★ 由 2.5.14 升到 3.5.16 |
+| Spring Framework | **6.1.x** | ★ 由 5.3.x 升到 6.1.x |
+| Spring Security | **6.x** | ★ 由 5.5.x 升到 6.x |
+| MyBatis-Plus | **3.5.7** | + `mybatis-plus-spring-boot3-starter` |
+| MyBatis-Spring-Boot-Starter | **3.0.5** | ★ 新启用(原版注释) |
+| Druid | **1.2.28** | starter 改名为 `druid-spring-boot-3-starter` |
+| PageHelper | **2.1.1** | |
+| Springdoc-openapi | **2.9.0** | ★ 替代 springfox 3.0.0 |
+| Hutool | **hutool-core 5.8.27** | 由 boms 模式改为单 artifact |
+| yauaa(User-Agent 解析) | **8.2.0** | ★ 替代 bitwalker 1.21 |
+| Lombok | **1.18.46** | 新增 |
+| kaptcha | 2.3.3 | |
+| poi | **5.5.1** | |
+| commons-io | **2.22.0** | |
+| oshi | **7.4.4** | |
+| swagger | **移除** | springdoc 替代 |
+| jakarta.servlet | **6.x** | ★ javax.servlet → jakarta.servlet(Java EE → Jakarta EE) |
+| jaxb-api | **2.3.1** | ★ JDK 17 默认移除 XML 绑定,显式引入 |
+| fastjson | **移除** | |
+
+> 完整的 SB 2 → SB 3 升级细节(破坏性变更 / pom 改动 / 代码侧改动)与 `springboot3` 分支**完全相同**,
+> 本 README 不重复,见 `springboot3` 分支的对应章节。
 
 ---
 
-## 二、Spring Boot 2 → 3 主要破坏性变更(本次踩坑)
+## 二、本分支是什么
 
-### 2.1 Java EE → Jakarta EE(**最大破坏性**)
+`springboot3_TypeScript` 分支以 **`springboot3` 分支**为基线,只做了一件事:
 
-javax.* 包名**全部改为** jakarta.*:
+> **复用 `springboot2_TypeScript` 分支的前端 TS 化成果**(整 `web-ui` 目录替换),
+> 把前端两端(`web-ui` / `web-mp`)都从 JavaScript 升级到 TypeScript;
+> 后端、所有依赖、数据库脚本**完全保持 `springboot3` 的状态**。
 
-| javax | jakarta |
-|---|---|
-| `javax.servlet.http.HttpServletRequest` | `jakarta.servlet.http.HttpServletRequest` |
-| `javax.servlet.Filter` / `FilterChain` / `FilterConfig` | `jakarta.servlet.*` |
-| `javax.annotation.*` | `jakarta.annotation.*` |
-| `javax.validation.*` | `jakarta.validation.*` |
-| `javax.persistence.*` | `jakarta.persistence.*` |
-| `javax.sql.DataSource` | `javax.sql.DataSource`(**没变** —— Java SE) |
-| `javax.crypto.*` | 不变(Java SE) |
+具体而言:
 
-**项目里所有 controller / filter / interceptor / utils 都要改 import**。本次涉及 ~50 个文件。
+1. **`web-ui` 整目录从 `springboot2_TypeScript` 替换进来**(~196 个文件改动)
+2. **`web-ui/src/api/**` 全量 `.js` → `.ts`**:login / menu / monitor.* / system.* / tool.* 共 18+ 个 API 文件
+3. **新增 `web-ui/src/types/` 目录**:全量 TypeScript 类型定义(API 参数 / 返回 / 通用 R / AjaxResult / TableDataInfo 等)
+4. **新增 `web-ui/src/utils/auth.ts`**:从原 `.js` 改写并加类型
+5. **`web-ui/package.json` 新增 TS 工具链**:`typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1`
+6. **`web-mp` 也跟着 TS 化**:`tsconfig.json` 配好(`strict: false` 起步,`@/*` 路径别名),
+   `vite.config.js` 升级为 `vite.config.ts`,`package.json` 加 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19`,
+   并配 `typecheck` 脚本
+7. **手动恢复 `web-ui/src/assets/styles/basic.scss`**:`springboot2_TypeScript` 没这文件,
+   会丢失本仓库自定义的 `--el-color-primary: #1890ff` 蓝色品牌色,已从 `springboot3` 单独 checkout 回来
+8. **环境/配置微调**:`.npmrc` / `auto-imports.d.ts` / 各种 `.vue` `<script setup lang="ts">` 类型标注
 
-### 2.2 springfox → springdoc-openapi
-
-- springfox 3.0.0 **不再维护**,与 SB 3 / Spring 6 兼容性差。
-- 改用 `springdoc-openapi-starter-webmvc-ui:2.9.0`:
-  - 访问地址 `http://host:port/swagger-ui/index.html`
-  - 配置文件从 `application.yml` 里 `swagger:` 节点改到 `springdoc:` 节点
-  - 注解从 `@Api` / `@ApiOperation`(io.swagger)改到 `@Operation` / `@Tag`(io.swagger.v3.oas.annotations)
-  - 原 `SwaggerConfig.java` 改写
-
-### 2.3 SwaggerConfig 重写
-
-- 老的 `SwaggerConfig` 用了 `springfox.documentation.*`,在 SB 3 完全用不了。
-- 改用 `io.swagger.v3.oas.models.OpenAPI` + `springdoc` 自己的配置方式(bean)。
-
-### 2.4 Spring Security 5 → 6 重大变更
-
-- `WebSecurityConfigurerAdapter` **废弃**,改用 `SecurityFilterChain` Bean。
-- `authorizeRequests()` 改名为 `authorizeHttpRequests()`。
-- `antMatchers()` 改名为 `requestMatchers()`(或 `requestMatchers(AntPathRequestMatcher)`)。
-- `and()` 链式风格被推荐,但 `.with(...)` DSL 仍可用。
-- 密码编码 `BCryptPasswordEncoder` 用法不变。
-- `JwtAuthenticationTokenFilter`、`AuthenticationEntryPointImpl`、`LogoutSuccessHandlerImpl` 实现机制不变,只改 import。
-
-### 2.5 Druid starter 改名
-
-| SB 2 | SB 3 |
-|---|---|
-| `druid-spring-boot-starter` | `druid-spring-boot-3-starter` |
-
-包名没变(`com.alibaba.druid.spring.boot3.autoconfigure` 实际是 SB 3 才有的,SB 2 用 `com.alibaba.druid.spring.boot.autoconfigure`)。
-
-### 2.6 MyBatis-Plus starter 改名
-
-| SB 2 | SB 3 |
-|---|---|
-| `mybatis-plus-boot-starter` | `mybatis-plus-spring-boot3-starter` |
-
-### 2.7 第三方包大量升级
-
-- Hutool:**bom 模式**(`hutool-bom` 5.8.3) → **单 artifact 模式**(`hutool-core` 5.8.27),只引 core 不再 boms。
-- yauaa 8.2.0 替代 bitwalker 1.21(用户代理字符串解析)。
-- oshi 7.x 系统信息采集(API 有变化,`getOperatingSystem().getManufacturer()` 等)。
-- jaxb-api:**JDK 11+ 默认移除 XML 绑定**,显式 `javax.xml.bind:jaxb-api:2.3.1` 引入(给 XSS 过滤、Excel 解析等用)。
-
-### 2.8 Lombok / annotation 处理
-
-- Lombok **1.18.30+** 才完整支持 JDK 17 + 枚举 + `@AllArgsConstructor`,本项目锁 `1.18.46`。
-- JDK 17 的 `--add-opens` 需求大部分场景 Lombok 已处理;本项目 IDE 配 `JDK 17` 即可,无需手动加 jvm args。
-
-### 2.9 Servlet 5 + Tomcat 10
-
-- `jakarta.servlet:jakarta.servlet-api:5.x`(SB 2 时代是 4.x)。
-- 内嵌 Tomcat 10.x,HTTP/2 默认开启。
-- 业务代码对 servlet API 的调用几乎不变,只改包名。
-
-### 2.10 Spring Framework 6 一些 deprecation
-
-- `WebMvcConfigurerAdapter` 已删除,实现 `WebMvcConfigurer` 接口(SB 2 时代也支持,SB 3 强制要求)。
-- `RequestMappingHandlerMapping` 等的 `setUseSuffixPatternMatch` / `useRegisteredSuffixPatternMatch` 方法已删除。
-- `MediaType.APPLICATION_JSON_UTF8` 已删除,统一用 `MediaType.APPLICATION_JSON`。
-
-### 2.11 yauaa 替代 bitwalker 解析 UA
-
-- bitwalker `UserAgent` API 与 yauaa `UserAgentAnalyzer` API 完全不一样。
-- 项目里 `UserAgentConfig`(若依原本没这个,本次新增)用 `@Bean UserAgentAnalyzer`,把 yauaa 的 100+ MB yaml 规则文件做成单例,避免每次请求都重载。
+`springboot3_TypeScript` 与 `springboot3` 的**唯一差异**就是上面 1–8 的前端 TS 化;后端代码、
+SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 ---
 
-## 三、本次升级真实改动(基于 `git diff 5b344b7..a4c182a`)
+## 三、相对 `springboot3` 的具体改动
 
-实际改动 **50+ 个文件**,大致分类:
-
-### 3.1 父 `pom.xml`
-
-```xml
-<!-- properties -->
-<java.version>11 → 17</java.version>
-<springboot.version → spring-boot.version> 2.5.14 → 3.5.16</spring-boot.version>
-<mybatis-plus-boot-starter.version> 3.5.1 → 3.5.7</mybatis-plus-boot-starter.version>
-<mybatis-spring-boot.version> (注释) → 3.0.5</mybatis-spring-boot.version>
-<druid.version> 1.2.8 → 1.2.28</druid.version>
-<pagehelper.boot.version> 1.4.1 → 2.1.1</pagehelper.boot.version>
-<oshi.version> 6.1.6 → 7.4.4</oshi.version>
-<kaptcha.version> 2.3.2 → 2.3.3</kaptcha.version>
-<poi.version> 4.1.2 → 5.5.1</poi.version>
-<commons.io.version> 2.11.0 → 2.22.0</commons.io.version>
-<!-- 新增 -->
-<lombok.version>1.18.46</lombok.version>
-<hutool-core.version>5.8.27</hutool-core.version>
-<yauaa.version>8.2.0</yauaa.version>
-<jaxb-api.version>2.3.1</jaxb-api.version>
-<springdoc.version>2.9.0</springdoc.version>
-<commons-fileupload.version>1.5</commons-fileupload.version>
-<!-- 移除 -->
-<swagger.version>3.0.0</swagger.version>  <!-- springfox 移除 -->
-<bitwalker.version>1.21</bitwalker.version>  <!-- yauaa 替代 -->
-<fastjson.version>2.0.4</fastjson.version>  <!-- fastjson 移除 -->
-<commons.collections.version>3.2.2</commons.collections.version>
-<hutool.version>5.8.3</hutool.version>  <!-- 改 hutool-core -->
-
-<!-- dependencyManagement -->
-- springfox-boot-starter, swagger-models  ← 移除
-+ springdoc-openapi-starter-webmvc-ui  ← 新增
-+ hutool-core  ← 新增(单 artifact 模式)
-+ jaxb-api  ← 新增
-+ yauaa  ← 新增
-+ mybatis-spring-boot-starter  ← 新增(启用,原来注释掉)
-- mybatis-plus-boot-starter  ← 移除
-+ mybatis-plus-spring-boot3-starter  ← 替换
-- pagehelper-spring-boot-starter 保留
-- druid-spring-boot-starter
-+ druid-spring-boot-3-starter
-```
-
-### 3.2 7 个子模块 `pom.xml`
-
-- 7 个子模块的 `parent.version` 从 `3.8.2` → `3.9.2`
-- `basic-common/pom.xml`:
-  - `spring-boot-starter-web` 改 `spring-boot-starter-webmvc`(若依 3.9.2 原版就这样)
-  - hutool 依赖从 `cn.hutool:hutool-bom:import` 改 `cn.hutool:hutool-core`
-  - 加 `javax.xml.bind:jaxb-api`
-- `basic-framework/pom.xml`:
-  - `spring-boot-starter-aop`(若依 3.9.2 原版就这样,保留)
-  - 删 `javax.servlet:servlet-api`(用 jakarta 替代)
-  - `druid-spring-boot-3-starter`
-- `extend-quartz/pom.xml`:`org.quartz-scheduler:quartz` 单独依赖
-- `extend-generator/pom.xml`:`druid-spring-boot-3-starter`
-
-### 3.3 `application.yml` / `application-dev.yml` / `application-prod.yml`
-
-- `swagger:` 节点删除(springfox 没了)
-- `springdoc:` 节点新增
-- `spring.redis.host/port/database/password` 改 `spring.data.redis.*`(SB 3 警告,SB 4 强制)
-- `datasource.druid.statViewServlet.url-pattern: /druid/*` 显式声明
-- `xxl.job` 节点删除(若依原版里有,本项目不用,本次移除)
-
-### 3.4 代码侧主要改动
-
-| 文件 | 主要改动 |
+| 改动 | 涉及文件 / 位置 |
 |---|---|
-| `SwaggerConfig.java` | 完全重写,springfox → springdoc-openapi v3 |
-| `SecurityConfig.java` | `WebSecurityConfigurerAdapter` → `SecurityFilterChain` Bean,`authorizeRequests()` → `authorizeHttpRequests()`,`antMatchers()` → `requestMatchers()` |
-| `UserAgentConfig.java` | **新增**,yauaa `UserAgentAnalyzer` 单例 Bean |
-| `ResourcesConfig.java` | `WebMvcConfigurerAdapter` → `WebMvcConfigurer` |
-| `DruidConfig.java` | 包名从 `com.alibaba.druid.spring.boot.autoconfigure` → `com.alibaba.druid.spring.boot3.autoconfigure` |
-| `Xss.java` / `XssValidator.java` | `javax.servlet.*` → `jakarta.servlet.*` |
-| `XssFilter.java` / `RepeatableFilter.java` / `RepeatedlyRequestWrapper.java` / `XssHttpServletRequestWrapper.java` | 同上 |
-| `JwtAuthenticationTokenFilter.java` | 同上 |
-| `AuthenticationEntryPointImpl.java` | 同上 |
-| `LogoutSuccessHandlerImpl.java` | 同上 |
-| `AsyncFactory.java` | 同上 |
-| `PermitAllUrlProperties.java` | `antPathMatcher` 注入,`RequestMappingInfo` 处理逻辑微调 |
-| `SysDept.java` / `SysDictType.java` / `SysDictData.java` / `SysMenu.java` / `SysRole.java` / `SysUser.java` | 主要是 `javax.validation.*` → `jakarta.validation.*` |
-| `SysConfigController.java` / `SysDictDataController.java` / `SysDictTypeController.java` / `SysPostController.java` / `SysRoleController.java` / `SysUserController.java` / `SysOperlogController.java` / `SysLogininforController.java` / `GenController.java` / `SysJobController.java` | 主要是 swagger 注解从 io.swagger → io.swagger.v3.oas.annotations |
-| `SysLoginService.java` / `TokenService.java` | 主要是 jakarta import + yauaa 替代 bitwalker 后的 API 调用 |
-| `SysConfigServiceImpl.java` / `SysDictTypeServiceImpl.java` / `SysFilesServiceImpl.java` / `SysUserServiceImpl.java` | 主要是 `RedisCache.getCacheObject()` 等的 cache 注解微调 |
-| `HttpHelper.java` / `IpUtils.java` / `ServletUtils.java` / `FileUtils.java` / `BeanValidators.java` / `ExcelUtil.java` / `SysLoginController.java` | 主要是 jakarta / commons-* 升级后的 API 微调 |
-| `CaptchaController.java` / `CommonController.java` / `SysConfigMapper.xml` / `SysUserMapper.xml` / `SysRoleMapper.xml` / `SysDeptMapper.xml` / `SysDeptMapper.java` / `SysMenuMapper.java` | 主要是 jakarta / swagger / SQL 微调 |
-| `GenTable.java` / `GenTableColumn.java` / `SysNotice.java` / `SysPost.java` | 主要是 jakarta validation |
-| `SysConfig.java` / `SysFilesServiceImpl.java` 等 | `@DataSource` 等切面相关 |
-| `MybatisConfig.java` / `FilterConfig.java` / `ServerConfig.java` / `SameUrlDataInterceptor.java` / `RepeatSubmitInterceptor.java` / `ShutdownManager.java` / `LogAspect.java` / `GlobalExceptionHandler.java` / `SysLoginController.java` / `SysLoginService.java` | 主要是 jakarta import + 业务无关小改 |
-| `TestController.java` / `SwaggerController.java` | 主要是 swagger 注解换 io.swagger.v3 |
-| `DemoController.java` / `GenTable.java` / `GenTableColumn.java` | 业务示例 |
-| `pom.xml` 全部 | 父版本 + 子版本号、starter 名、第三方包版本调整 |
+| `web-ui` 整目录从 `springboot2_TypeScript` 替换 | `web-ui/` 全部(整目录替换) |
+| `web-ui` API 层 TS 化 | `web-ui/src/api/**` 下所有 `*.js` → `*.ts` |
+| `web-ui` 新增类型目录 | `web-ui/src/types/api/**.ts`(全量 API 类型)+ `types/components.d.ts` / `global.d.ts` / `index.ts` |
+| `web-ui/utils/auth` TS 化 | `web-ui/src/utils/auth.ts` |
+| `web-ui` 入口 / 路由 / store TS 化 | `web-ui/src/main.ts` / `permission.ts` / `router/index.ts` / `store/**` / `directive/**` / `plugins/**` |
+| `web-ui` 主题色保留 | `web-ui/src/assets/styles/basic.scss`(从 `springboot3` 单独 checkout) |
+| `web-ui` TS 工具链 | `web-ui/package.json` 新增 `typescript` / `vue-tsc` / `@vue/tsconfig` |
+| `web-ui` 工程配置 | `web-ui/.npmrc`(pnpm 镜像源)/ `tsconfig.json` / `auto-imports.d.ts` |
+| `web-mp` TS 化 | `web-mp/tsconfig.json`(新增) + `web-mp/vite.config.ts`(`vite.config.js` 改名) |
+| `web-mp` 入口 / 守卫 TS 化 | `web-mp/src/main.ts` / `web-mp/src/permission.ts` |
+| `web-mp` TS 工具链 | `web-mp/package.json` 新增 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19` / `typecheck` 脚本 |
+| `web-mp` 其它 `*.ts` 化 | `web-mp/src/api/**` / `store/**` / `utils/**` 等 |
+| 数据库脚本 | `file-sql/basicdb-vue3.sql`(与 `springboot3` 同步,PostgreSQL) |
 
-### 3.5 新增文件
-
-- `UserAgentConfig.java` —— yauaa `UserAgentAnalyzer` 单例
-
-### 3.6 删除文件
-
-- (本次升级**没删任何**配置文件,只是改了内容)
+> 后端代码(`SysLoginController` / `SysLoginService` / 若干 Mapper / `SysRole` / `pom.xml` 等)
+> 与 `springboot3` **完全一致**,不重复。
 
 ---
 
-## 四、未做 / 后续可优化
+## 四、与 `springboot3` 共享的部分
 
-> 这些事项是 SB 2 → SB 3 升级时**没做完**或**没做**的,留作下一阶段(也就是 `springboot4` 分支)处理。
+下面这些**与 `springboot3` 完全一致**,本分支**不重复**:
 
-- [ ] JDK 17 → 21(若依原版 SB 3.5.16 还是 17,本项目跟着用 17)
-- [ ] Spring Boot 3.5.16 → 4.1.1(已经在 `springboot4` 分支做完了)
-- [ ] Spring Security 6 → 7(`springboot4` 分支做了)
-- [ ] Jackson 2 → Jackson 3(`springboot4` 分支做了)
-- [ ] Spring Framework 6 → 7(`springboot4` 分支做了)
-- [ ] 各种 deprecation 警告清理:`WebMvcConfigurer` 接口新实现未 GA,继续 `@SuppressWarnings` 过渡
-- [ ] `WebSecurityConfigurerAdapter` 已废弃(本项目已用 `SecurityFilterChain` Bean 替代)
-- [ ] `@Deprecated` 的 `org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration` 等,在 `springboot4` 拆到 `spring-boot-jdbc` 子模块(本分支还在 `boot.autoconfigure.jdbc`,正常)
+| 维度 | 内容 |
+|---|---|
+| **后端** | SB 3.5.16 + JDK 17 + Spring 6 + Security 6 + Jakarta EE + springdoc 全部继承 |
+| **7 个子模块 `parent.version`** | `3.9.2` |
+| **业务功能** | 锁屏解锁、SQL bug 修复等与 master 共同的改动全部继承 |
+| **数据库脚本** | `file-sql/basicdb-vue3.sql`(34 张表 + 5 函数,`basicdb` schema) |
+| **目录结构** | 7 个后端 maven module + `web-ui/` + `web-mp/` |
+| **`application.yml` 数据源** | PostgreSQL `jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb` |
+| **后端代码侧 SB 2→3 改动** | Jakarta import / `SecurityFilterChain` Bean / `SwaggerConfig` 重写 / `UserAgentConfig` 新增 / 各种 `*Controller` 注解换 v3 等 |
 
 ---
 
 ## 五、运行前 checklist
 
-- [x] JDK 17 安装
-- [x] 7 个子模块 `parent.version` 一致为 `3.9.2`
-- [x] IDE 工程的 Project SDK 设为 JDK 17,Language level 17
+- [x] **JDK 17 安装** ★ 与 master 不同
+- [x] Node.js + pnpm(前端)
+- [x] `cd web-ui && pnpm install` 拉依赖(PC 端,lock 文件来自 `springboot2_TypeScript`,可能要重装)
+- [x] `cd web-mp && pnpm install` 拉依赖(移动端)
+- [ ] `pnpm dev` 验证 PC 端启动(`web-ui`)
+- [ ] `pnpm dev:h5` 验证移动端 H5 启动(`web-mp`)
+- [ ] `pnpm typecheck` 验证 TS 类型(`web-ui` / `web-mp`)
+- [x] 7 个子模块 `parent.version` 一致为 **`3.9.2`** ★ 与 master 不同
+- [x] IDE 工程的 Project SDK 设为 **JDK 17**,Language level **17** ★ 与 master 不同
 - [x] `mvn clean compile` 0 ERROR
-- [x] 应用启动成功
-- [x] admin 登录成功
-- [x] `/getInfo` 200
-- [x] 在线用户列表正常
+- [ ] 应用启动成功
+- [ ] admin 登录成功(PC / 移动端)
 
 ---
 
-## 六、前端 JS → TypeScript 化(本分支新增)
+## 六、风险评估 / 注意事项
 
-> 本分支的 TS 化**复用**了 `springboot2_TypeScript` 分支的成果(整 web-ui 目录替换),后端仍是 SB 3.5.16。
+- **后端 API 兼容**:`springboot2_TypeScript` 实际是 SB 2.5.14 后端调通的前端代码,
+  但本分支后端是 SB 3.5.16。若依后端 API URL 和响应格式**未变**,所以前端代码**兼容**。
+- **`basic.scss` 主题色**:TS 版没带,会丢失本仓库自定义的 `--el-color-primary: #1890ff` 蓝色品牌色。
+  本分支已**手动恢复**该文件,从 `springboot3` 单独 checkout 回来。
+- **`pnpm-lock.yaml`**:`web-ui` 的 lock 文件用 `springboot2_TypeScript` 的版本,
+  可能与本仓库之前装的依赖不完全一致。建议 `cd web-ui && pnpm install` 重新拉一遍。
+- **TS 严格度**:`tsconfig.json` 默认 `strict: false` / `noImplicitAny: false` 起步,
+  避免迁移时大量 `any` 报错;后续可逐步收紧。
 
-### 6.1 改了什么
+---
 
-总计 ~196 个文件改动,git 把它识别为 ~50 个 `*.js` → `*.ts` rename + 一些 `.vue` / `.scss` modified + 新增 `src/types/**` 目录。
+## 七、未做 / 后续可优化
 
-| 改动类型 | 文件数 | 说明 |
-|---|---|---|
-| `*.js` → `*.ts` rename | ~50 | `src/api/**`、`src/directive/**`、`src/plugins/**`、`src/router/index.js`、`src/store/**`、`src/utils/**`、`src/main.js`、`src/permission.js`、`src/settings.js` 等 |
-| 新增 `src/types/**` | ~30 | `src/types/api/**.ts`(通用 + 业务模块全覆盖)、`components.d.ts`、`global.d.ts`、`index.ts` |
-| 新增 `auto-imports.d.ts` | 1 | unplugin-auto-import 自动生成 |
-| 新增 `tsconfig.json` | 1 | TS 编译配置 |
-| 新增 `.npmrc` | 1 | pnpm 镜像源配置 |
-| 新增 `src/assets/images/pay.png` | 1 | 支付二维码(占位图) |
-| 新增 `src/layout/components/Copyright/index.vue` | 1 | 版权信息组件 |
-| 新增 `src/layout/components/index.ts` | 1 | 组件统一出口 |
-| `package.json` 改 | 1 | 新增 `typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1` devDeps |
-| `pnpm-lock.yaml` 改 | 1 | lock 文件随之更新 |
-| 各种 `.vue` / `.scss` 微调 | ~100 | TS 化过程中对 `script setup` 类型标注、scss 变量引用等的伴随修改 |
-| 删除 `web-ui/.gitignore` | 1 | 根 `.gitignore` 统一管理 |
-| 删除 `web-ui/src/store/modules/app.js` / `web-ui/src/utils/auth.js` / `web-ui/src/layout/components/index.js` | 3 | 已被 `.ts` 替代 |
-| 删除 `web-ui/src/assets/styles/basic.scss` | 1 | **本仓库**基础平台自定义主题色 `var(--el-color-primary: #1890ff)` 文件;TS 版 web-ui 没这文件,**已从 springboot3 单独 checkout 回来保留**(否则主题色变成 element-plus 默认蓝) |
+> 这些事项是本分支**没做完**或**没做**的,留作下一阶段(也就是 `springboot4` / `springboot4_TypeScript` 分支)处理。
 
-### 6.2 应用方式
+- [ ] JDK 17 → 21(`springboot4` 分支做了)
+- [ ] Spring Boot 3.5.16 → 4.1.1(`springboot4` 分支做了)
+- [ ] Spring Security 6 → 7(`springboot4` 分支做了)
+- [ ] Jackson 2 → Jackson 3(`springboot4` 分支做了)
+- [ ] Spring Framework 6 → 7(`springboot4` 分支做了)
+- [ ] 各种 deprecation 警告清理
+- [ ] `tsconfig.json` 严格度调高(目前 `strict: false`,逐步收紧)
+- [ ] Pinia store / Router / Axios 二次封装的类型补全
+- [ ] 集成 Flowable 流程引擎(已经在 `master-extend-flowable` 分支做了)
+
+---
+
+## 八、其他分支(参考)
+
+本仓库其他分支(切到对应分支看其 README):
+
+| 分支 | 做什么 |
+|---|---|
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14,JDK 11,前端 JS,加 web-mp) |
+| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
+| `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
+| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc;前端保持 JS |
+| `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(最完整栈) |
+
+> 本分支 `springboot3_TypeScript` ≈ `springboot3` + 前端 TS 化,可以视作"`springboot3` 的 TS 版"。
+
+---
+
+## 九、移动端 `web-mp/`
+
+> 本分支与 `springboot3` 同样包含 `web-mp/` 移动端,**额外做了 TS 化**:
+> 新增 `tsconfig.json`,`vite.config.js` → `vite.config.ts`,`package.json` 加 TS 工具链,
+> 入口 / 守卫等 `.js` → `.ts`。
+> 本节是 `web-mp/README.md` 的摘要,完整内容以子目录的 README 为准。
+
+### 9.1 技术栈
+
+| 项 | 版本 |
+|---|---|
+| uni-app | 3.0 (alpha,`@dcloudio/uni-app@3.0.0-4060620250520001`) |
+| Vue | 3.4.21(**组合式 API** `<script setup lang="ts">`) |
+| Vite | 5.2.8 |
+| UI | **uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀) |
+| 语言 | **TypeScript ^5.4.5**(`tsconfig.json` 配 `strict: false` 起步) |
+| 类型检查 | **vue-tsc ^2.0.19**(`pnpm typecheck` 触发) |
+| 状态管理 | Pinia 2.0.36 |
+| 加密 | jsencrypt(对接后端 RSA 登录) |
+| 时间 | dayjs 1.11.x |
+| 国际化 | vue-i18n 9.13.1(已引入,词条待补) |
+| 包管理 | pnpm |
+
+### 9.2 与 web-ui / 后端的关系
+
+- 与 `web-ui/`(PC 端)**同级目录**,**不**是 web-ui 的子项目,各自独立维护
+- 不参与 maven 编译(`pom.xml` 的 module 列表里没有 `web-mp`)
+- 对接后端:**直接打**本仓库的 `basic-admin-api`(Spring Boot 3.5 + Spring Security 6 + Jakarta EE),
+  接口复用 `/login` / `/logout` / `/captchaImage` / `/getInfo` / `/getRouters` 等
+- 默认账号:`admin / admin123`
+
+### 9.3 目录结构
+
+```
+web-mp/
+├── index.html                 # H5 入口(vite 用)
+├── tsconfig.json              # ★ 本分支新增:TypeScript 配置
+├── vite.config.ts             # ★ 本分支:.js 升级为 .ts
+├── package.json
+├── config.js                  # 全局配置(双份,同步到 src/)
+├── manifest.json              # 应用清单(双份,同步到 src/)
+├── pages.json                 # 页面注册(双份,同步到 src/)
+├── sync-config.cjs            # 双份同步脚本
+├── scripts/
+│   └── fixup-mp-components.cjs  # 微信小程序组件 fixup 脚本
+└── src/
+    ├── main.ts                # ★ 本分支:.js 升级为 .ts
+    ├── App.vue                # 根组件(<script setup lang="ts">)
+    ├── uni.scss               # 全局 SCSS 变量入口
+    ├── pages/                 # 业务页面
+    │   ├── login/index.vue
+    │   ├── index/index.vue    # 首页(TabBar)
+    │   ├── workbench/index.vue
+    │   ├── user/index.vue
+    │   └── common/{notice,profile}/...
+    ├── api/                   # 接口层(.ts)
+    ├── store/                 # Pinia(.ts)
+    ├── utils/                 # 工具(.ts)
+    ├── directive/             # 权限指令(.ts)
+    ├── permission.ts          # ★ 本分支:.js 升级为 .ts
+    └── static/                # 静态资源
+```
+
+### 9.4 关键设计
+
+- **登录流程**:`/captchaImage` → `/login`(RSA 公钥加密密码)→ `/getInfo` → `/getRouters`
+- **Token 存储**:`uni.getStorageSync('Basic-Token')`
+- **请求封装**:`utils/request.ts` 实现拦截器(401 跳登录)
+- **权限指令**:`v-hasPermi`(uniapp 3 编译时不支持自定义指令,用 `v-if="hasPermi([...])"` 替代)
+- **双份 manifest/pages**:CLI build 找 `src/manifest.json`,dev 找根 `manifest.json`,
+  所以两边各放一份,`sync-config.cjs` 同步
+- **环境配置**:`src/config.js` 维护 `baseUrl`(默认 `http://localhost:8080`,
+  H5 通过 `vite.config.ts` 代理到 `/dev-api` → 8080;小程序/真机需改成局域网 IP)
+- **TypeScript**:`tsconfig.json` 配 `@/*` 路径别名 → `src/*`;`strict: false` 起步,
+  避免迁移时大量 `any` 报错;`include` 覆盖 `src/**/*.{ts,d.ts,tsx,vue}` + `vite.config.ts`
+
+### 9.5 运行
 
 ```bash
-# 在 springboot3 分支基础上,整 web-ui 用 springboot2_TypeScript 的 TS 版替换
-git rm -r web-ui/
-git checkout springboot2_TypeScript -- web-ui/
-# 恢复 springboot3 自己的 basic.scss(主题色)
-git checkout springboot3 -- web-ui/src/assets/styles/basic.scss
+cd web-mp
+pnpm install
+
+# 类型检查
+pnpm typecheck              # vue-tsc --noEmit
+
+# 开发
+pnpm dev:h5            # 浏览器访问 http://localhost:8081
+pnpm dev:mp-weixin     # 用微信开发者工具打开 dist/dev/mp-weixin
+pnpm dev:app           # 编译到 unpackage/dist/dev/app
+
+# 生产构建
+pnpm build:h5          # 产物在 dist/build/h5
+pnpm build:mp-weixin   # 产物在 dist/build/mp-weixin
+pnpm build:app
 ```
 
-### 6.3 新增 `package.json` devDependencies
+### 9.6 待办(摘自子 README)
 
-```json
-{
-  "devDependencies": {
-    "@vue/tsconfig": "0.5.1",     // Vue 3 推荐 tsconfig 基础
-    "typescript": "5.6.3",          // TS 编译器
-    "vue-tsc": "2.1.10"             // .vue 文件类型检查
-  }
-}
-```
-
-### 6.4 `src/types/` 目录
-
-```
-src/types/
-├── api/
-│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
-│   ├── index.ts
-│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
-│   ├── menu.ts
-│   ├── monitor/
-│   │   ├── cache.ts
-│   │   ├── job.ts
-│   │   ├── jobLog.ts
-│   │   ├── logininfor.ts
-│   │   ├── online.ts
-│   │   └── operlog.ts
-│   ├── system/
-│   │   ├── config.ts
-│   │   ├── dept.ts
-│   │   ├── dict.ts
-│   │   ├── menu.ts
-│   │   ├── notice.ts
-│   │   ├── post.ts
-│   │   ├── role.ts
-│   │   └── user.ts
-│   └── tool/
-│       └── gen.ts
-├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 自动生成
-├── global.d.ts          ← 全局 window / module 声明
-└── index.ts             ← 类型统一出口
-```
-
-每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
-
-### 6.5 风险评估
-
-- **后端 API 兼容**:`springboot2_TypeScript` 实际是 SB 2.5.14 后端调通的前端代码,但本分支后端是 SB 3.5.16,API URL 和响应格式未变(若依后端 API 是稳定契约),所以**兼容**。
-- **`basic.scss` 主题色**:TS 版没带,会丢失本仓库自定义的 `--el-color-primary: #1890ff` 蓝色品牌色。已**手动恢复**。
-- **`pnpm-lock.yaml`**:lock 文件用 springboot2_TypeScript 的版本,可能与本仓库之前装的依赖不完全一致。建议你 `cd web-ui && pnpm install` 重新拉一遍。
-
-### 6.6 待办
-
-- [ ] `cd web-ui && pnpm install` 重新拉依赖(锁文件来自 springboot2_TypeScript)
-- [ ] `pnpm dev` 验证启动 + `pnpm build:prod` 验证生产构建
-- [ ] 打开若干 `.vue` 文件,看 `<script setup lang="ts">` 的类型推断是否完整
-- [ ] 调通 admin 登录 → `/getInfo` → 列表查询端到端,看类型不匹配是否报错
+- [ ] 接入动态菜单(`/getRouters` → pages.json)
+- [ ] 国际化(`vue-i18n` 已引入,词条待补)
+- [ ] 消息推送 / WebSocket
+- [ ] 修改密码页 + 个人中心编辑
+- [ ] 锁屏(手势/PIN)
+- [ ] TabBar 图标(`src/static/tabbar/` 需放 6 张 81x81 png)
+- [ ] `tsconfig.json` 严格度调高(目前 `strict: false`,逐步收紧)
 
 ---
 
-## 七、运行前 checklist(springboot3 + TS 综合)
-
-- [x] JDK 17 安装
-- [x] Node.js + pnpm(前端)
-- [ ] `cd web-ui && pnpm install` 拉依赖(lock 文件来自 springboot2_TypeScript)
-- [x] 7 个子模块 `parent.version` 一致为 `3.9.2`
-- [x] IDE 工程的 Project SDK 设为 JDK 17,Language level 17
-- [x] `mvn clean compile` 0 ERROR
-- [x] 应用启动成功
-- [ ] 前端 `pnpm dev` 启动成功 + 类型检查通过(`pnpm run type-check` 或 `vue-tsc --noEmit`)
-
----
-
-## 八、数据库脚本 (`file-sql/basicdb-vue3.sql`)
+## 十、数据库脚本 (`file-sql/basicdb-vue3.sql`)
 
 > 本分支运行所需的 **PostgreSQL 全库结构 + 初始化数据** 都在 `file-sql/basicdb-vue3.sql`。
 > 其它 `file-sql/*.sql` 是历史中间产物,本分支**不直接使用**;真正要执行的就是这一个。
 
-### 8.1 脚本基本信息
+### 10.1 脚本基本信息
 
 | 项 | 值 |
 |---|---|
@@ -397,7 +323,7 @@ src/types/
 | 数据加载方式 | `COPY ... FROM stdin;`(原生 psql `\copy` 流式导入,**不**走 `INSERT`) |
 | PostgreSQL 要求 | **>= 15.1** |
 
-### 8.2 表清单(共 34 张,均位于 `basicdb` schema)
+### 10.2 表清单(共 34 张,均位于 `basicdb` schema)
 
 #### 代码生成(`gen_*`,2 张)
 
@@ -438,7 +364,7 @@ src/types/
 | `sys_user_post` | 用户-岗位关联 |
 | `sys_user_role` | 用户-角色关联 |
 
-### 8.3 恢复步骤(全新数据库)
+### 10.3 恢复步骤(全新数据库)
 
 ```bash
 # 1) 建 system 角色和 basicdb 库(SQL 脚本本身不建角色,必须先建好)
@@ -453,7 +379,10 @@ psql -U system -h localhost -d basicdb -c \
   "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb';"
 ```
 
-### 8.4 重新备份成同款脚本
+如果本地 PostgreSQL 实例没有 `system` 角色,直接执行第 2 步会报
+`ERROR: role "system" does not exist`,补一步 1) 即可。
+
+### 10.4 重新备份成同款脚本
 
 ```bash
 pg_dump -U system -h localhost -d basicdb \
@@ -465,7 +394,7 @@ pg_dump -U system -h localhost -d basicdb \
 - 不加这两个开关,导出结果与本仓库现存的 `basicdb-vue3.sql` 格式一致。
 - 脚本里所有 `data` 段都用了 `COPY ... FROM stdin;`,导入端必须用 `psql`。
 
-### 8.5 默认账号
+### 10.5 默认账号
 
 | 用户名 | 密码(明文) | 备注 |
 |---|---|---|
@@ -473,7 +402,7 @@ pg_dump -U system -h localhost -d basicdb \
 
 要重置可执行同目录的 `reset-admin-password.sql`。
 
-### 8.6 与应用连接配置
+### 10.6 与应用连接配置
 
 ```yaml
 spring:
@@ -488,7 +417,7 @@ spring:
 > `currentSchema=basicdb` 必须加,否则 MyBatis 找不到 `sys_user` / `sys_menu` 等表
 > (脚本里所有表都建在 `basicdb` schema 下,不是 `public`)。
 
-### 8.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
+### 10.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
 
 | 文件 | 角色 |
 |---|---|
@@ -500,4 +429,34 @@ spring:
 | `fix-sys-menu-component.sql` | 修 `sys_menu.component` 路径里 `system` 写错的,按需手动跑 |
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
-> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了。**
+> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
+> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> 本分支**仍保留**。)
+
+---
+
+## 十一、目录速查
+
+```
+base-postgresql-vue3/
+├── pom.xml                              # 父 pom(7 个后端子模块,无 web-mp)
+├── README.md                            # 本文档
+├── ry.sh / ry.bat                       # RuoYi 启动脚本(原版遗留)
+├── basic-admin-api/                     # Spring Boot 启动模块(SB 3.5.16)
+├── basic-admin-core/                    # 业务核心(system 模块)
+├── basic-framework/                     # 框架配置(Security 6 / Jakarta)
+├── basic-common/                        # 通用工具/基类
+├── business-core/                       # 业务扩展点
+├── extend-quartz/                       # Quartz 定时任务扩展
+├── extend-generator/                    # 代码生成扩展
+├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── file-sql/                            # SQL 脚本
+├── file-bin/                            # 二进制资源(jar 内置)
+├── file-doc/                            # 文档资源(jar 内置)
+├── web-ui/                              # PC 端前端(Vue3 + Element Plus + ★ TypeScript)
+└── web-mp/                              # 移动端前端(uni-app3 + uview-plus + ★ TypeScript)
+```
+
+> **本分支与 `springboot3` 的差异**:`web-ui` 和 `web-mp` 都从 JS → TS;
+> `web-mp` 还多出 `tsconfig.json` 与 `vite.config.ts`,`web-ui` 多出 `src/types/` 目录。
+> `web-ui/src/assets/styles/basic.scss`(本仓库主题色)从 `springboot3` 单独保留,避免 TS 版替换时丢失品牌色。
