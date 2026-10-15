@@ -123,6 +123,7 @@ ab58b0c  chore(web-mp): 移除无效的 .env 文件（无代码引用）
 - 新增 Maven 子模块 `extend-flowable`,新增 `wf_*` / `tbl_flow_extend_procinst` 业务表
 - 新增「流程引擎」菜单及整套 `workflow:*` 权限项
 - 集成结构与扩展点见[第七章](#七flowable-流程引擎集成),使用说明见 [docs/流程引擎使用说明.md](docs/流程引擎使用说明.md)
+- 节点「授权功能」可选值从原 7 项扩到 10 项(+ 终止 / 前加签 / 后加签;另含 `copy` 抄送标志,但抄送不渲染独立按钮,随同意/驳回一起提交);完整列表与设计器使用见 [§5.3](docs/流程引擎使用说明.md#53-授权功能决定审批时有哪些按钮)
 
 ### 3.5 新增:移动端 web-mp
 
@@ -396,7 +397,7 @@ spring:
 
 引擎:**Flowable 6.8.0**。流程模块是独立 Maven 子模块 `extend-flowable`,由 `basic-admin-api` 依赖并装配。
 
-> **使用层面**的操作说明(怎么画流程、怎么审批、怎么退回/转办/加签)
+> **使用层面**的操作说明(怎么画流程、怎么审批、怎么退回/转办/委派/前加签/后加签/会签回退/终止)
 > 已单独成文:**[docs/流程引擎使用说明.md](docs/流程引擎使用说明.md)**。
 > 本章只讲集成结构、配置与扩展点,面向二次开发与部署运维。
 
@@ -482,6 +483,16 @@ Flowable 6.8.0 引擎  →  basicdb_flowable.act_* / flw_*
 | `Bruce*JsonConverter` / `CustomBpmnJsonConverter` | `converter/` | 让 Flowable Modeler 的 JSON ↔ BPMN 转换认识本项目的自定义扩展属性 |
 | `DatabaseConfiguration` / `ModelerBeanConfig` / `FlowableModelRepositoryImpl` | `flowable/config/modeler/`、`flowable/model/` | 复用 Flowable Modeler 的仓储与数据源配置 |
 
+**前端关键文件(节点「授权功能」+ 审批按钮)**:三类必须同步改,详见 [docs/流程引擎使用说明.md §5.3](docs/流程引擎使用说明.md#53-授权功能决定审批时有哪些按钮):
+
+| 文件 | 作用 |
+|---|---|
+| [`web-ui/src/plugins/package/penal/task/task-components/UserTask.vue`](web-ui/src/plugins/package/penal/task/task-components/UserTask.vue) | 流程设计器"节点 → 授权功能"复选框候选项(字典没配时走这里兜底) |
+| [`web-ui/src/views/workflow/process/components/actionMeta.js`](web-ui/src/views/workflow/process/components/actionMeta.js) | 审批按钮元数据(标签/颜色/提示/权限);`buildActionButtons()` 把节点 `idmPermission` 翻译成按钮 |
+| [`web-ui/src/views/workflow/process/components/TaskDialog.vue`](web-ui/src/views/workflow/process/components/TaskDialog.vue) | 统一审批弹窗(意见/原因/人员/退回节点);`switch (action)` 把按钮映射到具体 API |
+
+
+
 ### 7.5 自定义扩展点(节点上的业务语义)
 
 流程节点上除了标准 BPMN 属性,还挂了一批 `flowable:` 命名空间的自定义扩展属性,定义在
@@ -489,7 +500,7 @@ Flowable 6.8.0 引擎  →  basicdb_flowable.act_* / flw_*
 
 | 扩展属性 | 业务含义 |
 |---|---|
-| `flowable:IdmPermission` | 节点「授权功能」(可用操作按钮的 JSON 数组),前端据此渲染审批按钮 |
+| `flowable:IdmPermission` | 节点「授权功能」(可用操作按钮的 JSON 数组),前端据此渲染审批按钮。可选值 `complete` / `reject` / `return` / `transfer` / `delegate` / `copy` / `mulitiSequentialUnComplete` / **`addSignBefore` / `addSignAfter` / `stop`**(后 3 项并入"授权功能"是 2025-Q4 改的;前端元数据见 [`actionMeta.js`](web-ui/src/views/workflow/process/components/actionMeta.js)) |
 | `flowable:IdmAssignee` / `IdmCandidateUsers` / `IdmCandidateGroups` / `IdmAuthority` | 审批人来源(单个 / 候选人 / 候选角色 / 固定值角色) |
 | `flowable:IsSkip` / `IsNullSkip` | 处理人自动跳过 / 为空跳过 |
 | `flowable:IsExamined` | 同一处理人只需审批一次 |
@@ -514,15 +525,40 @@ Flowable 6.8.0 引擎  →  basicdb_flowable.act_* / flw_*
 | 流程模型 | `/workflow/model` | `list`、`listModelLaunch`(可发起)、`save`、`deploy`、`bpmnXml`、`historyList`、`latest`、`suspended`、`activate`、`publishModel`(发起) |
 | 流程定义 | `/workflow/deploy` | `list`、`publishList`、`changeState`、`deployForm` |
 | 流程实例/任务 | `/workflow/process` | `todoList`、`finishedList`、`ownList`、`copyList`、`claimList`、`detail`、`getFlowViewer`、`historyProcNodeList`、`getProcessCommentInfo`、`selectProcessPrcInstance`(流程中心) |
-| 任务操作 | `/workflow/task` | `complete`、`reject`、`return`、`returnList`(可退回节点)、`transfer`、`delegate`、`claim`、`unClaim`、`beforeAddSignTask`、`afterAddSignTask`、`mulitiSequentialUnComplete`、`stopProcess`、`revokeProcess`、`abolishProcess`、`editProcessTaskAssignee`、`skipUserTask` |
+| 任务操作(审批动作) | `/workflow/task` | 见下方「审批动作 ↔ 接口」对照表 |
 | 节点表单 | `/workflow/taskForm` | `saveProcessForm`、`selectFormDataByProcInsIdToList`、`selectFormJsonDataByTaskIdAndActIdToList`、`delProcessForm` |
 | 表单 | `/workflow/form` | `list`、`getFormByCode`、`saveForm`、`delForm`、`getVFormWidgetList` |
 | 表单分类/模板 | `/system/category`(表单分类)、`/workflow/formTemplate` | `list`、`saveFormTemplate`、`delFormTemplate` |
 | 流程分类 | `/workflow/category` | `list`、`listAll`、`getCategoryOption`、`checkCategoryCodeUnique` |
 | 表达式 | `/workflow/expression` | `list`、`export` |
 
+#### 审批动作 ↔ 后端接口(完整)
+
+| 动作 | 前端 action | 节点「授权功能」值 | 后端接口 | 备注 |
+|---|---|---|---|---|
+| 同意 | `complete` | `complete` | `POST /workflow/task/complete` | 同时可填意见/变量/抄送 |
+| 驳回 | `reject` | `reject` | `POST /workflow/task/reject` | 状态 → 已驳回 |
+| 退回 | `return` | `return` | `POST /workflow/task/return` + `/returnList` | 退回节点由下拉给出 |
+| 转办 | `transfer` | `transfer` | `POST /workflow/task/transfer` | — |
+| 委派 | `delegate` | `delegate` | `POST /workflow/task/delegate` | — |
+| 会签回退 | `mulitiSequentialUnComplete` | `mulitiSequentialUnComplete` | `POST /workflow/task/mulitiSequentialUnComplete` | 仅顺序会签 |
+| 前加签 | `addSignBefore` | `addSignBefore` | `POST /workflow/task/beforeAddSignTask` | — |
+| 后加签 | `addSignAfter` | `addSignAfter` | `POST /workflow/task/afterAddSignTask` | — |
+| 终止 | `stop` | `stop` | `POST /workflow/task/stopProcess` | 流程中心也可批量调 |
+| 默认驳回上一节点 | — | — | `POST /workflow/task/rejectLastTask` | 快捷驳回 |
+| 跳过节点 | — | — | `POST /workflow/task/skipUserTask` | 需 `skipActivityId` + `procInsId` |
+| 变更处理人 | — | — | `POST /workflow/task/editProcessTaskAssignee` | 改 `taskId` + `assignee` |
+| 修改审批意见 | — | — | `POST /workflow/task/updateTaskComment` | 已办意见纠错 |
+| 删除流程实例 | — | — | `DELETE /workflow/task/deleteProcessByIds/{ids}` | 测试数据清理 |
+| 删除单个任务 | — | — | `POST /workflow/task/deleteProcessTask` | 测试数据清理 |
+| 撤回 | — | — | `POST /workflow/task/revokeProcess` | 发起人在「我的已发」 |
+| 废除 | — | — | `POST /workflow/task/abolishProcess` | 流程中心 |
+| 签收/取消签收 | — | — | `POST /workflow/task/claim` / `unClaim` | — |
+
 > 任务类接口的请求体统一携带 `currentUserId` / `currentUserName`(前端 `api/workflow/task.js`
 > 的 `withUser()` 自动注入),后端用它写操作人与审批意见。
+>
+> 「授权功能」列表示**该动作必须在节点「授权功能」里勾上**,按钮才会出现在审批页(详见 [docs/流程引擎使用说明.md §5.3](docs/流程引擎使用说明.md#53-授权功能决定审批时有哪些按钮))。
 
 ### 7.7 数据库表对照
 

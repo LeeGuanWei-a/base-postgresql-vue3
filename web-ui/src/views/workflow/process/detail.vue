@@ -39,6 +39,9 @@
                 该指令是在 mounted 里把元素从 DOM 移除的，如果挂在按钮上，
                 tooltip 的 mounted 就找不到子元素了，悬浮说明会整体失效。
                 另外按钮上再加一个原生 title 兜底，保证任何情况下悬浮都有说明。
+
+                actionButtons 由节点「授权功能」(permissionJson) 决定，节点勾了哪些就出现哪些。
+                因此"前加签/后加签/终止"在节点没勾时不会显示——需先在「流程模型 → 节点 → 授权功能」里勾选。
               -->
               <el-tooltip
                 v-for="btn in actionButtons"
@@ -138,9 +141,11 @@ async function loadDetail() {
 
 /**
  * 当前节点可用的操作按钮。
- * 按钮定义与组装逻辑在 components/actionMeta.js（与「我的待办」列表共用，避免文案两处维护）：
- *   ① 取自节点「授权功能」（后端 currentTask.permissionJson）
+ * 按钮定义在 components/actionMeta.js，由节点「授权功能」(permissionJson) + 是否顺序会签决定：
+ *   ① 取自节点「授权功能」（后端 currentTask.permissionJson，节点上勾了哪些就出现哪些）
  *   ② 「会签回退」仅在顺序会签节点 + 授权功能勾选了它时出现
+ *   ③ 「前加签/后加签/终止」在节点「授权功能」里勾选后才会出现
+ *      （需在「流程模型 → 节点 → 授权功能」里勾选，勾选项见 sys_dict_data wf_process_permission）
  */
 const actionButtons = computed(() =>
   buildActionButtons(currentTask.value?.permissionJson, currentTask.value?.sequentialMultiInstance)

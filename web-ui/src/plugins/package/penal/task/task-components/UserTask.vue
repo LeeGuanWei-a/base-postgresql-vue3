@@ -384,7 +384,12 @@ export default {
         { label: '委派', value: 'delegate' },
         { label: '抄送', value: 'copy' },
         // 会签回退：只有顺序会签节点才会真正生效（审批端还会校验节点是否顺序会签）
-        { label: '会签回退', value: 'mulitiSequentialUnComplete' }
+        { label: '会签回退', value: 'mulitiSequentialUnComplete' },
+        // 前加签 / 后加签：见 actionMeta.js 的 ACTION_META，与字典 sys_dict_data 中 wf_process_permission 保持一致。
+        // 字典里有这三条时优先用字典，没有就用这里兜底。
+        { label: '前加签', value: 'addSignBefore' },
+        { label: '后加签', value: 'addSignAfter' },
+        { label: '终止', value: 'stop' }
       ]
     }
   },

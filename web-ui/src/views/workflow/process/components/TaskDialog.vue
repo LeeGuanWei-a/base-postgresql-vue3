@@ -11,12 +11,17 @@
       之前表单在最上面（还带必填项），审批人很容易把"意见"填进业务表单的字段里 —— 实测踩过。
     -->
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+      <!--
+        审批意见 / 退回原因 / 加签留言 / 终止原因：共用 form.comment 一个字段，
+        后端也只认 bo.getComment()。label 和 placeholder 随 action 变化，
+        是否必填看 commentConfig.required。
+      -->
       <el-form-item
-        v-if="action === 'complete' || action === 'reject' || action === 'mulitiSequentialUnComplete'"
-        label="审批意见"
-        prop="comment"
+        v-if="showComment"
+        :label="commentConfig.label"
+        :prop="commentConfig.required ? 'comment' : undefined"
       >
-        <el-input v-model="form.comment" type="textarea" :rows="3" placeholder="请输入审批意见" />
+        <el-input v-model="form.comment" type="textarea" :rows="3" :placeholder="commentConfig.placeholder" />
       </el-form-item>
       <el-form-item v-if="isUserAction" :label="userLabel" prop="userId">
         <div class="picker-row">
@@ -46,9 +51,6 @@
             :value="node.id"
           />
         </el-select>
-      </el-form-item>
-      <el-form-item v-if="action === 'stop'" label="终止原因" prop="comment">
-        <el-input v-model="form.comment" type="textarea" :rows="3" placeholder="请输入终止原因" />
       </el-form-item>
       <el-form-item v-if="action === 'complete' || action === 'reject'" label="流程变量">
         <el-input v-model="form.variables" type="textarea" :rows="2" placeholder='JSON 格式，如 {"key":"value"}' />
@@ -116,12 +118,38 @@ const formData = ref({})            // 已填数据（回显）
 const data = reactive({
   form: { comment: '', userId: '', targetActivityId: '', variables: '' },
   rules: {
-    comment: [{ required: true, message: '请输入意见', trigger: 'blur' }],
+    // comment 校验：根据当前 action 动态决定是否必填（看 commentConfig.required）
+    // 这里只放"占位规则"，真正是否必填由 commentConfig 配合 el-form-item 的 prop 决定
+    comment: [{ required: true, message: '请输入意见/原因', trigger: 'blur' }],
     userId: [{ required: true, message: '请选择人员', trigger: 'change' }],
     targetActivityId: [{ required: true, message: '请选择退回节点', trigger: 'change' }]
   }
 })
 const { form, rules } = data
+
+/**
+ * 审批意见 / 退回原因 / 加签留言 / 终止原因 统一从这里配置。
+ * 后端只认 bo.getComment()，所以这四种都用 form.comment 一个字段。
+ * - required=true  → el-form-item 会带 prop="comment" 触发 rules 必填校验
+ * - required=false → el-form-item 不带 prop，意见是可选的（前端会照样提交空串）
+ *
+ * action 列表与 actionMeta.js / TaskDialog switch 里的 case 保持一致。
+ */
+const commentConfig = computed(() => {
+  const map = {
+    complete:                   { label: '审批意见',   placeholder: '请输入审批意见',     required: true  },
+    reject:                     { label: '驳回原因',   placeholder: '请输入驳回原因',     required: true  },
+    return:                     { label: '退回原因',   placeholder: '请输入退回原因',     required: true  },
+    mulitiSequentialUnComplete: { label: '回退说明',   placeholder: '请说明会签回退原因', required: true  },
+    stop:                       { label: '终止原因',   placeholder: '请输入终止原因',     required: true  },
+    // 前加签/后加签：业务上不强制（被加签人办完还是会回看/自己审），但鼓励写，
+    // 写了的会作为小李给张三/后置审批人的指引存进 wf_comment_info。
+    addSignBefore:              { label: '加签留言',   placeholder: '可选：写给被加签人的说明（让 ta 知道为什么加签）', required: false },
+    addSignAfter:               { label: '加签留言',   placeholder: '可选：写给被加签人的说明（让 ta 知道为什么加签）', required: false }
+  }
+  return map[action.value] || { label: '说明', placeholder: '请输入', required: false }
+})
+const showComment = computed(() => !!commentConfig.value.label)
 
 // ---- 人员选择器（转办/委派=单选，加签=多选）----
 // ProcessUser 的契约：props.selectUserData = { dialogVisible, info, type, users, data }
@@ -129,11 +157,11 @@ const { form, rules } = data
 const pickedUsers = ref([])
 const userPicker = reactive({ dialogVisible: false, info: false, type: '', users: [], data: [] })
 
-/** 需要选人的动作 */
-const isUserAction = computed(() => ['transfer', 'delegate', 'addSign'].includes(action.value))
-/** 转办/委派只能选一个；加签可以选多个 */
+/** 需要选人的动作：转办/委派=单选，前加签/后加签=多选 */
+const isUserAction = computed(() => ['transfer', 'delegate', 'addSignBefore', 'addSignAfter'].includes(action.value))
+/** 转办/委派只能选一个；加签（前后）可以选多个 */
 const singleUser = computed(() => action.value === 'transfer' || action.value === 'delegate')
-const userLabel = computed(() => (action.value === 'addSign' ? '加签人' : '接收人'))
+const userLabel = computed(() => (action.value === 'addSignBefore' || action.value === 'addSignAfter' ? '加签人' : '接收人'))
 
 // ---- 退回节点列表 ----
 const returnNodes = ref([])
@@ -146,7 +174,8 @@ const dialogTitle = computed(
       reject: '拒绝',
       transfer: '转办',
       delegate: '委派',
-      addSign: '加签',
+      addSignBefore: '前加签',
+      addSignAfter: '后加签',
       return: '退回',
       stop: '终止',
       mulitiSequentialUnComplete: '会签回退'
@@ -170,6 +199,8 @@ function openDialog(opts) {
   pickedUsers.value = []
   userPicker.data = []
   returnNodes.value = []
+  // 复原 comment 规则（submit 里按 action 改过）。给个非空数组避免 validate 报"未定义"。
+  rules.comment = [{ required: true, message: '请输入说明', trigger: 'blur' }]
   open.value = true
   loadTaskForm()
   // 退回：需要"可退回节点"下拉数据（后端按已办过且能到达当前节点筛选）
@@ -251,6 +282,15 @@ async function loadTaskForm() {
 }
 
 async function submit() {
+  // 前加签/后加签的 comment 是可选的，rules 里静态写了 required: true 会被 el-form 拦下，
+  // 所以先按当前 action 把"不要求 comment 必填"对应的规则清掉，再走统一 validate。
+  if (!commentConfig.value.required) {
+    // 直接从 rules 里摘掉 comment 规则，validate 看到没规则就不校验
+    rules.comment = []
+  } else {
+    // 防御性恢复：openDialog 切 action 时没还原的情况
+    rules.comment = [{ required: true, message: '请输入' + (commentConfig.value.label || '说明'), trigger: 'blur' }]
+  }
   await formRef.value.validate()
 
   const params = {
@@ -297,9 +337,13 @@ async function submit() {
         // 同上：WfDelegateTaskService 用 bo.getAssignee() 执行 delegateTask
         res = await delegateTask({ ...params, assignee: form.userId })
         break
-      case 'addSign':
-        // Controller 读取 bo.getUserList()（逗号分隔的用户 id 串）
+      case 'addSignBefore':
+        // 前加签：被加签人先办，办完回到自己（操作人）
         res = await beforeAddSignTask({ ...params, userList: form.userId })
+        break
+      case 'addSignAfter':
+        // 后加签：自己先办完（被引擎自动 complete 自己的子任务），再让被加签人补审
+        res = await afterAddSignTask({ ...params, userList: form.userId })
         break
       case 'return':
         res = await returnTask({ ...params, targetKey: form.targetActivityId })

@@ -10,6 +10,14 @@
  * 抄送是随「同意/驳回」等动作一起触发的（WfTaskBo.copyUserIds），
  * 所以授权功能里的 copy 表示"该节点允许审批时抄送"，不是一个独立按钮。
  */
+/**
+ * 节点「授权功能」里可选的 8 个动作。
+ * 这些值必须与后端 UserTaskExtensionElementEnum / WfTaskBo 解析出的 key 一致，
+ * 同时与流程设计器「授权功能」复选框（字典 wf_process_permission + UserTask.vue 兜底）保持一致：
+ *   complete / reject / return / transfer / delegate / mulitiSequentialUnComplete
+ *   + addSignBefore / addSignAfter / stop
+ * 任何一处加新值，三个地方都要同步：这里、设计器字典/兜底、后端 WfTaskController。
+ */
 export const ACTION_META = {
   complete: {
     label: '同意',
@@ -40,6 +48,26 @@ export const ACTION_META = {
     type: 'info',
     permis: ['workflow:process:delegate'],
     tip: '委派他人处理，处理完回到自己确认'
+  },
+  // 「前加签/后加签/终止」：节点「授权功能」里勾了就出现，没勾就不出现。
+  // 配合 sys_dict_data 中 wf_process_permission 的 65/66/67 三条字典项使用。
+  addSignBefore: {
+    label: '前加签',
+    type: 'primary',
+    permis: ['workflow:process:beforeAddSignTask'],
+    tip: '在当前节点前插入审批人：被加签人先办，办完回到自己，自己再办一次才流转'
+  },
+  addSignAfter: {
+    label: '后加签',
+    type: 'primary',
+    permis: ['workflow:process:afterAddSignTask'],
+    tip: '在当前节点后插入审批人：自己先办完，再让被加签人补审，被加签人办完才流转'
+  },
+  stop: {
+    label: '终止',
+    type: 'danger',
+    permis: ['workflow:process:cancel'],
+    tip: '结束整个流程（历史记录、审批意见、表单数据保留）'
   }
 }
 

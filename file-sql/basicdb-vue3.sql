@@ -5753,6 +5753,11 @@ INSERT INTO basicdb_flowable.sys_dict_data VALUES (61, 4, '转办', 'transfer', 
 INSERT INTO basicdb_flowable.sys_dict_data VALUES (62, 5, '委派', 'delegate', 'wf_process_permission', NULL, 'info', 'N', '0', 'admin', '2026-10-15 11:56:58', NULL, NULL, '委派他人处理');
 INSERT INTO basicdb_flowable.sys_dict_data VALUES (63, 6, '抄送', 'copy', 'wf_process_permission', NULL, NULL, 'N', '0', 'admin', '2026-10-15 11:56:58', NULL, NULL, '抄送给他人');
 INSERT INTO basicdb_flowable.sys_dict_data VALUES (64, 7, '会签回退', 'mulitiSequentialUnComplete', 'wf_process_permission', NULL, 'warning', 'N', '0', 'admin', '2026-10-15 14:08:13', NULL, NULL, '顺序会签节点回退给上一位处理人（仅顺序会签节点生效）');
+-- 下面三条是 2025-XX-XX 加的：让节点「授权功能」复选框能勾上前加签/后加签/终止。
+-- 权限点（菜单 1575/1627/1576）和角色绑定 admin/普通 角色都已经有，不用再插。
+INSERT INTO basicdb_flowable.sys_dict_data VALUES (65, 8, '前加签', 'addSignBefore', 'wf_process_permission', NULL, 'primary', 'N', '0', 'admin', '2026-10-15 14:08:13', NULL, NULL, '在当前节点前插入审批人：被加签人先办，办完回到自己');
+INSERT INTO basicdb_flowable.sys_dict_data VALUES (66, 9, '后加签', 'addSignAfter', 'wf_process_permission', NULL, 'primary', 'N', '0', 'admin', '2026-10-15 14:08:13', NULL, NULL, '在当前节点后插入审批人：自己先办完，再让被加签人补审');
+INSERT INTO basicdb_flowable.sys_dict_data VALUES (67, 10, '终止', 'stop', 'wf_process_permission', NULL, 'danger', 'N', '0', 'admin', '2026-10-15 14:08:13', NULL, NULL, '结束整个流程（历史/审批意见/表单数据保留）');
 
 
 --

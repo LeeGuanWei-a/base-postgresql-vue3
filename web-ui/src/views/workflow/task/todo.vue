@@ -18,12 +18,13 @@
       <el-table-column prop="taskName" label="当前节点" min-width="120"></el-table-column>
       <el-table-column prop="startUserName" label="发起人" width="100"></el-table-column>
       <el-table-column prop="createTime" label="发起时间" width="180"></el-table-column>
-      <el-table-column label="操作" align="center" width="400" class-name="small-padding fixed-width" fixed="right">
+      <el-table-column label="操作" align="center" width="420" class-name="small-padding fixed-width" fixed="right">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="handleDetail(scope.row)">详情</el-button>
           <!--
             审批按钮由该行节点的「授权功能」决定（列表接口返回 permissionJson），
             顺序会签节点会多一个「会签回退」。鼠标悬浮显示各按钮的作用说明。
+            「前加签/后加签/终止」现在也是「授权功能」里的 8 个 key 之一，所以也会按节点配置出现。
             注意：v-hasPermi 挂在 el-tooltip 上，不能挂按钮上 ——
             该指令在 mounted 里把元素从 DOM 移除，挂在按钮上会让 tooltip 找不到子元素而失效。
           -->
@@ -41,24 +42,6 @@
               @click="openAction(scope.row, btn.action)"
             >{{ btn.label }}</el-button>
           </el-tooltip>
-          <!-- 终止不属于「授权功能」，按菜单权限单独控制 -->
-          <el-tooltip content="终止整个流程（流程结束，历史记录等数据保留）" placement="top">
-            <el-button
-              link
-              type="danger"
-              title="终止整个流程（流程结束，历史记录等数据保留）"
-              @click="handleStop(scope.row)"
-              v-hasPermi="['workflow:process:cancel']"
-            >终止</el-button>
-          </el-tooltip>
-          <el-dropdown>
-            <el-button link type="primary" icon="More"></el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="handleAddSign(scope.row)">加签</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -117,6 +100,8 @@ function handleDetail(row) { router.push({ path: '/workflow/process/detail', que
 /**
  * 该行节点的审批按钮：由节点「授权功能」+ 是否顺序会签决定，
  * 数据来自列表接口（WfTaskVo.permissionJson / sequentialMultiInstance）。
+ * 8 个可勾选项：同意/驳回/退回/转办/委派/会签回退 + 前加签/后加签/终止。
+ * 节点上勾了哪些就出现哪些；勾选项见 sys_dict_data wf_process_permission。
  */
 function rowButtons(row) {
   return buildActionButtons(row.permissionJson, row.sequentialMultiInstance)
@@ -125,9 +110,6 @@ function rowButtons(row) {
 function openAction(row, action) {
   taskDialogRef.value.open({ action, task: row })
 }
-// 加签 / 终止 不属于「授权功能」的 6 个值，仍按各自的菜单权限单独控制
-function handleAddSign(row) { taskDialogRef.value.open({ action: 'addSign', task: row }) }
-function handleStop(row) { taskDialogRef.value.open({ action: 'stop', task: row }) }
 
 getList()
 </script>
