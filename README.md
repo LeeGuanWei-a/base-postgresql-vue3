@@ -1,554 +1,360 @@
 # Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus + TypeScript)
 
-基于若依 RuoYi-Vue 3.9.2 改造,从 **Spring Boot 3.5.16** 升级到 **Spring Boot 4.1.1**,**前端从 JavaScript 升级到 TypeScript** 的实战记录。
+基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot4` 分支**唯一区别**:**前端两端(`web-ui` / `web-mp`)从 JavaScript 升级到 TypeScript**;后端完全保持 `springboot4` 的 SB 4.1.1 / JDK 21 / Security 7 / Jackson 3 / Jakarta 6 升级。
 
-> 本分支 `springboot4_TypeScript` 基于 `springboot4` 切出,叠加了 `springboot2_TypeScript` / `springboot3_TypeScript` 分支里完成的**前端 JS → TS 化**改造。
->
-> 仓库另有 `springboot2_TypeScript`(SB 2.5.14 + TS)、`springboot3`(SB 3.5.16 + JS)、`springboot3_TypeScript`(SB 3.5.16 + TS)等分支。
+> 当前分支:`springboot4_TypeScript` ——「**springboot4 + 前端全量 TypeScript 化**」(仓库最完整栈,7 条分支里技术栈最新最全)。
+> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` 等分支,本分支**只描述 springboot4_TypeScript**。
 
 ---
 
 ## 前端说明
 
-本仓库前端为 **TypeScript 版**:
+本分支前端**两端都是 TypeScript 版**(区别于 `springboot4` 的 JS 版):
+
+### 1.1 PC 管理端 `web-ui/`
 
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
 - 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
 - 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
 - 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
-- 类型目录:`src/types/api/**.ts`(通用 + 业务模块全覆盖)
-- vite 配置:`vite.config.ts`(TS 版,跟 springboot4 原 `vite.config.js` 中文乱码版不同)
+- API 层:`src/api/**` 全部从 `.js` → `.ts`,并新增 `src/types/api/**.ts` 全量类型定义
+- vite 配置:`vite.config.ts`(TS 版,跟 `springboot4` 原 `vite.config.js` 中文乱码版不同)
 
-> JS 版在 `springboot3` / `springboot4` 分支,package.json 不含 `typescript`,本分支**未涉及**。
+> JS 版在 `springboot3` / `springboot4` 分支,本分支**未涉及**。
+
+### 1.2 移动端 `web-mp/`(本分支新增,与 `springboot4` 一致,但额外做 TS 化)
+
+- 框架:**uni-app 3.0 (alpha)** + Vue 3.4.21(组合式 API `<script setup lang="ts">`)
+- UI:**uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀)
+- 语言:**TypeScript ^5.4.5**(`tsconfig.json` 已配,`vue-tsc ^2.0.19` 做类型检查)
+- 构建:Vite 5.2.8
+- 一份代码同时跑 **H5 / 微信小程序 / Android / iOS / 其它小程序**
+- 状态管理:Pinia 2.0.36
+- 加密:jsencrypt(对接后端 RSA 登录)
+
+> 详细说明见下文**「十一、移动端 `web-mp`」** 章节。
 
 ---
 
-## 一、升级前后对照(基于 `git show a4c182a:pom.xml`)
+## 一、当前后端状态(基于 `git show HEAD:pom.xml`)
 
-| 组件 | SB 3.5.16 (上次,commit a4c182a) | SB 4.1.1 (本次) |
+> 本分支**后端与 `springboot4` 完全一致**:Spring Boot 4.1.1 + JDK 21 + Spring 7 + Security 7 + Jackson 3 + Jakarta 6 + springdoc 3.1。
+
+| 组件 | 版本 | 与 master 的差异 |
 |---|---|---|
-| JDK | 17 | **21** |
-| Spring Boot | 3.5.16 | **4.1.1** |
-| Spring Framework | 6.x | **7.0.9** |
-| Spring Security | 6.x | **7.1.1** |
-| Spring Data Redis | 3.x | **4.1.1** |
-| MyBatis-Spring-Boot | 3.0.5 | **4.1.0** |
-| MyBatis-Plus | 3.5.7 | **3.5.17** |
-| PageHelper starter | 2.1.1 | **4.1.1** |
-| Druid | 1.2.28 | **1.2.28**(用 `druid-spring-boot-4-starter`,包名 `boot3.autoconfigure` → `boot4.autoconfigure`) |
-| Springdoc-openapi | 2.9.0 | **3.1.1** |
-| Lombok | 1.18.46 | **1.18.46** |
-| **Jackson** | 2.x (`com.fasterxml.jackson`) | **3.1.5** (`tools.jackson`,全包名换) |
+| **JDK** | **21** | ★★ 由 11 升到 21 |
+| Spring Boot | **4.1.1** | ★★ 由 2.5.14 升到 4.1.1 |
+| Spring Framework | **7.0.9** | ★★ 由 5.3.x 升到 7.x |
+| Spring Security | **7.1.1** | ★★ 由 5.5.x 升到 7.x(严格化,`getAuthorities()` 不能返回 null) |
+| Spring Data Redis | **4.1.1** | |
+| MyBatis-Plus | **3.5.17** | + `mybatis-plus-spring-boot4-starter` |
+| MyBatis-Spring-Boot | **4.1.0** | ★★ starter 名带 `-4-` |
+| PageHelper starter | **4.1.1** | |
+| Druid | **1.2.28** | starter `druid-spring-boot-4-starter`,包名 `boot4.autoconfigure` |
+| Springdoc-openapi | **3.1.1** | ★ 由 springfox 3.0.0 升到 3.1.1 |
+| Hutool | hutool-core 5.8.27 | |
+| yauaa | 8.2.0 | |
+| Lombok | 1.18.46 | |
+| **Jackson** | **3.1.5** (`tools.jackson.*`,全包名换) | ★★ **本次最大坑** |
+| jakarta.servlet | **6.1.0** | ★★ javax.servlet → jakarta.servlet |
+| fastjson2 | **未引入** | (若依原版用,我们不用,改 Jackson 3) |
+| Quartz | **spring-boot-starter-quartz**(自动装配 `SchedulerFactoryBean`) | ★ 取代手写的 `quartz:2.5.2` 依赖 |
+
+> 完整的 SB 2 → SB 3 → SB 4 升级细节(Jackson 3 适配 / Redis 序列化 / 循环依赖等)
+> 与 `springboot4` 分支**完全相同**,本 README 不重复,见 `springboot4` 分支的对应章节。
 
 ---
 
-## 二、Spring Boot 4 相对 3 的主要破坏性变更(本次踩坑)
+## 二、本分支是什么
 
-### 2.1 Starter 重命名 / 子模块拆分
+`springboot4_TypeScript` 分支以 **`springboot4` 分支**为基线,只做了一件事:
 
-| SB 3 | SB 4 | 说明 |
-|---|---|---|
-| `spring-boot-starter-web` | `spring-boot-starter-webmvc` | 重命名 |
-| `spring-boot-starter-aop` | `spring-boot-starter-aspectj` | 重命名 |
-| `druid-spring-boot-3-starter` | `druid-spring-boot-4-starter` | 包名 `com.alibaba.druid.spring.boot3.autoconfigure` → `com.alibaba.druid.spring.boot4.autoconfigure` |
-| `mybatis-plus-spring-boot3-starter` | `mybatis-plus-spring-boot4-starter` | 同上 |
-| `spring-boot-starter-json` 传递的 Jackson 模块 | **需显式引入**各种子模块 | Jackson 拆分严重 |
-| `spring-boot-starter-quartz` | 同名不变 | 自动装配 `SchedulerFactoryBean`,**无需手写** |
-| `spring-boot-starter-data-redis` | 同名,但**不自动装配 `RedisCacheManager`** | 见 2.7 |
-| `Jackson2ObjectMapperBuilder` 等 | **完全删除** | 改用 `JsonMapper.builder()` 或 `ObjectMapperBuilderCustomizer` |
+> **复用 `springboot3_TypeScript` 分支的前端 TS 化成果**(整 `web-ui` 目录替换),
+> 把前端两端(`web-ui` / `web-mp`)都从 JavaScript 升级到 TypeScript;
+> 后端、所有依赖、数据库脚本**完全保持 `springboot4` 的状态**。
 
-Jackson 子模块 SB 4 拆出独立 jar:
-- `spring-boot-jackson`(`JacksonAutoConfiguration`、`JacksonProperties`)
-- `spring-boot-http-converter`(`MappingJackson2HttpMessageConverter`、`Jackson2HttpMessageConvertersConfiguration`)
-- `spring-boot-cache`(`CacheAutoConfiguration`,**没有** `RedisCacheConfiguration` 自动装配)
-- `spring-boot-jdbc`(`DataSourceAutoConfiguration`)
-- `spring-boot-validation`(`HibernateValidator`)
+具体而言:
 
-### 2.2 Jackson 2 → Jackson 3 全面切换(**本次最大坑**)
+1. **`web-ui` 整目录从 `springboot3_TypeScript` 替换进来**(~197 个文件改动)
+2. **`web-ui/src/api/**` 全量 `.js` → `.ts`**:login / menu / monitor.* / system.* / tool.* 共 18+ 个 API 文件
+3. **新增 `web-ui/src/types/` 目录**:全量 TypeScript 类型定义(API 参数 / 返回 / 通用 R / AjaxResult / TableDataInfo 等)
+4. **新增 `web-ui/src/utils/auth.ts`**:从原 `.js` 改写并加类型
+5. **`web-ui/package.json` 新增 TS 工具链**:`typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1`
+6. **`vite.config.js` 升级为 `vite.config.ts`**:本分支**额外改善**——`springboot4` 原 `vite.config.js` 有中文乱码,
+   TS 版重写时用 TS + 干净中文
+7. **`web-ui/src/assets/styles/basic.scss` 主题色从 `springboot3_TypeScript` 继承保留**:
+   本仓库自定义的 `--el-color-primary: #1890ff` 蓝色品牌色不丢失
+8. **`web-mp` 也跟着 TS 化**:`tsconfig.json` 配好(`strict: false` 起步,`@/*` 路径别名),
+   `vite.config.js` 升级为 `vite.config.ts`,`package.json` 加 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19`,
+   并配 `typecheck` 脚本
+9. **环境/配置微调**:`.npmrc` / `auto-imports.d.ts` / 各种 `.vue` `<script setup lang="ts">` 类型标注
 
-SB 4 默认引入的是 **Jackson 3**,包名从 `com.fasterxml.jackson` 全部迁到 `tools.jackson`。
-
-| 概念 | Jackson 2 (SB 3) | Jackson 3 (SB 4) |
-|---|---|---|
-| ObjectMapper | `com.fasterxml.jackson.databind.ObjectMapper` | `tools.jackson.databind.ObjectMapper` |
-| JSON 异常 | `JsonProcessingException` extends `IOException` | `JacksonException` extends `RuntimeException` |
-| 序列化器基类 | `JsonSerializer<T>` / `StdSerializer<T>` | `ValueSerializer<T>` / `StdSerializer<T>` |
-| 上下文参数 | `SerializerProvider` | `SerializationContext` |
-| 模块类 | `com.fasterxml.jackson.databind.Module` | `tools.jackson.databind.JacksonModule` |
-| `SimpleModule` | `com.fasterxml.jackson.databind.module.SimpleModule` | `tools.jackson.databind.module.SimpleModule` |
-| HttpMessageConverter | `MappingJackson2HttpMessageConverter`(Jackson 2) | **`JacksonJsonHttpMessageConverter`**(Jackson 3) |
-| **`@JsonFormat` / `@JsonIgnore` / `@JsonInclude` annotation** | `com.fasterxml.jackson.annotation.*` | **没变**(annotation 包名还是 com.fasterxml.jackson) |
-| Module 注册 API | `ObjectMapper.registerModule(Module)` **运行时注册** | `MapperBuilder.addModule(JacksonModule)` **构建时注册** |
-| defaultTyping | `mapper.activateDefaultTyping(ptv, ...)` | `builder.activateDefaultTyping(ptv, ...)`(在 `JsonMapper$Builder` 上) |
-| `NumberSerializer` | `ser.std.NumberSerializer` 存在 | **不存在**,需自己写 |
-
-> ⚠️ **重要**:Jackson 3 的 Module **只能在构建时通过 `JsonMapper.builder().addModule(...)` 注册**;运行时调 `ObjectMapper.registerModule(...)` 不存在。Spring Boot 4 提供 `JsonMapperBuilderCustomizer` 钩子来介入默认 mapper 的构建。
-
-### 2.3 Spring Security 7 严格化
-
-```java
-@Override
-public Collection<? extends GrantedAuthority> getAuthorities() {
-    // SB 3 / Security 6 还能 return null,只是会有警告
-    // SB 4 / Security 7 直接 NPE
-    return permissions == null || permissions.isEmpty()
-        ? Collections.emptyList()
-        : permissions.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-}
-```
-
-### 2.4 Spring Framework 7 API 弃用
-
-- `WebMvcConfigurer` 接口整体 `@Deprecated` → 仍能用(自动用,加 `@SuppressWarnings("deprecation")`),长期要看 `WebMvcConfigurer` 的新实现(尚未 GA)。
-- `RequestMappingInfo.getPatternsCondition()` 弃用 → 改用 `getPatternValues()`,返回 `Set<String>`。
-
-### 2.5 Servlet 5 → 6
-
-- `jakarta.servlet:jakarta.servlet-api:5.x` → `6.1.0`。
-- 对业务代码透明,基本不用改。
-
-### 2.6 MyBatis-Plus 3.5.7 → 3.5.17 注意事项
-
-- 拦截器 `BlockAttackInnerInterceptor`、`PaginationInnerInterceptor` 等迁到 `mybatis-plus-jsqlparser-4.9` 子模块且官方标 `<optional>true</optional>`,**不传递**,必须在使用方显式引入。
-- 项目依赖里**显式**:
-  ```xml
-  <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>mybatis-plus-extension</artifactId>
-  </dependency>
-  <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
-  </dependency>
-  ```
-- 3.5.13+ 部分 API 还在 `spring.service` 子模块,使用 `IService` / `ServiceImpl` 时 import 不变(`com.baomidou.mybatisplus.extension.service.IService`)。
-
-### 2.7 SB 4.1.1 不再自动装配 `RedisCacheManager`
-
-`spring-boot-cache-4.1.1.jar` 的 `AutoConfiguration.imports` 只有:
-```
-CacheAutoConfiguration
-CachesEndpointAutoConfiguration
-CacheMetricsAutoConfiguration
-```
-
-**没有 `RedisCacheConfiguration`**!`@EnableCaching` 启动时找不到 `CacheManager` Bean 就报错。**必须**用户自己显式声明。
-
-> **本项目之前其实也没在用 `@Cacheable`**,但因为 `@EnableCaching` 触发查找 CacheManager 失败,启动崩。SB 3 时代会自动装配 `RedisCacheManager`,SB 4 不会。
-
-### 2.8 配置文件 `spring.redis` 改 `spring.data.redis`
-
-SB 3 时代 `spring.redis.host` 已被警告,SB 4 直接**失效**。`application-dev.yml` 已从 `spring.redis.*` 迁到 `spring.data.redis.*`(commit a4c182a 时已改)。
+`springboot4_TypeScript` 与 `springboot4` 的**唯一差异**就是上面 1–9 的前端 TS 化;后端代码、
+SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 ---
 
-## 三、Redis 序列化的 Jackson 3 适配(本次最大坑)
+## 三、相对 `springboot4` 的具体改动
 
-### 3.1 不能用 `Jackson2JsonRedisSerializer`
+| 改动 | 涉及文件 / 位置 |
+|---|---|
+| `web-ui` 整目录从 `springboot3_TypeScript` 替换 | `web-ui/` 全部(整目录替换) |
+| `web-ui` API 层 TS 化 | `web-ui/src/api/**` 下所有 `*.js` → `*.ts` |
+| `web-ui` 新增类型目录 | `web-ui/src/types/api/**.ts`(全量 API 类型)+ `types/components.d.ts` / `global.d.ts` / `index.ts` |
+| `web-ui/utils/auth` TS 化 | `web-ui/src/utils/auth.ts` |
+| `web-ui` 入口 / 路由 / store TS 化 | `web-ui/src/main.ts` / `permission.ts` / `router/index.ts` / `store/**` / `directive/**` / `plugins/**` |
+| `web-ui` 主题色保留 | `web-ui/src/assets/styles/basic.scss`(从 `springboot3_TypeScript` 继承,本仓库主题色) |
+| `web-ui` TS 工具链 | `web-ui/package.json` 新增 `typescript` / `vue-tsc` / `@vue/tsconfig` |
+| `web-ui` 工程配置 | `web-ui/.npmrc`(pnpm 镜像源)/ `tsconfig.json` / `auto-imports.d.ts` |
+| `web-ui` vite 配置 | `web-ui/vite.config.js` → `vite.config.ts`(★ 本分支额外改善,解决 `springboot4` 中文乱码) |
+| `web-mp` TS 化 | `web-mp/tsconfig.json`(新增) + `web-mp/vite.config.ts`(`vite.config.js` 改名) |
+| `web-mp` 入口 / 守卫 TS 化 | `web-mp/src/main.ts` / `web-mp/src/permission.ts` |
+| `web-mp` TS 工具链 | `web-mp/package.json` 新增 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19` / `typecheck` 脚本 |
+| `web-mp` 其它 `*.ts` 化 | `web-mp/src/api/**` / `store/**` / `utils/**` 等 |
+| 数据库脚本 | `file-sql/basicdb-vue3.sql`(与 `springboot4` 同步,PostgreSQL) |
 
-`org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer` 在 `spring-data-redis:4.1.1` 仍然存在但**绑定 Jackson 2 的 ObjectMapper**,跟 SB 4 默认 Jackson 3 不兼容。
-
-### 3.2 改用 `GenericJacksonJsonRedisSerializer`
-
-`org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer`(Jackson 3 时代新类)。
-
-但**关键**:`GenericJacksonJsonRedisSerializer` 内部用 `JacksonObjectWriter.write(mapper, value)`,实际就是 `mapper.writeValueAsBytes(value)`,**不在内部添加任何类型信息**。完全依赖传入的 ObjectMapper 自己。
-
-### 3.3 必须给 Redis 专用 JsonMapper 启用 defaultTyping
-
-如果 ObjectMapper 没启用 defaultTyping,序列化时**不写 `@class` 字段**,反序列化时 Object → LinkedHashMap → 转 LoginUser **ClassCastException**。
-
-**defaultTyping 副作用**:Web API 返回值也会被包成 `[类名, {...}]`,前端 JS 解析不了,**必须** Redis 用独立的 JsonMapper,Web 用默认 JsonMapper(不带 defaultTyping)。
-
-### 3.4 本项目最终方案
-
-**两个 ObjectMapper**:
-- **Web 端**(默认 `JsonMapper` Bean):不带 defaultTyping,只通过 `JsonMapperBuilderCustomizer` 加 BigNumber Module,API 返回值正常 `{...}`。
-- **Redis 端**(`RedisConfig.buildRedisJsonMapper()`):独立构造,带 defaultTyping,白名单限制在 `com.basic.*`、`java.util.*`、`java.lang.*`、`java.time.*`,避免反序列化 RCE 漏洞(参照若依白名单思路)。
-
-### 3.5 清理脏数据
-
-升级时 Redis 里**旧格式的缓存**(没 defaultTyping 时写入的普通对象)读不出来。要么手动 `DEL`,要么代码里**反序列化失败时自动删 key + 返回 null**:
-
-```java
-// RedisCache.getCacheObject
-public <T> T getCacheObject(final String key) {
-    try {
-        return redisTemplate.opsForValue().get(key);
-    } catch (Exception e) {
-        log.error("从 Redis 读取 key={} 失败, 自动删除失效 key", key, e);
-        try { redisTemplate.delete(key); } catch (Exception ignore) { }
-        return null;
-    }
-}
-```
+> 后端代码(`SysLoginController` / `SysLoginService` / 若干 Mapper / `SysRole` / `pom.xml` / Jackson 3 适配代码 等)
+> 与 `springboot4` **完全一致**,不重复。
 
 ---
 
-## 四、本项目**不引 fastjson2** 的决策
+## 四、与 `springboot4` 共享的部分
 
-若依 SB 4.1.0 用了 `FastJson2JsonRedisSerializer`(基于 `com.alibaba.fastjson2:fastjson2:2.0.64`)。
+下面这些**与 `springboot4` 完全一致**,本分支**不重复**:
 
-**我们没用**,因为:
-- fastjson2 历史漏洞:CVE-2023-52425(≤ 2.0.34 RCE)、CVE-2022-25845 系列。2.0.64 修了大半但仍有零星 CVE 报告。
-- 默认 autoType 模式,白名单若配错就出 RCE。
-- SB 4 生态已经为 Jackson 3 适配好了,直接用 `GenericJacksonJsonRedisSerializer` 更省事。
-
----
-
-## 五、配置文件关键修改
-
-### 5.1 `pom.xml`(父 pom)
-
-```xml
-<properties>
-    <java.version>17 → 21</java.version>
-    <spring-boot.version>3.5.16 → 4.1.1</spring-boot.version>
-    <mybatis-spring-boot.version>3.0.5 → 4.1.0</mybatis-spring-boot.version>
-    <mybatis-plus-boot-starter.version>3.5.7 → 3.5.17</mybatis-plus-boot-starter.version>
-    <druid.version>1.2.28(不变)</druid.version>
-    <pagehelper.boot.version>2.1.1 → 4.1.1</pagehelper.boot.version>
-    <springdoc.version>2.9.0 → 3.1.1</springdoc.version>
-    <lombok.version>1.18.46(不变)</lombok.version>
-    <basic.version>4.0.0(不变)</basic.version>
-</properties>
-```
-
-dependencyManagement 中:
-- `spring-boot-starter-webmvc` 替代 `spring-boot-starter-web`
-- `spring-boot-starter-aspectj` 替代 `spring-boot-starter-aop`
-- `druid-spring-boot-4-starter` 替代 `druid-spring-boot-3-starter`
-- `mybatis-plus-spring-boot4-starter` 替代 `-3-`
-- 显式 `mybatis-plus-extension` + `mybatis-plus-jsqlparser-4.9`
-- 显式 `jackson-datatype-jsr310`(SB 4 starter-json 不再传递)
-- 显式 `tools.jackson.core:jackson-databind`(Jackson 3 替换 Jackson 2)
-
-### 5.2 7 个子模块 `pom.xml`
-
-全部 `parent.version` 改为 `4.0.0`(因 PowerShell 批量替换曾破坏 UTF-8,后改用 Edit 工具逐个改)。
-
-### 5.3 `basic-common/pom.xml`
-
-- `mybatis-plus-spring-boot3-starter` → `spring-boot4-starter`
-- `com.fasterxml.jackson.core:jackson-databind` → `tools.jackson.core:jackson-databind`
-
-### 5.4 `basic-framework/pom.xml`
-
-- `spring-boot-starter-web` → `spring-boot-starter-webmvc`
-- `spring-boot-starter-aop` → `spring-boot-starter-aspectj`
-- `druid-spring-boot-3-starter` → `druid-spring-boot-4-starter`
-- 新增:`mybatis-plus-extension` / `mybatis-plus-jsqlparser-4.9` / `jackson-datatype-jsr310`
-
-### 5.5 `extend-quartz/pom.xml`
-
-- 单独 `quartz:2.5.2` 依赖移除,改用 `spring-boot-starter-quartz`(SB 自动装配 SchedulerFactoryBean,RAMJobStore 避免 PG `varchar(1)` 字段雷)。
-
-### 5.6 `extend-generator/pom.xml`
-
-- `druid-spring-boot-3-starter` → `druid-spring-boot-4-starter`
-
-### 5.7 `application-dev.yml`
-
-- `statViewServlet.enabled: false` → `true`(启用 Druid 监控页)
-- `spring.data.redis.*` 已在 commit a4c182a 改好,本次不动
+| 维度 | 内容 |
+|---|---|
+| **后端** | SB 4.1.1 + JDK 21 + Spring 7 + Security 7 + Jackson 3 + Jakarta 6 + springdoc 3.1 全部继承 |
+| **7 个子模块 `parent.version`** | `4.0.0` |
+| **Jackson 2 → 3 适配** | `JsonUtils` / `BigNumberSerializer` / `BigNumberModuleConfig` / `RedisConfig`(用 `GenericJacksonJsonRedisSerializer`)/ `ResourcesConfig` 精简 等 |
+| **Spring Security 7 NPE 修复** | `LoginUser.getAuthorities()` 不返回 null |
+| **Spring Framework 7 API 迁移** | `getPatternsCondition()` → `getPatternValues()` |
+| **`RedisCache` 脏数据自愈** | `getCacheObject` 反序列化失败时自动删失效 key |
+| **`Quartz` 自动装配** | 用 `spring-boot-starter-quartz` 替代手写 `quartz:2.5.2` 依赖 |
+| **Druid 监控页** | `statViewServlet.enabled: true` |
+| **业务功能** | 锁屏解锁、SQL bug 修复等与 master 共同的改动全部继承 |
+| **数据库脚本** | `file-sql/basicdb-vue3.sql`(34 张表 + 5 函数,`basicdb` schema) |
+| **目录结构** | 7 个后端 maven module + `web-ui/` + `web-mp/` |
+| **`application.yml` 数据源** | PostgreSQL `jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb` |
 
 ---
 
-## 六、Java 代码关键修改
+## 五、运行前 checklist
 
-### 6.1 `basic-common/.../utils/JsonUtils.java`(Jackson 3)
-
-- `com.fasterxml.jackson.core.JsonProcessingException` → `tools.jackson.core.JacksonException`
-- `com.fasterxml.jackson.core.type.TypeReference` → `tools.jackson.core.type.TypeReference`
-- `com.fasterxml.jackson.databind.ObjectMapper` → `tools.jackson.databind.ObjectMapper`
-- 所有 `catch (IOException e)` 改 `catch (JacksonException e)`(因为 Jackson 3 异常是 `RuntimeException`,不是 `IOException`)
-- 删掉无用的 `import java.io.IOException`
-
-### 6.2 `basic-framework/.../jackson/BigNumberSerializer.java`(Jackson 3)
-
-原继承 `com.fasterxml.jackson.databind.ser.std.NumberSerializer`(Jackson 2 旧类)——
-**Jackson 3 的 `ser/std/` 已经没有 `NumberSerializer`**,改成直接继承 `tools.jackson.databind.ValueSerializer<Number>`,自己写 `serialize()` 逻辑:
-```java
-public class BigNumberSerializer extends ValueSerializer<Number> {
-    public static final BigNumberSerializer INSTANCE = new BigNumberSerializer();
-    @Override
-    public void serialize(Number value, JsonGenerator gen, SerializationContext ctxt)
-            throws JacksonException {
-        if (value.longValue() > MIN_SAFE_INTEGER && value.longValue() < MAX_SAFE_INTEGER) {
-            gen.writeNumber(value.longValue());
-        } else {
-            gen.writeString(value.toString());
-        }
-    }
-}
-```
-
-### 6.3 `basic-framework/.../config/ResourcesConfig.java`(精简 + 拆配置)
-
-- 删除 `Jackson2ObjectMapperBuilderCustomizer` Bean(SB 4 已删)
-- 改用 `JsonMapperBuilderCustomizer`(Spring Boot 4 官方推荐)注册 BigNumber/ToString Module
-- 关键:这个 Customizer **必须**放在**独立类**(`BigNumberModuleConfig`)里,否则会和 `ResourcesConfig`(依赖 `RepeatSubmitInterceptor` → `RedisCache` → `RedisTemplate` → `JsonMapper` Bean 创建)形成**循环依赖**。
-
-### 6.4 新增 `basic-framework/.../config/BigNumberModuleConfig.java`
-
-```java
-@Configuration
-public class BigNumberModuleConfig {
-    @Bean
-    public JsonMapperBuilderCustomizer bigNumberJsonMapperBuilderCustomizer() {
-        JacksonModule module = new SimpleModule()
-                .addSerializer(Long.class, BigNumberSerializer.INSTANCE)
-                .addSerializer(Long.TYPE, BigNumberSerializer.INSTANCE)
-                .addSerializer(BigInteger.class, BigNumberSerializer.INSTANCE)
-                .addSerializer(BigDecimal.class, ToStringSerializer.instance);
-        return builder -> builder.addModule(module);
-    }
-    public static class ToStringSerializer extends StdScalarSerializer<Object> { ... }
-}
-```
-
-> Web 端不加 defaultTyping,只加 Module;Redis 端在 `RedisConfig` 里单独构造带 defaultTyping 的 mapper。
-
-### 6.5 `basic-framework/.../config/RedisConfig.java`
-
-- 删 fastjson2(若依的方案),改用 `GenericJacksonJsonRedisSerializer`(Spring Data Redis 4.1.1 配套 Jackson 3 的序列化器)
-- 构造独立的 `buildRedisJsonMapper()`,启 `activateDefaultTyping` + 白名单 PTV(`com.basic.*`、`java.util.*`、`java.lang.*`、`java.time.*`)
-- `redisTemplate` 注入 `JsonMapper`(改用)→ 改成内部构造,避免循环
-- 显式声明 `CacheManager` Bean(SB 4 缺口,见 2.7)
-
-### 6.6 `basic-framework/.../config/DruidConfig.java`
-
-- `com.alibaba.druid.spring.boot3.autoconfigure.DruidDataSourceBuilder` → `com.alibaba.druid.spring.boot4.autoconfigure.DruidDataSourceBuilder`
-- `com.alibaba.druid.spring.boot3.autoconfigure.properties.DruidStatProperties` → `com.alibaba.druid.spring.boot4.autoconfigure.properties.DruidStatProperties`
-
-### 6.7 `basic-admin-api/.../BasicApplication.java`
-
-- import 改 `org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration` → `org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration`
-
-### 6.8 `basic-common/.../core/domain/model/LoginUser.java`
-
-- 改 `getAuthorities()` 不返回 null(见 2.3)
-
-### 6.9 `basic-framework/.../config/properties/PermitAllUrlProperties.java`
-
-- `info.getPatternsCondition().getPatterns()` → `info.getPatternValues()`
-
-### 6.10 `basic-admin-core/.../DemoService.java` + `SysFilesServiceImpl.java` 等
-
-- import 改 `com.baomidou.mybatisplus.extension.service.IService` / `impl.ServiceImpl` → `com.baomidou.mybatisplus.extension.service.IService` / `impl.ServiceImpl`(3.5.13+ 包名微调)
-
-### 6.11 `basic-common/.../core/redis/RedisCache.java`
-
-- `getCacheObject` 加 try-catch,反序列化失败时**自动删失效 key** + 返回 null(处理升级时 Redis 脏数据)
-
-### 6.12 `basic-framework/.../web/service/TokenService.java`
-
-- `getLoginUser` 的 catch 块不再静默,记录错误日志 + 主动 `redisCache.deleteObject(getTokenKey(uuid))` 清旧 key
-
-### 6.13 `ApplicationConfig.java`
-
-- 删除 `Jackson2ObjectMapperBuilderCustomizer` Bean 整段(SB 4 已删;时区由 `application.yml` 的 `spring.jackson.time-zone: GMT+8` 配)
-
-### 6.14 `JacksonConfig.java`
-
-- **整个文件删除**,Jackson 逻辑迁移到 `BigNumberModuleConfig` + `RedisConfig`
-
----
-
-## 七、对照参考:本地 RuoYi-Vue 4.1.0
-
-`RuoYi-Vue` 是若依官方 SB 4.1.0 master 源码,作为本次升级的**第一参考**。
-
-| 关注点 | 若依 4.1.0 真实做法 | 本项目最终做法 | 一致? |
-|---|---|---|---|
-| `JsonUtils` | 不用,改用 fastjson2 | 重写为 Jackson 3 版 | ❌(我们不用 fastjson2) |
-| Redis 序列化 | `FastJson2JsonRedisSerializer` | `GenericJacksonJsonRedisSerializer` + Jackson 3 专用 mapper | ❌(理由见第四节) |
-| `DruidConfig` | 84 行,只配数据源 + 过滤广告 Filter | 沿用若依风格 | ✅ |
-| `RedisConfig` 显式 CacheManager | **没有**(`@EnableCaching` 但不写 CacheManager) | **显式声明**(SB 4.1.1 缺口) | ❌(必须) |
-| `ResourcesConfig` | 72 行,无 Jackson 配置 | 精简到 addResourceHandlers/Interceptors/corsFilter | ✅ |
-| `ApplicationConfig` | 19 行,极简 | 一致 | ✅ |
-| `BigNumberSerializer` | **没有** | 保留(防 JS Long 精度丢失) | ❌(业务需要) |
-| `ScheduleConfig` | 整文件被注释 | 用 `spring-boot-starter-quartz` 自动装配 | ✅ |
-| `getAuthorities()` | 返回基于 permissions 的非 null 列表 | 一致 | ✅ |
-| `PermitAllUrlProperties` | 用 `getPatternsCondition()`(老 API,可能报警告) | 改 `getPatternValues()`(新 API) | ✅(更稳) |
-
-> 若依 SB 4.1.0 **没遇到** CacheManager 缺失问题可能是因为它**没启用** `@EnableCaching` 的某些路径,或者**没在测试时**触发启动校验。本项目在 commit a4c182a 启用了 `@EnableCaching`,SB 4 启动校验严格化,直接报缺 CacheManager。
-
----
-
-## 八、踩坑时间线(本次升级流水账)
-
-1. `IService` 找不到 → MyBatis-Plus 3.5.13+ 包名微调 → 改 import
-2. `BlockAttackInnerInterceptor` 找不到 → 在 `mybatis-plus-jsqlparser-4.9` 子模块 → 显式引入
-3. `DataSourceAutoConfiguration` 找不到 → SB 4 拆到 `spring-boot-jdbc` → 改 import
-4. `JacksonProperties` 找不到 → SB 4 拆到 `spring-boot-jackson` → 改 import
-5. `Jackson2ObjectMapperBuilderCustomizer` 不存在 → SB 4 已删 → 删 `ApplicationConfig` 时区 Bean
-6. jsr310 找不到 → 加 `jackson-datatype-jsr310` 依赖
-7. Druid 包名 → `boot3.autoconfigure` → `boot4.autoconfigure`
-8. PowerShell 批量替换破坏 UTF-8 中文与 `$1` 反向引用 → 改用 `Edit` 工具逐个改
-9. Scheduler Bean 找不到 → 改用 `spring-boot-starter-quartz` 自动装配
-10. 登录 NPE(`getAuthorities() return null`)→ Spring Security 7 严格化 → 改非 null
-11. `Could not read JSON: JsonToken.START_OBJECT` → Redis 用的 JsonMapper 没启 defaultTyping / 旧数据脏 → 启用 defaultTyping + 自动清失效 key
-12. `[类名, {...}]` 数组污染 Web API → Web 端 JsonMapperBuilderCustomizer 不加 defaultTyping,Redis 端独立构造带 defaultTyping 的 mapper
-13. 循环依赖(`resourcesConfig ↔ redisCache`)→ `JsonMapperBuilderCustomizer` 拆到独立 `BigNumberModuleConfig`
-14. CacheManager 找不到 → SB 4.1.1 缺口 → 显式声明 `CacheManager` Bean
-15. `/druid/login.html` 404 → `statViewServlet.enabled: false` → 改 `true`
-
----
-
-## 九、运行前 checklist
-
-- [x] JDK 21 安装
-- [x] 7 个子模块 `parent.version` 一致为 `4.0.0`
-- [x] IDE 工程的 Project SDK 设为 JDK 21,Language level 21
+- [x] **JDK 21 安装** ★★ 与 master / `springboot3` 都不一样
+- [x] Node.js + pnpm(前端)
+- [x] `cd web-ui && pnpm install` 拉依赖(PC 端,lock 文件来自 `springboot3_TypeScript`,可能要重装)
+- [x] `cd web-mp && pnpm install` 拉依赖(移动端)
+- [ ] `pnpm dev` 验证 PC 端启动(`web-ui`)
+- [ ] `pnpm dev:h5` 验证移动端 H5 启动(`web-mp`)
+- [ ] `pnpm typecheck` 验证 TS 类型(`web-ui` / `web-mp`)
+- [x] 7 个子模块 `parent.version` 一致为 **`4.0.0`** ★★ 与 master / `springboot3` 都不一样
+- [x] IDE 工程的 Project SDK 设为 **JDK 21**,Language level **21** ★★ 与 master / `springboot3` 都不一样
 - [x] `mvn clean compile` 0 ERROR
 - [x] `mvn package -DskipTests` 0 ERROR
-- [x] 应用启动成功(`(♥◠‿◠)ﾉﾞ  基础平台启动成功`)
+- [ ] 应用启动成功
+- [ ] admin 登录成功(PC / 移动端)
+- [ ] Druid 监控页 `/druid/index.html` 可访问(`statViewServlet.enabled: true`,账号 `basic` / 密码 `123456`)
+- [ ] Redis 缓存读写正常(验证 Jackson 3 序列化 + defaultTyping)
 
 ---
 
-## 十、未做 / 后续可优化
+## 六、风险评估 / 注意事项
 
-- [ ] `WebMvcConfigurer` 接口在 Spring Framework 7 已 `@Deprecated`,长期要看官方替代(目前没有 GA 的接口继承方案,只能继续用)
-- [ ] `fastjson2` 是否真不引:看业务缓存对象复杂度,如果都是基础类型,Jackson 3 + defaultTyping + 白名单足够;如果包含复杂对象集合,可能需要 `Jackson2ObjectMapperBuilder` 配 `WRITE_DATES_AS_TIMESTAMPS` 之类
-- [ ] Springdoc 3.1.1 是否完整兼容 SB 4:目前用起来没崩,但 OpenAPI 3.1 / Springdoc 2.7 vs 3.0+ 跟 SB 4 的细节(比如 `OperationCustomizer` 钩子)未全部测过
+- **后端 API 兼容**:`springboot3_TypeScript` 实际是 SB 3.5.16 后端调通的前端代码,
+  但本分支后端是 SB 4.1.1(Jackson 3 时代)。API URL 没变,响应格式**基本兼容**(若依 API 是稳定契约)。
+  **潜在差异**:
+  - `Long` 大数字:Jackson 3 默认输出 long(可能 JS 端丢精度),由 `BigNumberSerializer` 处理
+  - `LocalDateTime` / `LocalDate`:Jackson 3 默认输出 ISO-8601 字符串(JS 可解析)
+  - `null` 字段:Jackson 3 默认也包含 `@JsonInclude` 行为
+- **Jackson 2 → 3 序列化差异**:SB 4 的 `JsonMapper` 默认用 Jackson 3,序列化格式与 Jackson 2 略有差异
+  (主要是 `writeBigDecimalAsPlain`、日期等)。前端如果依赖具体 JSON 字段顺序或格式,要验证。
+- **`basic.scss` 主题色**:已从 `springboot3_TypeScript` 保留,本仓库主题色不丢失。
+- **`vite.config.ts`**:`springboot4` 原 `vite.config.js` 有中文乱码,本分支用 TS 重写时已用干净中文,
+  并把代理 target 等关键配置显式注释。
+- **`pnpm-lock.yaml`**:`web-ui` 的 lock 文件用 `springboot3_TypeScript` 的版本,
+  可能与本仓库之前装的依赖不完全一致。建议 `cd web-ui && pnpm install` 重新拉一遍。
+- **TS 严格度**:`tsconfig.json` 默认 `strict: false` / `noImplicitAny: false` 起步,
+  避免迁移时大量 `any` 报错;后续可逐步收紧。
+
+---
+
+## 七、未做 / 后续可优化
+
+- [ ] `WebMvcConfigurer` 接口在 Spring Framework 7 已 `@Deprecated`,长期要看官方替代
+- [ ] `fastjson2` 是否真不引:看业务缓存对象复杂度,如果都是基础类型,Jackson 3 + defaultTyping + 白名单足够
+- [ ] Springdoc 3.1.1 是否完整兼容 SB 4:目前用起来没崩,但 OpenAPI 3.1 / Springdoc 2.7 vs 3.0+ 跟 SB 4 的细节未全部测过
 - [ ] MyBatis-Plus 3.5.17 的 LambdaQuery 链式调用是否完整(目前只测了基础 CRUD)
-- [ ] `Quartz` RAMJobStore 切换到 JDBC JobStore 用 PG(若依做法是用 RAMJobStore 避免 PG `varchar(1)` 字段雷;如果业务需要持久化,得自己改)
+- [ ] `Quartz` RAMJobStore 切换到 JDBC JobStore 用 PG(若依做法是用 RAMJobStore 避免 PG `varchar(1)` 字段雷)
 - [ ] 生产环境 Druid 监控 `statViewServlet` 必须关或换强密码 + IP 白名单
-- [ ] `MyBatis-Plus 3.5.7 → 3.5.17` 跨多个小版本(3.5.7→3.5.10→3.5.13→3.5.17)的中间变更未逐个核对,只测了用到的 API
-- [ ] `springdoc 2.9 → 3.1` 跨多个小版本的 OpenAPI Schema 兼容性未验证(比如 `@Schema` annotation 的 deprecated 方法)
-- [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数(`pageNum` / `pageSize` / `orderBy`)兼容性是否完全保留未测
-- [ ] `druid 1.2.28`(版本号相同)内部 API 在 SB 3 → SB 4 之间是否有破坏性变更未细查
+- [ ] `MyBatis-Plus 3.5.7 → 3.5.17` 跨多个小版本的中间变更未逐个核对,只测了用到的 API
+- [ ] `springdoc 2.9 → 3.1` 跨多个小版本的 OpenAPI Schema 兼容性未验证
+- [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数兼容性是否完全保留未测
+- [ ] `tsconfig.json` 严格度调高(目前 `strict: false`,逐步收紧)
+- [ ] Pinia store / Router / Axios 二次封装的类型补全
+- [ ] 集成 Flowable 流程引擎(已经在 `master-extend-flowable` 分支做了)
 
 ---
 
-## 十一、前端 JS → TypeScript 化(本分支新增)
+## 八、其他分支(参考)
 
-> 本分支的 TS 化**复用**了 `springboot3_TypeScript` 分支的成果(整 web-ui 目录替换),后端仍是 SB 4.1.1。
+本仓库其他分支(切到对应分支看其 README):
 
-### 11.1 改了什么
+| 分支 | 做什么 |
+|---|---|
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14,JDK 11,前端 JS,加 web-mp) |
+| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
+| `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
+| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc;前端保持 JS |
+| `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
+| `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ...;前端保持 JS |
 
-总计 ~197 个文件改动,git 把它识别为 ~50 个 `*.js` → `*.ts` rename + 一些 `.vue` / `.scss` modified + 新增 `src/types/**` 目录。
+> 本分支 `springboot4_TypeScript` ≈ `springboot4` + 前端 TS 化,可以视作"`springboot4` 的 TS 版",
+> 也是**仓库最完整栈**(后端最新 SB 4.1.1 + 前端 TypeScript)。
 
-| 改动类型 | 文件数 | 说明 |
-|---|---|---|
-| `*.js` → `*.ts` rename | ~50 | `src/api/**`、`src/directive/**`、`src/plugins/**`、`src/router/index.js`、`src/store/**`、`src/utils/**`、`src/main.js`、`src/permission.js`、`src/settings.js` 等 |
-| 新增 `src/types/**` | ~30 | `src/types/api/**.ts`(通用 + 业务模块全覆盖)、`components.d.ts`、`global.d.ts`、`index.ts` |
-| 新增 `auto-imports.d.ts` | 1 | unplugin-auto-import 自动生成 |
-| 新增 `tsconfig.json` | 1 | TS 编译配置 |
-| 新增 `.npmrc` | 1 | pnpm 镜像源配置 |
-| 新增 `src/assets/images/pay.png` | 1 | 支付二维码(占位图) |
-| 新增 `src/layout/components/Copyright/index.vue` | 1 | 版权信息组件 |
-| 新增 `src/layout/components/index.ts` | 1 | 组件统一出口 |
-| `vite.config.js` → `vite.config.ts` | 1 | **本分支额外改善**:springboot4 原 `vite.config.js` 有中文乱码,TS 版重写时用 TS + 干净中文 |
-| `package.json` 改 | 1 | 新增 `typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1` devDeps |
-| `pnpm-lock.yaml` 改 | 1 | lock 文件随之更新 |
-| 各种 `.vue` / `.scss` 微调 | ~100 | TS 化过程中对 `script setup` 类型标注、scss 变量引用等的伴随修改 |
-| 删除 `web-ui/.gitignore` | 1 | 根 `.gitignore` 统一管理 |
-| 删除 `web-ui/src/store/modules/app.js` / `web-ui/src/utils/auth.js` / `web-ui/src/layout/components/index.js` | 3 | 已被 `.ts` 替代 |
-| 保留 `web-ui/src/assets/styles/basic.scss` | 1 | springboot3_TypeScript 已带(TS 化时显式保留),基础平台主题色 `--el-color-primary: #1890ff` |
+---
 
-### 11.2 应用方式
+## 九、技术栈演进时间线
+
+```
+master                          SB 2.5.14 / JDK 11 / Security 5 / javax / springfox / Jackson 2 / 前端 JS
+  └── springboot2_TypeScript    SB 2.5.14 / JDK 11 / Security 5 / javax / springfox / Jackson 2 / 前端 TS
+  └── springboot3               SB 3.5.16 / JDK 17 / Security 6 / jakarta / springdoc / Jackson 2 / 前端 JS
+  └── springboot3_TypeScript    SB 3.5.16 / JDK 17 / Security 6 / jakarta / springdoc / Jackson 2 / 前端 TS
+  └── springboot4               SB 4.1.1  / JDK 21 / Security 7 / jakarta 6 / springdoc 3.1 / Jackson 3 / 前端 JS
+  └── springboot4_TypeScript    SB 4.1.1  / JDK 21 / Security 7 / jakarta 6 / springdoc 3.1 / Jackson 3 / 前端 TS  ← 本分支
+  └── master-extend-flowable    master + Flowable 6.8.0 + 数据库迁到 PostgreSQL(schema basicdb_flowable, 86 张表 + 2 视图)
+```
+
+---
+
+## 十、应用方式(从 `springboot4` 切出本分支的命令)
 
 ```bash
 # 在 springboot4 分支基础上,整 web-ui 用 springboot3_TypeScript 的 TS 版替换
 git rm -r web-ui/
 git checkout springboot3_TypeScript -- web-ui/
 # springboot3_TypeScript 已经保留 basic.scss,不需要再单独恢复
+# web-mp 整目录也用 springboot3_TypeScript 的 TS 版替换(或在 springboot4 JS 版基础上单独 TS 化)
 ```
-
-### 11.3 `package.json` devDependencies
-
-```json
-{
-  "devDependencies": {
-    "@vue/tsconfig": "0.5.1",     // Vue 3 推荐 tsconfig 基础
-    "typescript": "5.6.3",          // TS 编译器
-    "vue-tsc": "2.1.10"             // .vue 文件类型检查
-  }
-}
-```
-
-### 11.4 `src/types/` 目录
-
-```
-src/types/
-├── api/
-│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
-│   ├── index.ts
-│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
-│   ├── menu.ts
-│   ├── monitor/
-│   │   ├── cache.ts
-│   │   ├── job.ts
-│   │   ├── jobLog.ts
-│   │   ├── logininfor.ts
-│   │   ├── online.ts
-│   │   └── operlog.ts
-│   ├── system/
-│   │   ├── config.ts
-│   │   ├── dept.ts
-│   │   ├── dict.ts
-│   │   ├── menu.ts
-│   │   ├── notice.ts
-│   │   ├── post.ts
-│   │   ├── role.ts
-│   │   └── user.ts
-│   └── tool/
-│       └── gen.ts
-├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 自动生成
-├── global.d.ts          ← 全局 window / module 声明
-└── index.ts             ← 类型统一出口
-```
-
-每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
-
-### 11.5 风险评估
-
-- **后端 API 兼容**:`springboot3_TypeScript` 实际是 SB 3.5.16 后端调通的前端代码,但本分支后端是 SB 4.1.1(Jackson 3 时代),API URL 没变,响应格式**基本兼容**(若依 API 是稳定契约)。**潜在差异**:
-  - `Long` 大数字:Jackson 3 默认输出 long(可能 JS 端丢精度),由 `BigNumberSerializer` 处理
-  - `LocalDateTime` / `LocalDate`:Jackson 3 默认输出 ISO-8601 字符串(JS 可解析)
-  - `null` 字段:Jackson 3 默认也包含 `@JsonInclude` 行为
-- **Jackson 2 → 3 序列化差异**:SB 4 的 `JsonMapper` 默认用 Jackson 3,序列化格式与 Jackson 2 略有差异(主要是 `writeBigDecimalAsPlain`、日期等)。前端如果依赖具体 JSON 字段顺序或格式,要验证。
-- **`basic.scss` 主题色**:已从 springboot3_TypeScript 保留。
-- **`pnpm-lock.yaml`**:lock 文件用 springboot3_TypeScript 的版本,可能与本仓库之前装的依赖不完全一致。建议你 `cd web-ui && pnpm install` 重新拉一遍。
-
-### 11.6 待办
-
-- [ ] `cd web-ui && pnpm install` 重新拉依赖(锁文件来自 springboot3_TypeScript)
-- [ ] `pnpm dev` 验证启动 + `pnpm build:prod` 验证生产构建
-- [ ] 打开若干 `.vue` 文件,看 `<script setup lang="ts">` 的类型推断是否完整
-- [ ] 调通 admin 登录 → `/getInfo` → 列表查询端到端,看 Jackson 3 序列化输出是否对前端 JS 友好
-- [ ] 检查 `vite.config.ts` 里的 `baseUrl: 'http://localhost:8080'` 是否需要改成你的后端地址
-- [ ] 验证 `RedisConfig` / `BigNumberModuleConfig` / `ResourcesConfig` 在 SB 4 + TS 链路下都正常
-- [ ] 验证 Druid 监控页(`/druid/login.html`)的 js/css 资源能正常加载(ResourcesConfig 已加 `/druid/**` 静态资源处理器)
 
 ---
 
-## 十二、运行前 checklist(SB 4 + TS 综合)
+## 十一、移动端 `web-mp/`
 
-- [x] JDK 21 安装
-- [x] Node.js + pnpm(前端)
-- [ ] `cd web-ui && pnpm install` 拉依赖(lock 文件来自 springboot3_TypeScript)
-- [x] 7 个子模块 `parent.version` 一致为 `4.0.0`
-- [x] IDE 工程的 Project SDK 设为 JDK 21,Language level 21
-- [x] `mvn clean compile` 0 ERROR
-- [x] 应用启动成功(`(♥◠‿◠)ﾉﾞ  基础平台启动成功`)
-- [x] admin 登录成功
-- [x] `/getInfo` 200
-- [x] 在线用户列表正常
-- [x] Druid 监控页 `/druid/login.html` 可达(账号 `basic` / 密码 `123456`)
-- [ ] 前端 `pnpm dev` 启动成功 + 类型检查通过(`pnpm run type-check` 或 `vue-tsc --noEmit`)
+> 本分支与 `springboot4` 同样包含 `web-mp/` 移动端,**额外做了 TS 化**:
+> 新增 `tsconfig.json`,`vite.config.js` → `vite.config.ts`,`package.json` 加 TS 工具链,
+> 入口 / 守卫等 `.js` → `.ts`。
+> 本节是 `web-mp/README.md` 的摘要,完整内容以子目录的 README 为准。
+
+### 11.1 技术栈
+
+| 项 | 版本 |
+|---|---|
+| uni-app | 3.0 (alpha,`@dcloudio/uni-app@3.0.0-4060620250520001`) |
+| Vue | 3.4.21(**组合式 API** `<script setup lang="ts">`) |
+| Vite | 5.2.8 |
+| UI | **uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀) |
+| 语言 | **TypeScript ^5.4.5**(`tsconfig.json` 配 `strict: false` 起步) |
+| 类型检查 | **vue-tsc ^2.0.19**(`pnpm typecheck` 触发) |
+| 状态管理 | Pinia 2.0.36 |
+| 加密 | jsencrypt(对接后端 RSA 登录) |
+| 时间 | dayjs 1.11.x |
+| 国际化 | vue-i18n 9.13.1(已引入,词条待补) |
+| 包管理 | pnpm |
+
+### 11.2 与 web-ui / 后端的关系
+
+- 与 `web-ui/`(PC 端)**同级目录**,**不**是 web-ui 的子项目,各自独立维护
+- 不参与 maven 编译(`pom.xml` 的 module 列表里没有 `web-mp`)
+- 对接后端:**直接打**本仓库的 `basic-admin-api`(Spring Boot 4.1 + Spring Security 7 + Jackson 3 + Jakarta EE 6),
+  接口复用 `/login` / `/logout` / `/captchaImage` / `/getInfo` / `/getRouters` 等
+- 默认账号:`admin / admin123`
+
+### 11.3 目录结构
+
+```
+web-mp/
+├── index.html                 # H5 入口(vite 用)
+├── tsconfig.json              # ★ 本分支新增:TypeScript 配置
+├── vite.config.ts             # ★ 本分支:.js 升级为 .ts
+├── package.json
+├── config.js                  # 全局配置(双份,同步到 src/)
+├── manifest.json              # 应用清单(双份,同步到 src/)
+├── pages.json                 # 页面注册(双份,同步到 src/)
+├── sync-config.cjs            # 双份同步脚本
+├── scripts/
+│   └── fixup-mp-components.cjs  # 微信小程序组件 fixup 脚本
+└── src/
+    ├── main.ts                # ★ 本分支:.js 升级为 .ts
+    ├── App.vue                # 根组件(<script setup lang="ts">)
+    ├── uni.scss               # 全局 SCSS 变量入口
+    ├── pages/                 # 业务页面
+    │   ├── login/index.vue
+    │   ├── index/index.vue    # 首页(TabBar)
+    │   ├── workbench/index.vue
+    │   ├── user/index.vue
+    │   └── common/{notice,profile}/...
+    ├── api/                   # 接口层(.ts)
+    ├── store/                 # Pinia(.ts)
+    ├── utils/                 # 工具(.ts)
+    ├── directive/             # 权限指令(.ts)
+    ├── permission.ts          # ★ 本分支:.js 升级为 .ts
+    └── static/                # 静态资源
+```
+
+### 11.4 关键设计
+
+- **登录流程**:`/captchaImage` → `/login`(RSA 公钥加密密码)→ `/getInfo` → `/getRouters`
+- **Token 存储**:`uni.getStorageSync('Basic-Token')`
+- **请求封装**:`utils/request.ts` 实现拦截器(401 跳登录)
+- **权限指令**:`v-hasPermi`(uniapp 3 编译时不支持自定义指令,用 `v-if="hasPermi([...])"` 替代)
+- **双份 manifest/pages**:CLI build 找 `src/manifest.json`,dev 找根 `manifest.json`,
+  所以两边各放一份,`sync-config.cjs` 同步
+- **环境配置**:`src/config.js` 维护 `baseUrl`(默认 `http://localhost:8080`,
+  H5 通过 `vite.config.ts` 代理到 `/dev-api` → 8080;小程序/真机需改成局域网 IP)
+- **TypeScript**:`tsconfig.json` 配 `@/*` 路径别名 → `src/*`;`strict: false` 起步,
+  避免迁移时大量 `any` 报错;`include` 覆盖 `src/**/*.{ts,d.ts,tsx,vue}` + `vite.config.ts`
+
+### 11.5 运行
+
+```bash
+cd web-mp
+pnpm install
+
+# 类型检查
+pnpm typecheck              # vue-tsc --noEmit
+
+# 开发
+pnpm dev:h5            # 浏览器访问 http://localhost:8081
+pnpm dev:mp-weixin     # 用微信开发者工具打开 dist/dev/mp-weixin
+pnpm dev:app           # 编译到 unpackage/dist/dev/app
+
+# 生产构建
+pnpm build:h5          # 产物在 dist/build/h5
+pnpm build:mp-weixin   # 产物在 dist/build/mp-weixin
+pnpm build:app
+```
+
+### 11.6 待办(摘自子 README)
+
+- [ ] 接入动态菜单(`/getRouters` → pages.json)
+- [ ] 国际化(`vue-i18n` 已引入,词条待补)
+- [ ] 消息推送 / WebSocket
+- [ ] 修改密码页 + 个人中心编辑
+- [ ] 锁屏(手势/PIN)
+- [ ] TabBar 图标(`src/static/tabbar/` 需放 6 张 81x81 png)
+- [ ] `tsconfig.json` 严格度调高(目前 `strict: false`,逐步收紧)
 
 ---
 
-## 十三、数据库脚本 (`file-sql/basicdb-vue3.sql`)
+## 十二、数据库脚本 (`file-sql/basicdb-vue3.sql`)
 
 > 本分支运行所需的 **PostgreSQL 全库结构 + 初始化数据** 都在 `file-sql/basicdb-vue3.sql`。
 > 其它 `file-sql/*.sql` 是历史中间产物,本分支**不直接使用**;真正要执行的就是这一个。
 
-### 13.1 脚本基本信息
+### 12.1 脚本基本信息
 
 | 项 | 值 |
 |---|---|
@@ -561,7 +367,7 @@ src/types/
 | 数据加载方式 | `COPY ... FROM stdin;`(原生 psql `\copy` 流式导入,**不**走 `INSERT`) |
 | PostgreSQL 要求 | **>= 15.1** |
 
-### 13.2 表清单(共 34 张,均位于 `basicdb` schema)
+### 12.2 表清单(共 34 张,均位于 `basicdb` schema)
 
 #### 代码生成(`gen_*`,2 张)
 
@@ -602,7 +408,7 @@ src/types/
 | `sys_user_post` | 用户-岗位关联 |
 | `sys_user_role` | 用户-角色关联 |
 
-### 13.3 恢复步骤(全新数据库)
+### 12.3 恢复步骤(全新数据库)
 
 ```bash
 # 1) 建 system 角色和 basicdb 库(SQL 脚本本身不建角色,必须先建好)
@@ -617,7 +423,10 @@ psql -U system -h localhost -d basicdb -c \
   "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb';"
 ```
 
-### 13.4 重新备份成同款脚本
+如果本地 PostgreSQL 实例没有 `system` 角色,直接执行第 2 步会报
+`ERROR: role "system" does not exist`,补一步 1) 即可。
+
+### 12.4 重新备份成同款脚本
 
 ```bash
 pg_dump -U system -h localhost -d basicdb \
@@ -629,7 +438,7 @@ pg_dump -U system -h localhost -d basicdb \
 - 不加这两个开关,导出结果与本仓库现存的 `basicdb-vue3.sql` 格式一致。
 - 脚本里所有 `data` 段都用了 `COPY ... FROM stdin;`,导入端必须用 `psql`。
 
-### 13.5 默认账号
+### 12.5 默认账号
 
 | 用户名 | 密码(明文) | 备注 |
 |---|---|---|
@@ -637,7 +446,7 @@ pg_dump -U system -h localhost -d basicdb \
 
 要重置可执行同目录的 `reset-admin-password.sql`。
 
-### 13.6 与应用连接配置
+### 12.6 与应用连接配置
 
 ```yaml
 spring:
@@ -652,7 +461,7 @@ spring:
 > `currentSchema=basicdb` 必须加,否则 MyBatis 找不到 `sys_user` / `sys_menu` 等表
 > (脚本里所有表都建在 `basicdb` schema 下,不是 `public`)。
 
-### 13.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
+### 12.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
 
 | 文件 | 角色 |
 |---|---|
@@ -664,4 +473,35 @@ spring:
 | `fix-sys-menu-component.sql` | 修 `sys_menu.component` 路径里 `system` 写错的,按需手动跑 |
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
-> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了。**
+> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
+> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> 本分支**仍保留**。)
+
+---
+
+## 十三、目录速查
+
+```
+base-postgresql-vue3/
+├── pom.xml                              # 父 pom(7 个后端子模块,无 web-mp)
+├── README.md                            # 本文档
+├── ry.sh / ry.bat                       # RuoYi 启动脚本(原版遗留)
+├── basic-admin-api/                     # Spring Boot 启动模块(SB 4.1.1)
+├── basic-admin-core/                    # 业务核心(system 模块)
+├── basic-framework/                     # 框架配置(Security 7 / Jakarta 6 / Jackson 3)
+├── basic-common/                        # 通用工具/基类
+├── business-core/                       # 业务扩展点
+├── extend-quartz/                       # Quartz 定时任务扩展(用 spring-boot-starter-quartz)
+├── extend-generator/                    # 代码生成扩展
+├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── file-sql/                            # SQL 脚本
+├── file-bin/                            # 二进制资源(jar 内置)
+├── file-doc/                            # 文档资源(jar 内置)
+├── web-ui/                              # PC 端前端(Vue3 + Element Plus + ★ TypeScript)
+└── web-mp/                              # 移动端前端(uni-app3 + uview-plus + ★ TypeScript)
+```
+
+> **本分支与 `springboot4` 的差异**:`web-ui` 和 `web-mp` 都从 JS → TS;
+> `web-mp` 还多出 `tsconfig.json` 与 `vite.config.ts`,`web-ui` 多出 `src/types/` 目录;
+> `web-ui/vite.config.js` → `vite.config.ts` 顺便解决了 `springboot4` 的中文乱码。
+> `web-ui/src/assets/styles/basic.scss`(本仓库主题色)从 `springboot3_TypeScript` 继承保留,避免 TS 版替换时丢失品牌色。
