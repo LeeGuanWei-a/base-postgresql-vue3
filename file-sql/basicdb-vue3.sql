@@ -5,7 +5,7 @@
 -- Dumped from database version 15.1
 -- Dumped by pg_dump version 17.0
 
--- Started on 2026-10-14 14:20:23
+-- Started on 2026-10-15 15:50:00
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,8 +19,10 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+DROP INDEX basicdb.uk_sys_notice_read_notice_user;
 DROP INDEX basicdb.sched_name;
 DROP INDEX basicdb.dict_type;
+ALTER TABLE ONLY basicdb.sys_notice_read DROP CONSTRAINT sys_notice_read_pkey;
 ALTER TABLE ONLY basicdb.sys_files DROP CONSTRAINT sys_files_pkey;
 ALTER TABLE ONLY basicdb.sys_demo DROP CONSTRAINT sys_demo_pkey;
 ALTER TABLE ONLY basicdb.sys_user_role DROP CONSTRAINT "PRIMARY00028";
@@ -80,6 +82,8 @@ DROP SEQUENCE basicdb.sys_post_post_id_seq;
 DROP TABLE basicdb.sys_post;
 DROP SEQUENCE basicdb.sys_oper_log_oper_id_seq;
 DROP TABLE basicdb.sys_oper_log;
+DROP SEQUENCE basicdb.sys_notice_read_read_id_seq;
+DROP TABLE basicdb.sys_notice_read;
 DROP SEQUENCE basicdb.sys_notice_notice_id_seq;
 DROP TABLE basicdb.sys_notice;
 DROP SEQUENCE basicdb.sys_menu_menu_id_seq;
@@ -135,7 +139,7 @@ CREATE SCHEMA basicdb;
 ALTER SCHEMA basicdb OWNER TO postgres;
 
 --
--- TOC entry 278 (class 1255 OID 4483158)
+-- TOC entry 387 (class 1255 OID 4483158)
 -- Name: date_format(anyelement, text); Type: FUNCTION; Schema: basicdb; Owner: system
 --
 
@@ -152,41 +156,41 @@ BEGIN
     IF upper($2) = upper('%Y-%m-%d') THEN
         return to_char($1,'YYYY-MM-DD');
     END IF;
-	
+
 	IF upper($2) = upper('%Y-%m') THEN
         return to_char($1,'YYYY-MM');
     END IF;
-	
+
 	IF upper($2) = upper('%Y') THEN
         return to_char($1,'YYYY');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i-%s') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i-%S') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI');
     END IF;
-	
+
 	IF upper($2) = upper('%Y-%m-%d %h-%i-%s') THEN
         return to_char($1,'YYYY-MM-DD HH-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %h-%i-%S') THEN
         return to_char($1,'YYYY-MM-DD HH-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %h-%i') THEN
         return to_char($1,'YYYY-MM-DD HH-MI');
     END IF;
- 
+
     raise exception '时间格式:% 未在函数中定义，请添加！',$2;
- 
+
     return null;
 END;
 $_$;
@@ -195,7 +199,7 @@ $_$;
 ALTER FUNCTION basicdb.date_format(indate anyelement, informate text) OWNER TO system;
 
 --
--- TOC entry 279 (class 1255 OID 4483159)
+-- TOC entry 388 (class 1255 OID 4483159)
 -- Name: exec(character varying); Type: FUNCTION; Schema: basicdb; Owner: system
 --
 
@@ -214,7 +218,7 @@ $$;
 ALTER FUNCTION basicdb.exec(sqlstring character varying) OWNER TO system;
 
 --
--- TOC entry 280 (class 1255 OID 4483160)
+-- TOC entry 389 (class 1255 OID 4483160)
 -- Name: find_in_set(bigint, character varying); Type: FUNCTION; Schema: basicdb; Owner: system
 --
 
@@ -241,7 +245,7 @@ $_$;
 ALTER FUNCTION basicdb.find_in_set(bigint, character varying) OWNER TO system;
 
 --
--- TOC entry 281 (class 1255 OID 4483161)
+-- TOC entry 390 (class 1255 OID 4483161)
 -- Name: ifnull(text, text); Type: FUNCTION; Schema: basicdb; Owner: system
 --
 
@@ -257,7 +261,7 @@ $_$;
 ALTER FUNCTION basicdb.ifnull(param1 text, param2 text) OWNER TO system;
 
 --
--- TOC entry 282 (class 1255 OID 4483162)
+-- TOC entry 391 (class 1255 OID 4483162)
 -- Name: tabledef(oid); Type: FUNCTION; Schema: basicdb; Owner: system
 --
 
@@ -355,7 +359,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 217 (class 1259 OID 4483163)
+-- TOC entry 218 (class 1259 OID 4483163)
 -- Name: gen_table; Type: TABLE; Schema: basicdb; Owner: system
 --
 
@@ -386,7 +390,7 @@ CREATE TABLE basicdb.gen_table (
 ALTER TABLE basicdb.gen_table OWNER TO system;
 
 --
--- TOC entry 218 (class 1259 OID 4483171)
+-- TOC entry 219 (class 1259 OID 4483171)
 -- Name: gen_table_column; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -419,7 +423,7 @@ CREATE TABLE basicdb.gen_table_column (
 ALTER TABLE basicdb.gen_table_column OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 4483177)
+-- TOC entry 220 (class 1259 OID 4483177)
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -434,8 +438,8 @@ CREATE SEQUENCE basicdb.gen_table_column_column_id_seq
 ALTER SEQUENCE basicdb.gen_table_column_column_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3672 (class 0 OID 0)
--- Dependencies: 219
+-- TOC entry 3972 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -443,7 +447,7 @@ ALTER SEQUENCE basicdb.gen_table_column_column_id_seq OWNED BY basicdb.gen_table
 
 
 --
--- TOC entry 220 (class 1259 OID 4483178)
+-- TOC entry 221 (class 1259 OID 4483178)
 -- Name: gen_table_table_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: system
 --
 
@@ -458,8 +462,8 @@ CREATE SEQUENCE basicdb.gen_table_table_id_seq
 ALTER SEQUENCE basicdb.gen_table_table_id_seq OWNER TO system;
 
 --
--- TOC entry 3674 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 3974 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: gen_table_table_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: system
 --
 
@@ -467,7 +471,7 @@ ALTER SEQUENCE basicdb.gen_table_table_id_seq OWNED BY basicdb.gen_table.table_i
 
 
 --
--- TOC entry 221 (class 1259 OID 4483179)
+-- TOC entry 222 (class 1259 OID 4483179)
 -- Name: list_column; Type: VIEW; Schema: basicdb; Owner: system
 --
 
@@ -511,7 +515,7 @@ CREATE VIEW basicdb.list_column AS
 ALTER VIEW basicdb.list_column OWNER TO system;
 
 --
--- TOC entry 222 (class 1259 OID 4483184)
+-- TOC entry 223 (class 1259 OID 4483184)
 -- Name: list_table; Type: VIEW; Schema: basicdb; Owner: system
 --
 
@@ -528,7 +532,7 @@ CREATE VIEW basicdb.list_table AS
 ALTER VIEW basicdb.list_table OWNER TO system;
 
 --
--- TOC entry 223 (class 1259 OID 4483189)
+-- TOC entry 224 (class 1259 OID 4483189)
 -- Name: qrtz_blob_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -543,7 +547,7 @@ CREATE TABLE basicdb.qrtz_blob_triggers (
 ALTER TABLE basicdb.qrtz_blob_triggers OWNER TO postgres;
 
 --
--- TOC entry 224 (class 1259 OID 4483194)
+-- TOC entry 225 (class 1259 OID 4483194)
 -- Name: qrtz_calendars; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -557,7 +561,7 @@ CREATE TABLE basicdb.qrtz_calendars (
 ALTER TABLE basicdb.qrtz_calendars OWNER TO postgres;
 
 --
--- TOC entry 225 (class 1259 OID 4483199)
+-- TOC entry 226 (class 1259 OID 4483199)
 -- Name: qrtz_cron_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -573,7 +577,7 @@ CREATE TABLE basicdb.qrtz_cron_triggers (
 ALTER TABLE basicdb.qrtz_cron_triggers OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 4483204)
+-- TOC entry 227 (class 1259 OID 4483204)
 -- Name: qrtz_fired_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -597,7 +601,7 @@ CREATE TABLE basicdb.qrtz_fired_triggers (
 ALTER TABLE basicdb.qrtz_fired_triggers OWNER TO postgres;
 
 --
--- TOC entry 227 (class 1259 OID 4483209)
+-- TOC entry 228 (class 1259 OID 4483209)
 -- Name: qrtz_job_details; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -618,7 +622,7 @@ CREATE TABLE basicdb.qrtz_job_details (
 ALTER TABLE basicdb.qrtz_job_details OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 4483214)
+-- TOC entry 229 (class 1259 OID 4483214)
 -- Name: qrtz_locks; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -631,7 +635,7 @@ CREATE TABLE basicdb.qrtz_locks (
 ALTER TABLE basicdb.qrtz_locks OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 4483217)
+-- TOC entry 230 (class 1259 OID 4483217)
 -- Name: qrtz_paused_trigger_grps; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -644,7 +648,7 @@ CREATE TABLE basicdb.qrtz_paused_trigger_grps (
 ALTER TABLE basicdb.qrtz_paused_trigger_grps OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 4483220)
+-- TOC entry 231 (class 1259 OID 4483220)
 -- Name: qrtz_scheduler_state; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -659,7 +663,7 @@ CREATE TABLE basicdb.qrtz_scheduler_state (
 ALTER TABLE basicdb.qrtz_scheduler_state OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 4483223)
+-- TOC entry 232 (class 1259 OID 4483223)
 -- Name: qrtz_simple_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -676,7 +680,7 @@ CREATE TABLE basicdb.qrtz_simple_triggers (
 ALTER TABLE basicdb.qrtz_simple_triggers OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 4483228)
+-- TOC entry 233 (class 1259 OID 4483228)
 -- Name: qrtz_simprop_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -701,7 +705,7 @@ CREATE TABLE basicdb.qrtz_simprop_triggers (
 ALTER TABLE basicdb.qrtz_simprop_triggers OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 4483233)
+-- TOC entry 234 (class 1259 OID 4483233)
 -- Name: qrtz_triggers; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -728,7 +732,7 @@ CREATE TABLE basicdb.qrtz_triggers (
 ALTER TABLE basicdb.qrtz_triggers OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 4483238)
+-- TOC entry 235 (class 1259 OID 4483238)
 -- Name: sys_config; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -749,7 +753,7 @@ CREATE TABLE basicdb.sys_config (
 ALTER TABLE basicdb.sys_config OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 4483244)
+-- TOC entry 236 (class 1259 OID 4483244)
 -- Name: sys_config_config_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -765,8 +769,8 @@ CREATE SEQUENCE basicdb.sys_config_config_id_seq
 ALTER SEQUENCE basicdb.sys_config_config_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3690 (class 0 OID 0)
--- Dependencies: 235
+-- TOC entry 3990 (class 0 OID 0)
+-- Dependencies: 236
 -- Name: sys_config_config_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -774,7 +778,7 @@ ALTER SEQUENCE basicdb.sys_config_config_id_seq OWNED BY basicdb.sys_config.conf
 
 
 --
--- TOC entry 236 (class 1259 OID 4483245)
+-- TOC entry 237 (class 1259 OID 4483245)
 -- Name: sys_demo; Type: TABLE; Schema: basicdb; Owner: system
 --
 
@@ -797,7 +801,7 @@ CREATE TABLE basicdb.sys_demo (
 ALTER TABLE basicdb.sys_demo OWNER TO system;
 
 --
--- TOC entry 237 (class 1259 OID 4483248)
+-- TOC entry 238 (class 1259 OID 4483248)
 -- Name: sys_dept; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -825,7 +829,7 @@ CREATE TABLE basicdb.sys_dept (
 ALTER TABLE basicdb.sys_dept OWNER TO postgres;
 
 --
--- TOC entry 238 (class 1259 OID 4483257)
+-- TOC entry 239 (class 1259 OID 4483257)
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -840,8 +844,8 @@ CREATE SEQUENCE basicdb.sys_dept_dept_id_seq
 ALTER SEQUENCE basicdb.sys_dept_dept_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3693 (class 0 OID 0)
--- Dependencies: 238
+-- TOC entry 3993 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -849,7 +853,7 @@ ALTER SEQUENCE basicdb.sys_dept_dept_id_seq OWNED BY basicdb.sys_dept.dept_id;
 
 
 --
--- TOC entry 239 (class 1259 OID 4483258)
+-- TOC entry 240 (class 1259 OID 4483258)
 -- Name: sys_dict_data; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -874,7 +878,7 @@ CREATE TABLE basicdb.sys_dict_data (
 ALTER TABLE basicdb.sys_dict_data OWNER TO postgres;
 
 --
--- TOC entry 240 (class 1259 OID 4483266)
+-- TOC entry 241 (class 1259 OID 4483266)
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -889,8 +893,8 @@ CREATE SEQUENCE basicdb.sys_dict_data_dict_code_seq
 ALTER SEQUENCE basicdb.sys_dict_data_dict_code_seq OWNER TO postgres;
 
 --
--- TOC entry 3696 (class 0 OID 0)
--- Dependencies: 240
+-- TOC entry 3996 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -898,7 +902,7 @@ ALTER SEQUENCE basicdb.sys_dict_data_dict_code_seq OWNED BY basicdb.sys_dict_dat
 
 
 --
--- TOC entry 241 (class 1259 OID 4483267)
+-- TOC entry 242 (class 1259 OID 4483267)
 -- Name: sys_dict_type; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -918,7 +922,7 @@ CREATE TABLE basicdb.sys_dict_type (
 ALTER TABLE basicdb.sys_dict_type OWNER TO postgres;
 
 --
--- TOC entry 242 (class 1259 OID 4483273)
+-- TOC entry 243 (class 1259 OID 4483273)
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -933,8 +937,8 @@ CREATE SEQUENCE basicdb.sys_dict_type_dict_id_seq
 ALTER SEQUENCE basicdb.sys_dict_type_dict_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3699 (class 0 OID 0)
--- Dependencies: 242
+-- TOC entry 3999 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -942,7 +946,7 @@ ALTER SEQUENCE basicdb.sys_dict_type_dict_id_seq OWNED BY basicdb.sys_dict_type.
 
 
 --
--- TOC entry 243 (class 1259 OID 4483274)
+-- TOC entry 244 (class 1259 OID 4483274)
 -- Name: sys_files; Type: TABLE; Schema: basicdb; Owner: system
 --
 
@@ -967,7 +971,7 @@ CREATE TABLE basicdb.sys_files (
 ALTER TABLE basicdb.sys_files OWNER TO system;
 
 --
--- TOC entry 244 (class 1259 OID 4483279)
+-- TOC entry 245 (class 1259 OID 4483279)
 -- Name: sys_i18n; Type: TABLE; Schema: basicdb; Owner: system
 --
 
@@ -981,8 +985,8 @@ CREATE TABLE basicdb.sys_i18n (
 ALTER TABLE basicdb.sys_i18n OWNER TO system;
 
 --
--- TOC entry 3701 (class 0 OID 0)
--- Dependencies: 244
+-- TOC entry 4001 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN sys_i18n.message_id; Type: COMMENT; Schema: basicdb; Owner: system
 --
 
@@ -990,8 +994,8 @@ COMMENT ON COLUMN basicdb.sys_i18n.message_id IS '标识';
 
 
 --
--- TOC entry 3702 (class 0 OID 0)
--- Dependencies: 244
+-- TOC entry 4002 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN sys_i18n.value; Type: COMMENT; Schema: basicdb; Owner: system
 --
 
@@ -999,8 +1003,8 @@ COMMENT ON COLUMN basicdb.sys_i18n.value IS '值';
 
 
 --
--- TOC entry 3703 (class 0 OID 0)
--- Dependencies: 244
+-- TOC entry 4003 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN sys_i18n.language; Type: COMMENT; Schema: basicdb; Owner: system
 --
 
@@ -1008,7 +1012,7 @@ COMMENT ON COLUMN basicdb.sys_i18n.language IS '语言';
 
 
 --
--- TOC entry 245 (class 1259 OID 4483284)
+-- TOC entry 246 (class 1259 OID 4483284)
 -- Name: sys_job; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1032,7 +1036,7 @@ CREATE TABLE basicdb.sys_job (
 ALTER TABLE basicdb.sys_job OWNER TO postgres;
 
 --
--- TOC entry 246 (class 1259 OID 4483293)
+-- TOC entry 247 (class 1259 OID 4483293)
 -- Name: sys_job_job_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1047,8 +1051,8 @@ CREATE SEQUENCE basicdb.sys_job_job_id_seq
 ALTER SEQUENCE basicdb.sys_job_job_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3705 (class 0 OID 0)
--- Dependencies: 246
+-- TOC entry 4005 (class 0 OID 0)
+-- Dependencies: 247
 -- Name: sys_job_job_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1056,7 +1060,7 @@ ALTER SEQUENCE basicdb.sys_job_job_id_seq OWNED BY basicdb.sys_job.job_id;
 
 
 --
--- TOC entry 247 (class 1259 OID 4483294)
+-- TOC entry 248 (class 1259 OID 4483294)
 -- Name: sys_job_log; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1075,7 +1079,7 @@ CREATE TABLE basicdb.sys_job_log (
 ALTER TABLE basicdb.sys_job_log OWNER TO postgres;
 
 --
--- TOC entry 248 (class 1259 OID 4483300)
+-- TOC entry 249 (class 1259 OID 4483300)
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1090,8 +1094,8 @@ CREATE SEQUENCE basicdb.sys_job_log_job_log_id_seq
 ALTER SEQUENCE basicdb.sys_job_log_job_log_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3708 (class 0 OID 0)
--- Dependencies: 248
+-- TOC entry 4008 (class 0 OID 0)
+-- Dependencies: 249
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1099,7 +1103,7 @@ ALTER SEQUENCE basicdb.sys_job_log_job_log_id_seq OWNED BY basicdb.sys_job_log.j
 
 
 --
--- TOC entry 249 (class 1259 OID 4483301)
+-- TOC entry 250 (class 1259 OID 4483301)
 -- Name: sys_logininfor; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1119,7 +1123,7 @@ CREATE TABLE basicdb.sys_logininfor (
 ALTER TABLE basicdb.sys_logininfor OWNER TO postgres;
 
 --
--- TOC entry 250 (class 1259 OID 4483307)
+-- TOC entry 251 (class 1259 OID 4483307)
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1134,8 +1138,8 @@ CREATE SEQUENCE basicdb.sys_logininfor_info_id_seq
 ALTER SEQUENCE basicdb.sys_logininfor_info_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3711 (class 0 OID 0)
--- Dependencies: 250
+-- TOC entry 4011 (class 0 OID 0)
+-- Dependencies: 251
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1143,7 +1147,7 @@ ALTER SEQUENCE basicdb.sys_logininfor_info_id_seq OWNED BY basicdb.sys_logininfo
 
 
 --
--- TOC entry 251 (class 1259 OID 4483308)
+-- TOC entry 252 (class 1259 OID 4483308)
 -- Name: sys_menu; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1177,8 +1181,8 @@ CREATE TABLE basicdb.sys_menu (
 ALTER TABLE basicdb.sys_menu OWNER TO postgres;
 
 --
--- TOC entry 3713 (class 0 OID 0)
--- Dependencies: 251
+-- TOC entry 4013 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN sys_menu.show_tags; Type: COMMENT; Schema: basicdb; Owner: postgres
 --
 
@@ -1186,7 +1190,7 @@ COMMENT ON COLUMN basicdb.sys_menu.show_tags IS '自定义配置该页面是否�
 
 
 --
--- TOC entry 252 (class 1259 OID 4483320)
+-- TOC entry 253 (class 1259 OID 4483320)
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1201,8 +1205,8 @@ CREATE SEQUENCE basicdb.sys_menu_menu_id_seq
 ALTER SEQUENCE basicdb.sys_menu_menu_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3715 (class 0 OID 0)
--- Dependencies: 252
+-- TOC entry 4015 (class 0 OID 0)
+-- Dependencies: 253
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1210,7 +1214,7 @@ ALTER SEQUENCE basicdb.sys_menu_menu_id_seq OWNED BY basicdb.sys_menu.menu_id;
 
 
 --
--- TOC entry 253 (class 1259 OID 4483321)
+-- TOC entry 254 (class 1259 OID 4483321)
 -- Name: sys_notice; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1231,7 +1235,7 @@ CREATE TABLE basicdb.sys_notice (
 ALTER TABLE basicdb.sys_notice OWNER TO postgres;
 
 --
--- TOC entry 254 (class 1259 OID 4483327)
+-- TOC entry 255 (class 1259 OID 4483327)
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1247,8 +1251,8 @@ CREATE SEQUENCE basicdb.sys_notice_notice_id_seq
 ALTER SEQUENCE basicdb.sys_notice_notice_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3718 (class 0 OID 0)
--- Dependencies: 254
+-- TOC entry 4018 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1256,7 +1260,46 @@ ALTER SEQUENCE basicdb.sys_notice_notice_id_seq OWNED BY basicdb.sys_notice.noti
 
 
 --
--- TOC entry 255 (class 1259 OID 4483328)
+-- TOC entry 374 (class 1259 OID 4487134)
+-- Name: sys_notice_read; Type: TABLE; Schema: basicdb; Owner: system
+--
+
+CREATE TABLE basicdb.sys_notice_read (
+    read_id bigint NOT NULL,
+    notice_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    read_time timestamp(0) without time zone
+);
+
+
+ALTER TABLE basicdb.sys_notice_read OWNER TO system;
+
+--
+-- TOC entry 375 (class 1259 OID 4487137)
+-- Name: sys_notice_read_read_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: system
+--
+
+CREATE SEQUENCE basicdb.sys_notice_read_read_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE basicdb.sys_notice_read_read_id_seq OWNER TO system;
+
+--
+-- TOC entry 4020 (class 0 OID 0)
+-- Dependencies: 375
+-- Name: sys_notice_read_read_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: system
+--
+
+ALTER SEQUENCE basicdb.sys_notice_read_read_id_seq OWNED BY basicdb.sys_notice_read.read_id;
+
+
+--
+-- TOC entry 256 (class 1259 OID 4483328)
 -- Name: sys_oper_log; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1283,7 +1326,7 @@ CREATE TABLE basicdb.sys_oper_log (
 ALTER TABLE basicdb.sys_oper_log OWNER TO postgres;
 
 --
--- TOC entry 256 (class 1259 OID 4483336)
+-- TOC entry 257 (class 1259 OID 4483336)
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1298,8 +1341,8 @@ CREATE SEQUENCE basicdb.sys_oper_log_oper_id_seq
 ALTER SEQUENCE basicdb.sys_oper_log_oper_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3721 (class 0 OID 0)
--- Dependencies: 256
+-- TOC entry 4022 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1307,7 +1350,7 @@ ALTER SEQUENCE basicdb.sys_oper_log_oper_id_seq OWNED BY basicdb.sys_oper_log.op
 
 
 --
--- TOC entry 257 (class 1259 OID 4483337)
+-- TOC entry 258 (class 1259 OID 4483337)
 -- Name: sys_post; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1328,7 +1371,7 @@ CREATE TABLE basicdb.sys_post (
 ALTER TABLE basicdb.sys_post OWNER TO postgres;
 
 --
--- TOC entry 258 (class 1259 OID 4483342)
+-- TOC entry 259 (class 1259 OID 4483342)
 -- Name: sys_post_post_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1343,8 +1386,8 @@ CREATE SEQUENCE basicdb.sys_post_post_id_seq
 ALTER SEQUENCE basicdb.sys_post_post_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3724 (class 0 OID 0)
--- Dependencies: 258
+-- TOC entry 4025 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: sys_post_post_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1352,7 +1395,7 @@ ALTER SEQUENCE basicdb.sys_post_post_id_seq OWNED BY basicdb.sys_post.post_id;
 
 
 --
--- TOC entry 259 (class 1259 OID 4483343)
+-- TOC entry 260 (class 1259 OID 4483343)
 -- Name: sys_role; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1377,7 +1420,7 @@ CREATE TABLE basicdb.sys_role (
 ALTER TABLE basicdb.sys_role OWNER TO postgres;
 
 --
--- TOC entry 260 (class 1259 OID 4483352)
+-- TOC entry 261 (class 1259 OID 4483352)
 -- Name: sys_role_dept; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1390,7 +1433,7 @@ CREATE TABLE basicdb.sys_role_dept (
 ALTER TABLE basicdb.sys_role_dept OWNER TO postgres;
 
 --
--- TOC entry 261 (class 1259 OID 4483355)
+-- TOC entry 262 (class 1259 OID 4483355)
 -- Name: sys_role_menu; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1403,7 +1446,7 @@ CREATE TABLE basicdb.sys_role_menu (
 ALTER TABLE basicdb.sys_role_menu OWNER TO postgres;
 
 --
--- TOC entry 262 (class 1259 OID 4483358)
+-- TOC entry 263 (class 1259 OID 4483358)
 -- Name: sys_role_role_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1418,8 +1461,8 @@ CREATE SEQUENCE basicdb.sys_role_role_id_seq
 ALTER SEQUENCE basicdb.sys_role_role_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3729 (class 0 OID 0)
--- Dependencies: 262
+-- TOC entry 4030 (class 0 OID 0)
+-- Dependencies: 263
 -- Name: sys_role_role_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1427,7 +1470,7 @@ ALTER SEQUENCE basicdb.sys_role_role_id_seq OWNED BY basicdb.sys_role.role_id;
 
 
 --
--- TOC entry 263 (class 1259 OID 4483364)
+-- TOC entry 264 (class 1259 OID 4483364)
 -- Name: sys_user; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1458,7 +1501,7 @@ CREATE TABLE basicdb.sys_user (
 ALTER TABLE basicdb.sys_user OWNER TO postgres;
 
 --
--- TOC entry 264 (class 1259 OID 4483373)
+-- TOC entry 265 (class 1259 OID 4483373)
 -- Name: sys_user_post; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1471,7 +1514,7 @@ CREATE TABLE basicdb.sys_user_post (
 ALTER TABLE basicdb.sys_user_post OWNER TO postgres;
 
 --
--- TOC entry 265 (class 1259 OID 4483376)
+-- TOC entry 266 (class 1259 OID 4483376)
 -- Name: sys_user_role; Type: TABLE; Schema: basicdb; Owner: postgres
 --
 
@@ -1484,7 +1527,7 @@ CREATE TABLE basicdb.sys_user_role (
 ALTER TABLE basicdb.sys_user_role OWNER TO postgres;
 
 --
--- TOC entry 266 (class 1259 OID 4483379)
+-- TOC entry 267 (class 1259 OID 4483379)
 -- Name: sys_user_user_id_seq; Type: SEQUENCE; Schema: basicdb; Owner: postgres
 --
 
@@ -1499,8 +1542,8 @@ CREATE SEQUENCE basicdb.sys_user_user_id_seq
 ALTER SEQUENCE basicdb.sys_user_user_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3734 (class 0 OID 0)
--- Dependencies: 266
+-- TOC entry 4035 (class 0 OID 0)
+-- Dependencies: 267
 -- Name: sys_user_user_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb; Owner: postgres
 --
 
@@ -1508,7 +1551,7 @@ ALTER SEQUENCE basicdb.sys_user_user_id_seq OWNED BY basicdb.sys_user.user_id;
 
 
 --
--- TOC entry 3354 (class 2604 OID 4483380)
+-- TOC entry 3647 (class 2604 OID 4483380)
 -- Name: gen_table table_id; Type: DEFAULT; Schema: basicdb; Owner: system
 --
 
@@ -1516,7 +1559,7 @@ ALTER TABLE ONLY basicdb.gen_table ALTER COLUMN table_id SET DEFAULT nextval('ba
 
 
 --
--- TOC entry 3358 (class 2604 OID 4483381)
+-- TOC entry 3651 (class 2604 OID 4483381)
 -- Name: gen_table_column column_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1524,7 +1567,7 @@ ALTER TABLE ONLY basicdb.gen_table_column ALTER COLUMN column_id SET DEFAULT nex
 
 
 --
--- TOC entry 3360 (class 2604 OID 4483382)
+-- TOC entry 3653 (class 2604 OID 4483382)
 -- Name: sys_config config_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1532,7 +1575,7 @@ ALTER TABLE ONLY basicdb.sys_config ALTER COLUMN config_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3362 (class 2604 OID 4483383)
+-- TOC entry 3655 (class 2604 OID 4483383)
 -- Name: sys_dept dept_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1540,7 +1583,7 @@ ALTER TABLE ONLY basicdb.sys_dept ALTER COLUMN dept_id SET DEFAULT nextval('basi
 
 
 --
--- TOC entry 3367 (class 2604 OID 4483384)
+-- TOC entry 3660 (class 2604 OID 4483384)
 -- Name: sys_dict_data dict_code; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1548,7 +1591,7 @@ ALTER TABLE ONLY basicdb.sys_dict_data ALTER COLUMN dict_code SET DEFAULT nextva
 
 
 --
--- TOC entry 3371 (class 2604 OID 4483385)
+-- TOC entry 3664 (class 2604 OID 4483385)
 -- Name: sys_dict_type dict_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1556,7 +1599,7 @@ ALTER TABLE ONLY basicdb.sys_dict_type ALTER COLUMN dict_id SET DEFAULT nextval(
 
 
 --
--- TOC entry 3373 (class 2604 OID 4483386)
+-- TOC entry 3666 (class 2604 OID 4483386)
 -- Name: sys_job job_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1564,7 +1607,7 @@ ALTER TABLE ONLY basicdb.sys_job ALTER COLUMN job_id SET DEFAULT nextval('basicd
 
 
 --
--- TOC entry 3378 (class 2604 OID 4483387)
+-- TOC entry 3671 (class 2604 OID 4483387)
 -- Name: sys_job_log job_log_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1572,7 +1615,7 @@ ALTER TABLE ONLY basicdb.sys_job_log ALTER COLUMN job_log_id SET DEFAULT nextval
 
 
 --
--- TOC entry 3380 (class 2604 OID 4483388)
+-- TOC entry 3673 (class 2604 OID 4483388)
 -- Name: sys_logininfor info_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1580,7 +1623,7 @@ ALTER TABLE ONLY basicdb.sys_logininfor ALTER COLUMN info_id SET DEFAULT nextval
 
 
 --
--- TOC entry 3382 (class 2604 OID 4483389)
+-- TOC entry 3675 (class 2604 OID 4483389)
 -- Name: sys_menu menu_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1588,7 +1631,7 @@ ALTER TABLE ONLY basicdb.sys_menu ALTER COLUMN menu_id SET DEFAULT nextval('basi
 
 
 --
--- TOC entry 3390 (class 2604 OID 4483390)
+-- TOC entry 3683 (class 2604 OID 4483390)
 -- Name: sys_notice notice_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1596,7 +1639,7 @@ ALTER TABLE ONLY basicdb.sys_notice ALTER COLUMN notice_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3392 (class 2604 OID 4483391)
+-- TOC entry 3685 (class 2604 OID 4483391)
 -- Name: sys_oper_log oper_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1604,7 +1647,7 @@ ALTER TABLE ONLY basicdb.sys_oper_log ALTER COLUMN oper_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3396 (class 2604 OID 4483392)
+-- TOC entry 3689 (class 2604 OID 4483392)
 -- Name: sys_post post_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1612,7 +1655,7 @@ ALTER TABLE ONLY basicdb.sys_post ALTER COLUMN post_id SET DEFAULT nextval('basi
 
 
 --
--- TOC entry 3397 (class 2604 OID 4483393)
+-- TOC entry 3690 (class 2604 OID 4483393)
 -- Name: sys_role role_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1620,7 +1663,7 @@ ALTER TABLE ONLY basicdb.sys_role ALTER COLUMN role_id SET DEFAULT nextval('basi
 
 
 --
--- TOC entry 3402 (class 2604 OID 4483394)
+-- TOC entry 3695 (class 2604 OID 4483394)
 -- Name: sys_user user_id; Type: DEFAULT; Schema: basicdb; Owner: postgres
 --
 
@@ -1628,8 +1671,8 @@ ALTER TABLE ONLY basicdb.sys_user ALTER COLUMN user_id SET DEFAULT nextval('basi
 
 
 --
--- TOC entry 3617 (class 0 OID 4483163)
--- Dependencies: 217
+-- TOC entry 3915 (class 0 OID 4483163)
+-- Dependencies: 218
 -- Data for Name: gen_table; Type: TABLE DATA; Schema: basicdb; Owner: system
 --
 
@@ -1654,8 +1697,8 @@ INSERT INTO basicdb.gen_table VALUES (18, 'sys_demo', NULL, NULL, NULL, 'SysDemo
 
 
 --
--- TOC entry 3618 (class 0 OID 4483171)
--- Dependencies: 218
+-- TOC entry 3916 (class 0 OID 4483171)
+-- Dependencies: 219
 -- Data for Name: gen_table_column; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -1847,96 +1890,96 @@ INSERT INTO basicdb.gen_table_column VALUES (185, '18', 'birth', NULL, 'timestam
 
 
 --
--- TOC entry 3621 (class 0 OID 4483189)
--- Dependencies: 223
+-- TOC entry 3919 (class 0 OID 4483189)
+-- Dependencies: 224
 -- Data for Name: qrtz_blob_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3622 (class 0 OID 4483194)
--- Dependencies: 224
+-- TOC entry 3920 (class 0 OID 4483194)
+-- Dependencies: 225
 -- Data for Name: qrtz_calendars; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3623 (class 0 OID 4483199)
--- Dependencies: 225
+-- TOC entry 3921 (class 0 OID 4483199)
+-- Dependencies: 226
 -- Data for Name: qrtz_cron_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3624 (class 0 OID 4483204)
--- Dependencies: 226
+-- TOC entry 3922 (class 0 OID 4483204)
+-- Dependencies: 227
 -- Data for Name: qrtz_fired_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3625 (class 0 OID 4483209)
--- Dependencies: 227
+-- TOC entry 3923 (class 0 OID 4483209)
+-- Dependencies: 228
 -- Data for Name: qrtz_job_details; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3626 (class 0 OID 4483214)
--- Dependencies: 228
+-- TOC entry 3924 (class 0 OID 4483214)
+-- Dependencies: 229
 -- Data for Name: qrtz_locks; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3627 (class 0 OID 4483217)
--- Dependencies: 229
+-- TOC entry 3925 (class 0 OID 4483217)
+-- Dependencies: 230
 -- Data for Name: qrtz_paused_trigger_grps; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3628 (class 0 OID 4483220)
--- Dependencies: 230
+-- TOC entry 3926 (class 0 OID 4483220)
+-- Dependencies: 231
 -- Data for Name: qrtz_scheduler_state; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3629 (class 0 OID 4483223)
--- Dependencies: 231
+-- TOC entry 3927 (class 0 OID 4483223)
+-- Dependencies: 232
 -- Data for Name: qrtz_simple_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3630 (class 0 OID 4483228)
--- Dependencies: 232
+-- TOC entry 3928 (class 0 OID 4483228)
+-- Dependencies: 233
 -- Data for Name: qrtz_simprop_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3631 (class 0 OID 4483233)
--- Dependencies: 233
+-- TOC entry 3929 (class 0 OID 4483233)
+-- Dependencies: 234
 -- Data for Name: qrtz_triggers; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3632 (class 0 OID 4483238)
--- Dependencies: 234
+-- TOC entry 3930 (class 0 OID 4483238)
+-- Dependencies: 235
 -- Data for Name: sys_config; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -1955,8 +1998,8 @@ INSERT INTO basicdb.sys_config VALUES (13, '账号登录-账号锁定时间', 'u
 
 
 --
--- TOC entry 3634 (class 0 OID 4483245)
--- Dependencies: 236
+-- TOC entry 3932 (class 0 OID 4483245)
+-- Dependencies: 237
 -- Data for Name: sys_demo; Type: TABLE DATA; Schema: basicdb; Owner: system
 --
 
@@ -1964,8 +2007,8 @@ INSERT INTO basicdb.sys_demo VALUES (1750711753414205442, '李四', 'admin', '20
 
 
 --
--- TOC entry 3635 (class 0 OID 4483248)
--- Dependencies: 237
+-- TOC entry 3933 (class 0 OID 4483248)
+-- Dependencies: 238
 -- Data for Name: sys_dept; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -1983,8 +2026,8 @@ INSERT INTO basicdb.sys_dept VALUES (111, 101, '0,100,101', '办公室', 3, NULL
 
 
 --
--- TOC entry 3637 (class 0 OID 4483258)
--- Dependencies: 239
+-- TOC entry 3935 (class 0 OID 4483258)
+-- Dependencies: 240
 -- Data for Name: sys_dict_data; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2022,8 +2065,8 @@ INSERT INTO basicdb.sys_dict_data VALUES (32, 2, '隐藏', '2', 'sys_show_tags',
 
 
 --
--- TOC entry 3639 (class 0 OID 4483267)
--- Dependencies: 241
+-- TOC entry 3937 (class 0 OID 4483267)
+-- Dependencies: 242
 -- Data for Name: sys_dict_type; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2041,16 +2084,16 @@ INSERT INTO basicdb.sys_dict_type VALUES (12, '选项卡状态', 'sys_show_tags'
 
 
 --
--- TOC entry 3641 (class 0 OID 4483274)
--- Dependencies: 243
+-- TOC entry 3939 (class 0 OID 4483274)
+-- Dependencies: 244
 -- Data for Name: sys_files; Type: TABLE DATA; Schema: basicdb; Owner: system
 --
 
 
 
 --
--- TOC entry 3642 (class 0 OID 4483279)
--- Dependencies: 244
+-- TOC entry 3940 (class 0 OID 4483279)
+-- Dependencies: 245
 -- Data for Name: sys_i18n; Type: TABLE DATA; Schema: basicdb; Owner: system
 --
 
@@ -2063,8 +2106,8 @@ INSERT INTO basicdb.sys_i18n VALUES ('Assembly.idFormStyle', '請給圖表配置
 
 
 --
--- TOC entry 3643 (class 0 OID 4483284)
--- Dependencies: 245
+-- TOC entry 3941 (class 0 OID 4483284)
+-- Dependencies: 246
 -- Data for Name: sys_job; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2074,24 +2117,24 @@ INSERT INTO basicdb.sys_job VALUES (3, '系统默认（多参）', 'DEFAULT', 'r
 
 
 --
--- TOC entry 3645 (class 0 OID 4483294)
--- Dependencies: 247
+-- TOC entry 3943 (class 0 OID 4483294)
+-- Dependencies: 248
 -- Data for Name: sys_job_log; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3647 (class 0 OID 4483301)
--- Dependencies: 249
+-- TOC entry 3945 (class 0 OID 4483301)
+-- Dependencies: 250
 -- Data for Name: sys_logininfor; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3649 (class 0 OID 4483308)
--- Dependencies: 251
+-- TOC entry 3947 (class 0 OID 4483308)
+-- Dependencies: 252
 -- Data for Name: sys_menu; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2189,16 +2232,24 @@ INSERT INTO basicdb.sys_menu VALUES (1753950971045343233, '示例表单', 1061, 
 
 
 --
--- TOC entry 3651 (class 0 OID 4483321)
--- Dependencies: 253
+-- TOC entry 3949 (class 0 OID 4483321)
+-- Dependencies: 254
 -- Data for Name: sys_notice; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3653 (class 0 OID 4483328)
--- Dependencies: 255
+-- TOC entry 3963 (class 0 OID 4487134)
+-- Dependencies: 374
+-- Data for Name: sys_notice_read; Type: TABLE DATA; Schema: basicdb; Owner: system
+--
+
+
+
+--
+-- TOC entry 3951 (class 0 OID 4483328)
+-- Dependencies: 256
 -- Data for Name: sys_oper_log; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2209,8 +2260,8 @@ INSERT INTO basicdb.sys_oper_log VALUES (382, '菜单管理', 3, 'com.basic.web.
 
 
 --
--- TOC entry 3655 (class 0 OID 4483337)
--- Dependencies: 257
+-- TOC entry 3953 (class 0 OID 4483337)
+-- Dependencies: 258
 -- Data for Name: sys_post; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2218,8 +2269,8 @@ INSERT INTO basicdb.sys_post VALUES (1, 'ceo', '董事长', 1, '0', 'admin', '20
 
 
 --
--- TOC entry 3657 (class 0 OID 4483343)
--- Dependencies: 259
+-- TOC entry 3955 (class 0 OID 4483343)
+-- Dependencies: 260
 -- Data for Name: sys_role; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2230,8 +2281,8 @@ INSERT INTO basicdb.sys_role VALUES (5, '用户1', 'usss', 3, '1', 1, 1, '0', '2
 
 
 --
--- TOC entry 3658 (class 0 OID 4483352)
--- Dependencies: 260
+-- TOC entry 3956 (class 0 OID 4483352)
+-- Dependencies: 261
 -- Data for Name: sys_role_dept; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2241,8 +2292,8 @@ INSERT INTO basicdb.sys_role_dept VALUES (2, 105);
 
 
 --
--- TOC entry 3659 (class 0 OID 4483355)
--- Dependencies: 261
+-- TOC entry 3957 (class 0 OID 4483355)
+-- Dependencies: 262
 -- Data for Name: sys_role_menu; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2297,8 +2348,8 @@ INSERT INTO basicdb.sys_role_menu VALUES (2, 116);
 
 
 --
--- TOC entry 3661 (class 0 OID 4483364)
--- Dependencies: 263
+-- TOC entry 3959 (class 0 OID 4483364)
+-- Dependencies: 264
 -- Data for Name: sys_user; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2313,8 +2364,8 @@ INSERT INTO basicdb.sys_user VALUES (1, 100, 'admin', '超*管', '00', 'xiaochao
 
 
 --
--- TOC entry 3662 (class 0 OID 4483373)
--- Dependencies: 264
+-- TOC entry 3960 (class 0 OID 4483373)
+-- Dependencies: 265
 -- Data for Name: sys_user_post; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2322,8 +2373,8 @@ INSERT INTO basicdb.sys_user_post VALUES (1, 1);
 
 
 --
--- TOC entry 3663 (class 0 OID 4483376)
--- Dependencies: 265
+-- TOC entry 3961 (class 0 OID 4483376)
+-- Dependencies: 266
 -- Data for Name: sys_user_role; Type: TABLE DATA; Schema: basicdb; Owner: postgres
 --
 
@@ -2336,8 +2387,8 @@ INSERT INTO basicdb.sys_user_role VALUES (9, 2);
 
 
 --
--- TOC entry 3736 (class 0 OID 0)
--- Dependencies: 219
+-- TOC entry 4037 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2345,8 +2396,8 @@ SELECT pg_catalog.setval('basicdb.gen_table_column_column_id_seq', 185, true);
 
 
 --
--- TOC entry 3737 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 4038 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: gen_table_table_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: system
 --
 
@@ -2354,8 +2405,8 @@ SELECT pg_catalog.setval('basicdb.gen_table_table_id_seq', 18, true);
 
 
 --
--- TOC entry 3738 (class 0 OID 0)
--- Dependencies: 235
+-- TOC entry 4039 (class 0 OID 0)
+-- Dependencies: 236
 -- Name: sys_config_config_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2363,8 +2414,8 @@ SELECT pg_catalog.setval('basicdb.sys_config_config_id_seq', 13, true);
 
 
 --
--- TOC entry 3739 (class 0 OID 0)
--- Dependencies: 238
+-- TOC entry 4040 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2372,8 +2423,8 @@ SELECT pg_catalog.setval('basicdb.sys_dept_dept_id_seq', 111, true);
 
 
 --
--- TOC entry 3740 (class 0 OID 0)
--- Dependencies: 240
+-- TOC entry 4041 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2381,8 +2432,8 @@ SELECT pg_catalog.setval('basicdb.sys_dict_data_dict_code_seq', 32, true);
 
 
 --
--- TOC entry 3741 (class 0 OID 0)
--- Dependencies: 242
+-- TOC entry 4042 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2390,8 +2441,8 @@ SELECT pg_catalog.setval('basicdb.sys_dict_type_dict_id_seq', 12, true);
 
 
 --
--- TOC entry 3742 (class 0 OID 0)
--- Dependencies: 246
+-- TOC entry 4043 (class 0 OID 0)
+-- Dependencies: 247
 -- Name: sys_job_job_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2399,8 +2450,8 @@ SELECT pg_catalog.setval('basicdb.sys_job_job_id_seq', 4, true);
 
 
 --
--- TOC entry 3743 (class 0 OID 0)
--- Dependencies: 248
+-- TOC entry 4044 (class 0 OID 0)
+-- Dependencies: 249
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2408,8 +2459,8 @@ SELECT pg_catalog.setval('basicdb.sys_job_log_job_log_id_seq', 1, false);
 
 
 --
--- TOC entry 3744 (class 0 OID 0)
--- Dependencies: 250
+-- TOC entry 4045 (class 0 OID 0)
+-- Dependencies: 251
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2417,8 +2468,8 @@ SELECT pg_catalog.setval('basicdb.sys_logininfor_info_id_seq', 724, true);
 
 
 --
--- TOC entry 3745 (class 0 OID 0)
--- Dependencies: 252
+-- TOC entry 4046 (class 0 OID 0)
+-- Dependencies: 253
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2426,8 +2477,8 @@ SELECT pg_catalog.setval('basicdb.sys_menu_menu_id_seq', 1066, true);
 
 
 --
--- TOC entry 3746 (class 0 OID 0)
--- Dependencies: 254
+-- TOC entry 4047 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2435,8 +2486,17 @@ SELECT pg_catalog.setval('basicdb.sys_notice_notice_id_seq', 3, true);
 
 
 --
--- TOC entry 3747 (class 0 OID 0)
--- Dependencies: 256
+-- TOC entry 4048 (class 0 OID 0)
+-- Dependencies: 375
+-- Name: sys_notice_read_read_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: system
+--
+
+SELECT pg_catalog.setval('basicdb.sys_notice_read_read_id_seq', 1, false);
+
+
+--
+-- TOC entry 4049 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2444,8 +2504,8 @@ SELECT pg_catalog.setval('basicdb.sys_oper_log_oper_id_seq', 382, true);
 
 
 --
--- TOC entry 3748 (class 0 OID 0)
--- Dependencies: 258
+-- TOC entry 4050 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: sys_post_post_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2453,8 +2513,8 @@ SELECT pg_catalog.setval('basicdb.sys_post_post_id_seq', 5, true);
 
 
 --
--- TOC entry 3749 (class 0 OID 0)
--- Dependencies: 262
+-- TOC entry 4051 (class 0 OID 0)
+-- Dependencies: 263
 -- Name: sys_role_role_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2462,8 +2522,8 @@ SELECT pg_catalog.setval('basicdb.sys_role_role_id_seq', 5, true);
 
 
 --
--- TOC entry 3750 (class 0 OID 0)
--- Dependencies: 266
+-- TOC entry 4052 (class 0 OID 0)
+-- Dependencies: 267
 -- Name: sys_user_user_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
@@ -2471,7 +2531,7 @@ SELECT pg_catalog.setval('basicdb.sys_user_user_id_seq', 9, true);
 
 
 --
--- TOC entry 3408 (class 2606 OID 4483396)
+-- TOC entry 3701 (class 2606 OID 4483396)
 -- Name: gen_table PRIMARY; Type: CONSTRAINT; Schema: basicdb; Owner: system
 --
 
@@ -2480,7 +2540,7 @@ ALTER TABLE ONLY basicdb.gen_table
 
 
 --
--- TOC entry 3410 (class 2606 OID 4483398)
+-- TOC entry 3703 (class 2606 OID 4483398)
 -- Name: gen_table_column PRIMARY00000; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2489,7 +2549,7 @@ ALTER TABLE ONLY basicdb.gen_table_column
 
 
 --
--- TOC entry 3412 (class 2606 OID 4483400)
+-- TOC entry 3705 (class 2606 OID 4483400)
 -- Name: qrtz_blob_triggers PRIMARY00001; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2498,7 +2558,7 @@ ALTER TABLE ONLY basicdb.qrtz_blob_triggers
 
 
 --
--- TOC entry 3414 (class 2606 OID 4483402)
+-- TOC entry 3707 (class 2606 OID 4483402)
 -- Name: qrtz_calendars PRIMARY00002; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2507,7 +2567,7 @@ ALTER TABLE ONLY basicdb.qrtz_calendars
 
 
 --
--- TOC entry 3416 (class 2606 OID 4483404)
+-- TOC entry 3709 (class 2606 OID 4483404)
 -- Name: qrtz_cron_triggers PRIMARY00003; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2516,7 +2576,7 @@ ALTER TABLE ONLY basicdb.qrtz_cron_triggers
 
 
 --
--- TOC entry 3418 (class 2606 OID 4483406)
+-- TOC entry 3711 (class 2606 OID 4483406)
 -- Name: qrtz_fired_triggers PRIMARY00004; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2525,7 +2585,7 @@ ALTER TABLE ONLY basicdb.qrtz_fired_triggers
 
 
 --
--- TOC entry 3420 (class 2606 OID 4483408)
+-- TOC entry 3713 (class 2606 OID 4483408)
 -- Name: qrtz_job_details PRIMARY00005; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2534,7 +2594,7 @@ ALTER TABLE ONLY basicdb.qrtz_job_details
 
 
 --
--- TOC entry 3422 (class 2606 OID 4483410)
+-- TOC entry 3715 (class 2606 OID 4483410)
 -- Name: qrtz_locks PRIMARY00006; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2543,7 +2603,7 @@ ALTER TABLE ONLY basicdb.qrtz_locks
 
 
 --
--- TOC entry 3424 (class 2606 OID 4483412)
+-- TOC entry 3717 (class 2606 OID 4483412)
 -- Name: qrtz_paused_trigger_grps PRIMARY00007; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2552,7 +2612,7 @@ ALTER TABLE ONLY basicdb.qrtz_paused_trigger_grps
 
 
 --
--- TOC entry 3426 (class 2606 OID 4483414)
+-- TOC entry 3719 (class 2606 OID 4483414)
 -- Name: qrtz_scheduler_state PRIMARY00008; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2561,7 +2621,7 @@ ALTER TABLE ONLY basicdb.qrtz_scheduler_state
 
 
 --
--- TOC entry 3428 (class 2606 OID 4483416)
+-- TOC entry 3721 (class 2606 OID 4483416)
 -- Name: qrtz_simple_triggers PRIMARY00009; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2570,7 +2630,7 @@ ALTER TABLE ONLY basicdb.qrtz_simple_triggers
 
 
 --
--- TOC entry 3430 (class 2606 OID 4483418)
+-- TOC entry 3723 (class 2606 OID 4483418)
 -- Name: qrtz_simprop_triggers PRIMARY00010; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2579,7 +2639,7 @@ ALTER TABLE ONLY basicdb.qrtz_simprop_triggers
 
 
 --
--- TOC entry 3432 (class 2606 OID 4483420)
+-- TOC entry 3725 (class 2606 OID 4483420)
 -- Name: qrtz_triggers PRIMARY00011; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2588,7 +2648,7 @@ ALTER TABLE ONLY basicdb.qrtz_triggers
 
 
 --
--- TOC entry 3435 (class 2606 OID 4483422)
+-- TOC entry 3728 (class 2606 OID 4483422)
 -- Name: sys_config PRIMARY00012; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2597,7 +2657,7 @@ ALTER TABLE ONLY basicdb.sys_config
 
 
 --
--- TOC entry 3439 (class 2606 OID 4483424)
+-- TOC entry 3732 (class 2606 OID 4483424)
 -- Name: sys_dept PRIMARY00013; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2606,7 +2666,7 @@ ALTER TABLE ONLY basicdb.sys_dept
 
 
 --
--- TOC entry 3441 (class 2606 OID 4483426)
+-- TOC entry 3734 (class 2606 OID 4483426)
 -- Name: sys_dict_data PRIMARY00014; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2615,7 +2675,7 @@ ALTER TABLE ONLY basicdb.sys_dict_data
 
 
 --
--- TOC entry 3443 (class 2606 OID 4483428)
+-- TOC entry 3736 (class 2606 OID 4483428)
 -- Name: sys_dict_type PRIMARY00015; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2624,7 +2684,7 @@ ALTER TABLE ONLY basicdb.sys_dict_type
 
 
 --
--- TOC entry 3448 (class 2606 OID 4483430)
+-- TOC entry 3741 (class 2606 OID 4483430)
 -- Name: sys_job PRIMARY00016; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2633,7 +2693,7 @@ ALTER TABLE ONLY basicdb.sys_job
 
 
 --
--- TOC entry 3450 (class 2606 OID 4483432)
+-- TOC entry 3743 (class 2606 OID 4483432)
 -- Name: sys_job_log PRIMARY00017; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2642,7 +2702,7 @@ ALTER TABLE ONLY basicdb.sys_job_log
 
 
 --
--- TOC entry 3452 (class 2606 OID 4483434)
+-- TOC entry 3745 (class 2606 OID 4483434)
 -- Name: sys_logininfor PRIMARY00018; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2651,7 +2711,7 @@ ALTER TABLE ONLY basicdb.sys_logininfor
 
 
 --
--- TOC entry 3454 (class 2606 OID 4483436)
+-- TOC entry 3747 (class 2606 OID 4483436)
 -- Name: sys_menu PRIMARY00019; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2660,7 +2720,7 @@ ALTER TABLE ONLY basicdb.sys_menu
 
 
 --
--- TOC entry 3456 (class 2606 OID 4483438)
+-- TOC entry 3749 (class 2606 OID 4483438)
 -- Name: sys_notice PRIMARY00020; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2669,7 +2729,7 @@ ALTER TABLE ONLY basicdb.sys_notice
 
 
 --
--- TOC entry 3458 (class 2606 OID 4483440)
+-- TOC entry 3751 (class 2606 OID 4483440)
 -- Name: sys_oper_log PRIMARY00021; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2678,7 +2738,7 @@ ALTER TABLE ONLY basicdb.sys_oper_log
 
 
 --
--- TOC entry 3460 (class 2606 OID 4483442)
+-- TOC entry 3753 (class 2606 OID 4483442)
 -- Name: sys_post PRIMARY00022; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2687,7 +2747,7 @@ ALTER TABLE ONLY basicdb.sys_post
 
 
 --
--- TOC entry 3462 (class 2606 OID 4483444)
+-- TOC entry 3755 (class 2606 OID 4483444)
 -- Name: sys_role PRIMARY00023; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2696,7 +2756,7 @@ ALTER TABLE ONLY basicdb.sys_role
 
 
 --
--- TOC entry 3464 (class 2606 OID 4483446)
+-- TOC entry 3757 (class 2606 OID 4483446)
 -- Name: sys_role_dept PRIMARY00024; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2705,7 +2765,7 @@ ALTER TABLE ONLY basicdb.sys_role_dept
 
 
 --
--- TOC entry 3466 (class 2606 OID 4483448)
+-- TOC entry 3759 (class 2606 OID 4483448)
 -- Name: sys_role_menu PRIMARY00025; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2714,7 +2774,7 @@ ALTER TABLE ONLY basicdb.sys_role_menu
 
 
 --
--- TOC entry 3468 (class 2606 OID 4483450)
+-- TOC entry 3761 (class 2606 OID 4483450)
 -- Name: sys_user PRIMARY00026; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2723,7 +2783,7 @@ ALTER TABLE ONLY basicdb.sys_user
 
 
 --
--- TOC entry 3470 (class 2606 OID 4483452)
+-- TOC entry 3763 (class 2606 OID 4483452)
 -- Name: sys_user_post PRIMARY00027; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2732,7 +2792,7 @@ ALTER TABLE ONLY basicdb.sys_user_post
 
 
 --
--- TOC entry 3472 (class 2606 OID 4483454)
+-- TOC entry 3765 (class 2606 OID 4483454)
 -- Name: sys_user_role PRIMARY00028; Type: CONSTRAINT; Schema: basicdb; Owner: postgres
 --
 
@@ -2741,7 +2801,7 @@ ALTER TABLE ONLY basicdb.sys_user_role
 
 
 --
--- TOC entry 3437 (class 2606 OID 4483458)
+-- TOC entry 3730 (class 2606 OID 4483458)
 -- Name: sys_demo sys_demo_pkey; Type: CONSTRAINT; Schema: basicdb; Owner: system
 --
 
@@ -2750,7 +2810,7 @@ ALTER TABLE ONLY basicdb.sys_demo
 
 
 --
--- TOC entry 3446 (class 2606 OID 4483460)
+-- TOC entry 3739 (class 2606 OID 4483460)
 -- Name: sys_files sys_files_pkey; Type: CONSTRAINT; Schema: basicdb; Owner: system
 --
 
@@ -2759,7 +2819,16 @@ ALTER TABLE ONLY basicdb.sys_files
 
 
 --
--- TOC entry 3444 (class 1259 OID 4483461)
+-- TOC entry 3767 (class 2606 OID 4487139)
+-- Name: sys_notice_read sys_notice_read_pkey; Type: CONSTRAINT; Schema: basicdb; Owner: system
+--
+
+ALTER TABLE ONLY basicdb.sys_notice_read
+    ADD CONSTRAINT sys_notice_read_pkey PRIMARY KEY (read_id);
+
+
+--
+-- TOC entry 3737 (class 1259 OID 4483461)
 -- Name: dict_type; Type: INDEX; Schema: basicdb; Owner: postgres
 --
 
@@ -2767,7 +2836,7 @@ CREATE UNIQUE INDEX dict_type ON basicdb.sys_dict_type USING btree (dict_type);
 
 
 --
--- TOC entry 3433 (class 1259 OID 4483462)
+-- TOC entry 3726 (class 1259 OID 4483462)
 -- Name: sched_name; Type: INDEX; Schema: basicdb; Owner: postgres
 --
 
@@ -2775,8 +2844,16 @@ CREATE INDEX sched_name ON basicdb.qrtz_triggers USING btree (sched_name, job_na
 
 
 --
--- TOC entry 3670 (class 0 OID 0)
--- Dependencies: 217
+-- TOC entry 3768 (class 1259 OID 4487140)
+-- Name: uk_sys_notice_read_notice_user; Type: INDEX; Schema: basicdb; Owner: system
+--
+
+CREATE UNIQUE INDEX uk_sys_notice_read_notice_user ON basicdb.sys_notice_read USING btree (notice_id, user_id);
+
+
+--
+-- TOC entry 3970 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: TABLE gen_table; Type: ACL; Schema: basicdb; Owner: system
 --
 
@@ -2784,8 +2861,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.g
 
 
 --
--- TOC entry 3671 (class 0 OID 0)
--- Dependencies: 218
+-- TOC entry 3971 (class 0 OID 0)
+-- Dependencies: 219
 -- Name: TABLE gen_table_column; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2793,8 +2870,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.g
 
 
 --
--- TOC entry 3673 (class 0 OID 0)
--- Dependencies: 219
+-- TOC entry 3973 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: SEQUENCE gen_table_column_column_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2802,8 +2879,8 @@ GRANT ALL ON SEQUENCE basicdb.gen_table_column_column_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3675 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 3975 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: SEQUENCE gen_table_table_id_seq; Type: ACL; Schema: basicdb; Owner: system
 --
 
@@ -2811,8 +2888,8 @@ GRANT ALL ON SEQUENCE basicdb.gen_table_table_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3676 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 3976 (class 0 OID 0)
+-- Dependencies: 222
 -- Name: TABLE list_column; Type: ACL; Schema: basicdb; Owner: system
 --
 
@@ -2820,8 +2897,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.l
 
 
 --
--- TOC entry 3677 (class 0 OID 0)
--- Dependencies: 222
+-- TOC entry 3977 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: TABLE list_table; Type: ACL; Schema: basicdb; Owner: system
 --
 
@@ -2829,8 +2906,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.l
 
 
 --
--- TOC entry 3678 (class 0 OID 0)
--- Dependencies: 223
+-- TOC entry 3978 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: TABLE qrtz_blob_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2838,8 +2915,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3679 (class 0 OID 0)
--- Dependencies: 224
+-- TOC entry 3979 (class 0 OID 0)
+-- Dependencies: 225
 -- Name: TABLE qrtz_calendars; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2847,8 +2924,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3680 (class 0 OID 0)
--- Dependencies: 225
+-- TOC entry 3980 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: TABLE qrtz_cron_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2856,8 +2933,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3681 (class 0 OID 0)
--- Dependencies: 226
+-- TOC entry 3981 (class 0 OID 0)
+-- Dependencies: 227
 -- Name: TABLE qrtz_fired_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2865,8 +2942,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3682 (class 0 OID 0)
--- Dependencies: 227
+-- TOC entry 3982 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: TABLE qrtz_job_details; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2874,8 +2951,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3683 (class 0 OID 0)
--- Dependencies: 228
+-- TOC entry 3983 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: TABLE qrtz_locks; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2883,8 +2960,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3684 (class 0 OID 0)
--- Dependencies: 229
+-- TOC entry 3984 (class 0 OID 0)
+-- Dependencies: 230
 -- Name: TABLE qrtz_paused_trigger_grps; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2892,8 +2969,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3685 (class 0 OID 0)
--- Dependencies: 230
+-- TOC entry 3985 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: TABLE qrtz_scheduler_state; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2901,8 +2978,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3686 (class 0 OID 0)
--- Dependencies: 231
+-- TOC entry 3986 (class 0 OID 0)
+-- Dependencies: 232
 -- Name: TABLE qrtz_simple_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2910,8 +2987,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3687 (class 0 OID 0)
--- Dependencies: 232
+-- TOC entry 3987 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: TABLE qrtz_simprop_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2919,8 +2996,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3688 (class 0 OID 0)
--- Dependencies: 233
+-- TOC entry 3988 (class 0 OID 0)
+-- Dependencies: 234
 -- Name: TABLE qrtz_triggers; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2928,8 +3005,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.q
 
 
 --
--- TOC entry 3689 (class 0 OID 0)
--- Dependencies: 234
+-- TOC entry 3989 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: TABLE sys_config; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2937,8 +3014,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3691 (class 0 OID 0)
--- Dependencies: 235
+-- TOC entry 3991 (class 0 OID 0)
+-- Dependencies: 236
 -- Name: SEQUENCE sys_config_config_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2946,8 +3023,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_config_config_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3692 (class 0 OID 0)
--- Dependencies: 237
+-- TOC entry 3992 (class 0 OID 0)
+-- Dependencies: 238
 -- Name: TABLE sys_dept; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2955,8 +3032,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3694 (class 0 OID 0)
--- Dependencies: 238
+-- TOC entry 3994 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: SEQUENCE sys_dept_dept_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2964,8 +3041,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_dept_dept_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3695 (class 0 OID 0)
--- Dependencies: 239
+-- TOC entry 3995 (class 0 OID 0)
+-- Dependencies: 240
 -- Name: TABLE sys_dict_data; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2973,8 +3050,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3697 (class 0 OID 0)
--- Dependencies: 240
+-- TOC entry 3997 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: SEQUENCE sys_dict_data_dict_code_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2982,8 +3059,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_dict_data_dict_code_seq TO PUBLIC;
 
 
 --
--- TOC entry 3698 (class 0 OID 0)
--- Dependencies: 241
+-- TOC entry 3998 (class 0 OID 0)
+-- Dependencies: 242
 -- Name: TABLE sys_dict_type; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -2991,8 +3068,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3700 (class 0 OID 0)
--- Dependencies: 242
+-- TOC entry 4000 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: SEQUENCE sys_dict_type_dict_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3000,8 +3077,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_dict_type_dict_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3704 (class 0 OID 0)
--- Dependencies: 245
+-- TOC entry 4004 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: TABLE sys_job; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3009,8 +3086,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3706 (class 0 OID 0)
--- Dependencies: 246
+-- TOC entry 4006 (class 0 OID 0)
+-- Dependencies: 247
 -- Name: SEQUENCE sys_job_job_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3018,8 +3095,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_job_job_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3707 (class 0 OID 0)
--- Dependencies: 247
+-- TOC entry 4007 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: TABLE sys_job_log; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3027,8 +3104,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3709 (class 0 OID 0)
--- Dependencies: 248
+-- TOC entry 4009 (class 0 OID 0)
+-- Dependencies: 249
 -- Name: SEQUENCE sys_job_log_job_log_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3036,8 +3113,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_job_log_job_log_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3710 (class 0 OID 0)
--- Dependencies: 249
+-- TOC entry 4010 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: TABLE sys_logininfor; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3045,8 +3122,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3712 (class 0 OID 0)
--- Dependencies: 250
+-- TOC entry 4012 (class 0 OID 0)
+-- Dependencies: 251
 -- Name: SEQUENCE sys_logininfor_info_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3054,8 +3131,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_logininfor_info_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3714 (class 0 OID 0)
--- Dependencies: 251
+-- TOC entry 4014 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: TABLE sys_menu; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3063,8 +3140,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3716 (class 0 OID 0)
--- Dependencies: 252
+-- TOC entry 4016 (class 0 OID 0)
+-- Dependencies: 253
 -- Name: SEQUENCE sys_menu_menu_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3072,8 +3149,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_menu_menu_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3717 (class 0 OID 0)
--- Dependencies: 253
+-- TOC entry 4017 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: TABLE sys_notice; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3081,8 +3158,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3719 (class 0 OID 0)
--- Dependencies: 254
+-- TOC entry 4019 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: SEQUENCE sys_notice_notice_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3090,8 +3167,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_notice_notice_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3720 (class 0 OID 0)
--- Dependencies: 255
+-- TOC entry 4021 (class 0 OID 0)
+-- Dependencies: 256
 -- Name: TABLE sys_oper_log; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3099,8 +3176,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3722 (class 0 OID 0)
--- Dependencies: 256
+-- TOC entry 4023 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: SEQUENCE sys_oper_log_oper_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3108,8 +3185,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_oper_log_oper_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3723 (class 0 OID 0)
--- Dependencies: 257
+-- TOC entry 4024 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: TABLE sys_post; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3117,8 +3194,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3725 (class 0 OID 0)
--- Dependencies: 258
+-- TOC entry 4026 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: SEQUENCE sys_post_post_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3126,8 +3203,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_post_post_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3726 (class 0 OID 0)
--- Dependencies: 259
+-- TOC entry 4027 (class 0 OID 0)
+-- Dependencies: 260
 -- Name: TABLE sys_role; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3135,8 +3212,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3727 (class 0 OID 0)
--- Dependencies: 260
+-- TOC entry 4028 (class 0 OID 0)
+-- Dependencies: 261
 -- Name: TABLE sys_role_dept; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3144,8 +3221,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3728 (class 0 OID 0)
--- Dependencies: 261
+-- TOC entry 4029 (class 0 OID 0)
+-- Dependencies: 262
 -- Name: TABLE sys_role_menu; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3153,8 +3230,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3730 (class 0 OID 0)
--- Dependencies: 262
+-- TOC entry 4031 (class 0 OID 0)
+-- Dependencies: 263
 -- Name: SEQUENCE sys_role_role_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3162,8 +3239,8 @@ GRANT ALL ON SEQUENCE basicdb.sys_role_role_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3731 (class 0 OID 0)
--- Dependencies: 263
+-- TOC entry 4032 (class 0 OID 0)
+-- Dependencies: 264
 -- Name: TABLE sys_user; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3171,8 +3248,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3732 (class 0 OID 0)
--- Dependencies: 264
+-- TOC entry 4033 (class 0 OID 0)
+-- Dependencies: 265
 -- Name: TABLE sys_user_post; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3180,8 +3257,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3733 (class 0 OID 0)
--- Dependencies: 265
+-- TOC entry 4034 (class 0 OID 0)
+-- Dependencies: 266
 -- Name: TABLE sys_user_role; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
@@ -3189,15 +3266,15 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 
 
 --
--- TOC entry 3735 (class 0 OID 0)
--- Dependencies: 266
+-- TOC entry 4036 (class 0 OID 0)
+-- Dependencies: 267
 -- Name: SEQUENCE sys_user_user_id_seq; Type: ACL; Schema: basicdb; Owner: postgres
 --
 
 GRANT ALL ON SEQUENCE basicdb.sys_user_user_id_seq TO PUBLIC;
 
 
--- Completed on 2026-10-14 14:20:24
+-- Completed on 2026-10-15 15:50:00
 
 --
 -- PostgreSQL database dump complete
