@@ -253,7 +253,7 @@ ab58b0c  chore(web-mp): 移除无效的 .env 文件（无代码引用）
 | `wf_form` | 流程表单定义(vForm3 JSON) |
 | `wf_form_category` | 表单分类 |
 | `wf_form_template` | 表单模板(JSON 素材库) |
-| `wf_task_form` | 每个实例/节点填写的表单数据 |
+| `wf_task_form` | 每个实例/节点填写的表单数据(**脚手架兜底做法**,生产应改存业务表,见 [§7.8](#78-wf_task_form-不应存业务数据)) |
 | `tbl_flow_extend_procinst` | 流程实例业务扩展(发起人、流程状态、业务 key 等) |
 
 #### 系统基础表(`sys_*`,23 张)
@@ -536,3 +536,83 @@ Flowable 6.8.0 引擎  →  basicdb_flowable.act_* / flw_*
 
 **注意表分工**:审批时的表单读 `wf_deploy_form`(部署快照),填写值存 `wf_task_form`;
 审批意见同时写 `act_hi_comment`(引擎)和 `wf_comment_info`(业务)。
+
+> ⚠️ **`wf_task_form` 不应存业务数据**(脚手架的临时兜底,生产项目应改造)。
+> 详见 [§7.8](#78-wf_task_form-不应存业务数据)。
+
+### 7.8 `wf_task_form` 不应存业务数据
+
+> **本节是架构警示**:脚手架把整个表单 JSON 塞进 `wf_task_form.form_content` 是为了**快速跑通流程**的**临时兜底**,
+> **生产项目应改造**——业务字段值落各自的业务表,`wf_task_form` 只存流程视角的元数据。
+> 完整论述与改造示例见 [docs/流程引擎使用说明.md §6.3.1](docs/流程引擎使用说明.md#631-重要业务数据应存业务表不要塞进-wf_task_form)。
+
+#### 7.8.1 为什么不能把业务数据存到 `wf_task_form`
+
+| 问题 | 影响 |
+|---|---|
+| `form_content` 是 JSON 文本,业务字段无类型约束 | `days` 字段理论上能存 `"abc"`,数据库不会拒绝 |
+| 无法用 B-tree 索引,业务查询全走 `jsonb ->> '字段'` 解析 | PG 虽能建 GIN 索引,但 SELECT 性能比普通列差一个数量级 |
+| 无法 JOIN | 业务表(请假/报销)与流程表(用户/部门)JOIN 困难,关联查询全卡在 JSON 解析上 |
+| 数据膨胀快 | 一条流程 5 个节点 = 5 行 JSON,业务上只算 1 条数据;表会迅速变大 |
+| 业务流程结束后,数据还赖在 `wf_task_form` | 这表是「节点级」粒度,大部分行是历史垃圾,清理困难 |
+| 业务报表/聚合查询全部要解析 JSON | `SELECT AVG((form_content->>'days')::int) FROM wf_task_form WHERE ...` |
+
+#### 7.8.2 正确架构
+
+- **业务数据**(请假天数 / 报销金额 / 出差原因 / 附件 ID 等)→ **存到各自的业务表**
+  (例如 `sys_leave` / `sys_expense_report` 等),用普通列、`NOT NULL` 约束、外键、索引,
+  业务查询 `SELECT * FROM sys_leave WHERE ...` 直接走索引
+- **业务表与流程的关联**用 `proc_ins_id` 字段做「软关联」
+- **`wf_task_form` 表只放流程视角需要的元数据**:
+  节点 ID、任务 ID、当时填写的**控件名清单**(`activityId` / `taskId` / `userId` / 控件路径),
+  或者干脆**只放 `proc_ins_id` + `form_id` + 业务表主键 ID 的引用**,
+  **不要把业务字段值塞进 JSON 文本**
+
+#### 7.8.3 业务查询对照
+
+```sql
+-- ❌ 错的(走 JSON 解析,无索引,慢)
+SELECT * FROM wf_task_form
+WHERE form_content::jsonb ->> 'status' = 'approved';
+
+-- ✅ 对的(走业务表普通列,带索引,快)
+SELECT * FROM sys_leave
+WHERE approval_status = 'approved';
+```
+
+#### 7.8.4 改造示例(脚手架之外的代码,需自行实现)
+
+```java
+// ❌ 脚手架的兜底做法(把所有控件值塞进 JSON)
+WfTaskForm wfTaskForm = new WfTaskForm(taskId, formDataJson, procInsId, ...);
+wfTaskFormService.saveFormData(wfTaskForm);
+
+// ✅ 推荐做法:业务数据落业务表,流程表只存关联
+LeaveRequest leave = new LeaveRequest();
+leave.setUserId(userId);
+leave.setDays(formData.getInteger("days"));      // 直接存到业务表
+leave.setReason(formData.getString("reason"));   // 直接存到业务表
+leave.setProcInsId(procInsId);                    // 软关联
+leaveService.save(leave);
+
+WfTaskForm wfTaskForm = new WfTaskForm();
+wfTaskForm.setTaskId(taskId);
+wfTaskForm.setProcInsId(procInsId);
+wfTaskForm.setFormId(formId);
+wfTaskForm.setActivityId(activityId);
+wfTaskForm.setUserId(userId);
+// 不再 setFormContent
+wfTaskFormService.saveFormData(wfTaskForm);
+```
+
+#### 7.8.5 表名速查
+
+| 表 | 存什么 | 改造后 |
+|---|---|---|
+| `wf_form.content` | 表单定义(vForm3 JSON 源) | 不变 |
+| `wf_deploy_form.content` | 部署时的表单快照(实例实际用这份) | 不变 |
+| `wf_task_form.form_content` | 整个表单 JSON 文本 | **应改造**:只存元数据(`taskId` / `activityId` / `userId` / 控件名清单)或干脆不放 |
+| `sys_leave` / `sys_expense_report` / ... | — | **新增业务表**:`proc_ins_id` 软关联 + 普通列存业务字段 |
+
+> 💡 **一句话**:`wf_task_form` 是流程引擎通用表,**不是**业务数据的主存位置;
+> 业务字段值存业务表(走索引),`wf_task_form` 只存流程视角的元数据。
