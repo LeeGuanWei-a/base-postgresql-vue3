@@ -1,30 +1,44 @@
 # Basic Admin (Spring Boot 2.5.14 + Vue 3 + Element Plus + TypeScript)
 
-基于若依 RuoYi-Vue 3.8.2 改造,在 `first commit` 基础上**只做了前端 JS → TS 改造**,**后端没动**(仍是 Spring Boot 2.5.14 + JDK 11)。
+基于若依 RuoYi-Vue 3.8.2 改造,与 `master` 分支**唯一区别**:**前端从 JavaScript 改成 TypeScript**(包括 `web-ui` 和 `web-mp` 两端),**后端完全没动**(仍是 Spring Boot 2.5.14 + JDK 11 + Spring Security 5.5)。
 
-> 本分支 `TypeScript` 对应 commit `e10e3ca 前端`(`5b344b7 first commit` 的 JS 版本基础上,加 commit `567b5a5 前端替换成ts` 和后续的 `e10e3ca 前端` 微调)。
->
-> 仓库另有 `springboot3` / `springboot4` 分支,后端升级到 SB 3.5.16 / SB 4.1.1,**与本分支无关**。
+> 当前分支:`springboot2_TypeScript` ——「**master + 前端全量 TypeScript 化**」。
+> 仓库另有 `master` / `master-extend-flowable` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot2_TypeScript**。
 
 ---
 
 ## 前端说明
 
-本仓库前端为 **TypeScript 版**:
+本分支前端**两端都是 TypeScript 版**(区别于 master 的 JS 版):
+
+### 1.1 PC 管理端 `web-ui/`
 
 - 框架:Vue 3.5.26 + Element Plus 2.13.1
 - 构建:Vite 6.4.1
 - 语言:**TypeScript 5.6.3**(`tsconfig.json` 存在,`vue-tsc: 2.1.10` 做类型检查)
 - 配置:`@vue/tsconfig: 0.5.1` 作为 tsconfig 基础
 - 自动导入:`auto-imports.d.ts` / `components.d.ts` / `global.d.ts`
+- API 层:`src/api/**` 全部从 `.js` → `.ts`,并新增 `src/types/api/**.ts` 全量类型定义
 
-> 仓库另有 `springboot3` / `springboot4` 分支,前端是 **JavaScript 版**(`package.json` 不含 `typescript`),本分支**未涉及**。
+> JS 版在 `master` 分支,本分支**未涉及**。
+
+### 1.2 移动端 `web-mp/`(本分支新增,与 master 一致)
+
+- 框架:**uni-app 3.0 (alpha)** + Vue 3.4.21(组合式 API `<script setup lang="ts">`)
+- UI:**uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀)
+- 语言:**TypeScript ^5.4.5**(`tsconfig.json` 已配,`vue-tsc ^2.0.19` 做类型检查)
+- 构建:Vite 5.2.8
+- 一份代码同时跑 **H5 / 微信小程序 / Android / iOS / 其它小程序**
+- 状态管理:Pinia 2.0.36
+- 加密:jsencrypt(对接后端 RSA 登录)
+
+> 详细说明见下文**「七、移动端 `web-mp`」** 章节。
 
 ---
 
 ## 一、当前后端状态(基于 `git show HEAD:pom.xml`)
 
-> 本分支**后端没升级**。基于若依 RuoYi-Vue 3.8.2 原始 SB 2.x 配置。
+> 本分支**后端没升级**,与 master 完全一致。基于若依 RuoYi-Vue 3.8.2 原始 SB 2.x 配置。
 
 | 组件 | 版本 |
 |---|---|
@@ -46,135 +60,79 @@
 
 ---
 
-## 二、git 历史(5 个 commit)
+## 二、本分支是什么
 
-```
-e10e3ca  前端                       ← 当前 HEAD
-1a06798  md                         ← README
-14b851a  修复sql bug,锁屏解锁功能
-567b5a5  前端替换成ts               ← 本次 TS 化主 commit
-5b344b7  first commit               ← 若依 RuoYi 3.8.2 原始
-```
+`springboot2_TypeScript` 分支以 **master 分支**为基线,只做了一件事:
+
+> **把前端两端的代码从 JavaScript 全部改写成 TypeScript**(`web-ui/` 和 `web-mp/`),
+> 后端、后端依赖、数据库脚本、SQL 配置**完全不动**。
+
+具体而言:
+
+1. **`web-ui/src/api/**` 全量 `.js` → `.ts`**:login / menu / monitor.* / system.* / tool.* 共 18+ 个 API 文件
+2. **新增 `web-ui/src/types/` 目录**:全量 TypeScript 类型定义(API 参数 / 返回 / 通用 R / AjaxResult / TableDataInfo 等)
+3. **新增 `web-ui/src/utils/auth.ts`**:从原 `.js` 改写并加类型
+4. **`package.json` 新增 TS 工具链**:`typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1`
+5. **`web-mp` 也跟着 TS 化**:`tsconfig.json` 配好(`strict: false` 起步,`@/*` 路径别名),
+   `vite.config.js` 升级为 `vite.config.ts`,`package.json` 加 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19`,
+   并配 `typecheck` 脚本
+6. **环境/配置微调**:`.env.development` / `.env.staging` / `.gitignore` / `.npmrc` 等补充
+7. **数据库脚本**:`file-sql/basicdb-vue3.sql` 与 master 同步(34 张表 + 5 函数,`basicdb` schema)
+
+`springboot2_TypeScript` 与 `master` 的**唯一差异**就是上面 1–6 的前端 TS 化;后端代码、
+SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 ---
 
-## 三、前端 JS → TS 改造详情(基于 `git show 567b5a5` 和 `e10e3ca`)
+## 三、相对 master 的具体改动
 
-### 3.1 主 commit `567b5a5 前端替换成ts`
+| 改动 | 涉及文件 / 位置 |
+|---|---|
+| `web-ui` API 层 TS 化 | `web-ui/src/api/**` 下所有 `*.js` → `*.ts` |
+| `web-ui` 新增类型目录 | `web-ui/src/types/api/**.ts`(全量 API 类型)+ `types/components.d.ts` / `global.d.ts` / `index.ts` |
+| `web-ui/utils/auth` TS 化 | `web-ui/src/utils/auth.ts` |
+| `web-ui` TS 工具链 | `web-ui/package.json` 新增 `typescript` / `vue-tsc` / `@vue/tsconfig` |
+| `web-mp` TS 化 | `web-mp/tsconfig.json`(新增) + `web-mp/vite.config.ts`(`vite.config.js` 改名) |
+| `web-mp` TS 工具链 | `web-mp/package.json` 新增 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19` / `typecheck` 脚本 |
+| `web-ui` 环境/工程配置 | `web-ui/.env.development` / `.env.staging` / `.gitignore` / `.npmrc` / `src/App.vue` 微调 / `assets/images/pay.png` 新增 |
+| 数据库脚本 | `file-sql/basicdb-vue3.sql`(与 master 同步,PostgreSQL) |
 
-把 `web-ui/src/api/**` 下所有 `*.js` 改名为 `*.ts`,并加 `types/` 目录。
-
-| 旧文件 | 新文件 | 内容 |
-|---|---|---|
-| `src/api/login.js` | `src/api/login.ts` | 登录 / 注销 / 获取用户信息 |
-| `src/api/menu.js` | `src/api/menu.ts` | 获取路由菜单 |
-| `src/api/monitor/cache.js` | `src/api/monitor/cache.ts` | 缓存监控 |
-| `src/api/monitor/job.js` | `src/api/monitor/job.ts` | 定时任务 |
-| `src/api/monitor/jobLog.js` | `src/api/monitor/jobLog.ts` | 任务日志 |
-| `src/api/monitor/online.js` | `src/api/monitor/online.ts` | 在线用户 |
-| `src/api/monitor/operlog.js` | `src/api/monitor/operlog.ts` | 操作日志 |
-| `src/api/monitor/server.js` | `src/api/monitor/server.ts` | 服务器监控 |
-| `src/api/system/config.js` | `src/api/system/config.ts` | 参数配置 |
-| `src/api/system/dept.js` | `src/api/system/dept.ts` | 部门管理 |
-| `src/api/system/dict/data.js` | `src/api/system/dict/data.ts` | 字典数据 |
-| `src/api/system/dict/type.js` | `src/api/system/dict/type.ts` | 字典类型 |
-| `src/api/system/menu.js` | `src/api/system/menu.ts` | 菜单管理 |
-| `src/api/system/notice.js` | `src/api/system/notice.ts` | 通知公告 |
-| `src/api/system/post.js` | `src/api/system/post.ts` | 岗位管理 |
-| `src/api/system/role.js` | `src/api/system/role.ts` | 角色管理 |
-| `src/api/system/user.js` | `src/api/system/user.ts` | 用户管理 |
-| `src/api/tool/gen.js` | `src/api/tool/gen.ts` | 代码生成 |
-
-`src/utils/auth.ts` 也被改写(从 `.js` 转 `.ts`)。
-
-### 3.2 新增 `web-ui/src/types/` 目录(全量 TypeScript 类型)
-
-```
-src/types/
-├── api/
-│   ├── common.ts        ← AjaxResult / TableDataInfo / R<T> / PageQuery 等通用类型
-│   ├── index.ts
-│   ├── login.ts         ← LoginBody / LoginResult / UserInfo
-│   ├── menu.ts
-│   ├── monitor/
-│   │   ├── cache.ts
-│   │   ├── job.ts
-│   │   ├── jobLog.ts
-│   │   ├── logininfor.ts
-│   │   ├── online.ts
-│   │   └── operlog.ts
-│   ├── system/
-│   │   ├── config.ts
-│   │   ├── dept.ts
-│   │   ├── dict.ts
-│   │   ├── menu.ts
-│   │   ├── notice.ts
-│   │   ├── post.ts
-│   │   ├── role.ts
-│   │   └── user.ts
-│   └── tool/
-│       └── gen.ts
-├── components.d.ts      ← unplugin-auto-import / vite-plugin-components 的自动生成
-├── global.d.ts          ← 全局 window / module 声明
-└── index.ts             ← 类型统一出口
-```
-
-每个 `types/api/**.ts` 定义了**对应的 API 函数**的**参数类型**和**返回类型**(从后端 RuoYi 的 `AjaxResult` / `TableDataInfo` 风格入手)。
-
-### 3.3 `package.json` 新增依赖
-
-```json
-{
-  "devDependencies": {
-    "@vue/tsconfig": "0.5.1",      // Vue 3 推荐 tsconfig 基础
-    "typescript": "5.6.3",          // TS 编译器
-    "vue-tsc": "2.1.10"             // .vue 文件的类型检查(走 tsc 也能过 .ts)
-  }
-}
-```
-
-> 注意:Spring Boot 2 时代的 JS 版分支,后端是 SB 2.5.14,所以 `package.json` 里的 `devDependencies` **没动**到与 SB 相关的部分(只是加了 TS 工具链)。
-
-### 3.4 后续 commit `e10e3ca 前端`
-
-在 `567b5a5` 基础上又做了一次小调整:
-- `web-ui/.env.development` / `.env.staging`:Vite 环境变量
-- `web-ui/.gitignore` / `web-ui/.npmrc`:Node 工程配置
-- `web-ui/src/App.vue`:根组件微调
-- `web-ui/src/assets/images/pay.png`:新增 140 KB 图片(可能是支付二维码)
-- `web-ui/README.md`:**删除**(原 web-ui 自己的 README 删了,改用根目录 README)
-
-> 这个 commit 主要补一些环境配置和图片,跟 TS 化**没直接关系**。
-
-### 3.5 后端代码改动
-
-> 本分支**后端没动**(仍 SB 2.5.14 + JDK 11 + JS 化之前的原始版本)。
-
-仅 `SysLoginController.java` / `SysDeptMapper.java` / `SysMenuMapper.java` 在 commit `14b851a 修复sql bug,锁屏解锁功能` 中改过,**但那是 SB 2.5.14 时代的事**。
+> 后端代码(`SysLoginController` / `SysLoginService` / 若干 Mapper / `SysRole` 等)
+> 与 master **完全一致**,不重复。
 
 ---
 
 ## 四、运行前 checklist
 
 - [x] JDK 11 安装
-- [x] Maven 用 `D:\MavenRepository5` 本地仓库
-- [x] Node.js + pnpm(前端用)
-- [x] `cd web-ui && pnpm install && pnpm dev` 启动前端
-- [x] 后端 mvn 启动(SB 2.5.14 时代,默认 `8080` 端口)
-- [x] 前端通过 Vite 代理访问后端(`vite.config.ts` 配 `proxy`)
+- [x] Node.js + pnpm(前端)
+- [x] `cd web-ui && pnpm install` 拉依赖(PC 端)
+- [x] `cd web-mp && pnpm install` 拉依赖(移动端)
+- [ ] `pnpm dev` 验证 PC 端启动(`web-ui`)
+- [ ] `pnpm dev:h5` 验证移动端 H5 启动(`web-mp`)
+- [ ] `pnpm typecheck` 验证 TS 类型(`web-ui` / `web-mp`)
+- [x] 7 个子模块 `parent.version` 一致为 `3.8.2`
+- [x] IDE 工程的 Project SDK 设为 JDK 11,Language level 11
+- [x] `mvn clean compile` 0 ERROR
+- [ ] 应用启动成功
+- [ ] admin 登录成功(PC / 移动端)
 
 ---
 
-## 五、未做 / 后续可优化
+## 五、其他分支(参考)
 
-> 这些是**本分支没做**的,如果想继续演进,可以参考 `springboot3` / `springboot4` 分支的 diff。
+本仓库其他分支(切到对应分支看其 README):
 
-- [ ] 后端 SB 2.5.14 → 3.5.16(见 `springboot3` 分支 README)
-- [ ] 后端 SB 3.5.16 → 4.1.1(见 `springboot4` 分支 README)
-- [ ] 前端如果从 TS 改成 `<script setup lang="ts">` 全量 Composition API 风格(本分支只换了 `.js` → `.ts`,业务代码 `<script>` 风格没全部改)
-- [ ] `tsconfig.json` 严格度调高(`strict: true` 开启后会有大量 `any` 报错需要修)
-- [ ] Pinia store / Router / Axios 二次封装的类型补全(目前 `src/store/modules/app.ts` 已有,其他 store 待补)
-- [ ] `vite.config.ts` 配 proxy 时硬编码了 IP,改用环境变量
+| 分支 | 做什么 |
+|---|---|
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端零升级,前端 JS,加 web-mp) |
+| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
+| `springboot3` | 后端 SB 2.5.14 → 3.5.16(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc + ... |
+| `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
+| `springboot4` | 后端 SB 3.5.16 → 4.1.1(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(最完整栈) |
+
+> 本分支 `springboot2_TypeScript` ≈ master + 前端 TS 化,可以视作"master 的 TS 版"。
 
 ---
 
@@ -252,6 +210,9 @@ psql -U system -h localhost -d basicdb -c \
   "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb';"
 ```
 
+如果本地 PostgreSQL 实例没有 `system` 角色,直接执行第 2 步会报
+`ERROR: role "system" does not exist`,补一步 1) 即可。
+
 ### 6.4 重新备份成同款脚本
 
 ```bash
@@ -299,4 +260,140 @@ spring:
 | `fix-sys-menu-component.sql` | 修 `sys_menu.component` 路径里 `system` 写错的,按需手动跑 |
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
-> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了。**
+> 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
+> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> 本分支**仍保留**。)
+
+---
+
+## 七、移动端 `web-mp/`
+
+> 本分支与 master 同样包含 `web-mp/` 移动端,**额外做了 TS 化**:
+> 新增 `tsconfig.json`,`vite.config.js` → `vite.config.ts`,`package.json` 加 TS 工具链。
+> 本节是 `web-mp/README.md` 的摘要,完整内容以子目录的 README 为准。
+
+### 7.1 技术栈
+
+| 项 | 版本 |
+|---|---|
+| uni-app | 3.0 (alpha,`@dcloudio/uni-app@3.0.0-4060620250520001`) |
+| Vue | 3.4.21(**组合式 API** `<script setup lang="ts">`) |
+| Vite | 5.2.8 |
+| UI | **uview-plus** 3.3.62(uView 的 Vue3 版本,组件名带 `up-` 前缀) |
+| 语言 | **TypeScript ^5.4.5**(`tsconfig.json` 配 `strict: false` 起步) |
+| 类型检查 | **vue-tsc ^2.0.19**(`pnpm typecheck` 触发) |
+| 状态管理 | Pinia 2.0.36 |
+| 加密 | jsencrypt(对接后端 RSA 登录) |
+| 时间 | dayjs 1.11.x |
+| 国际化 | vue-i18n 9.13.1(已引入,词条待补) |
+| 包管理 | pnpm |
+
+### 7.2 与 web-ui / 后端的关系
+
+- 与 `web-ui/`(PC 端)**同级目录**,**不**是 web-ui 的子项目,各自独立维护
+- 不参与 maven 编译(`pom.xml` 的 module 列表里没有 `web-mp`)
+- 对接后端:**直接打**本仓库的 `basic-admin-api`(Spring Boot 2.5 + Spring Security),
+  接口复用 `/login` / `/logout` / `/captchaImage` / `/getInfo` / `/getRouters` 等
+- 默认账号:`admin / admin123`
+
+### 7.3 目录结构
+
+```
+web-mp/
+├── index.html                 # H5 入口(vite 用)
+├── tsconfig.json              # ★ 本分支新增:TypeScript 配置
+├── vite.config.ts             # ★ 本分支:.js 升级为 .ts
+├── package.json
+├── config.js                  # 全局配置(双份,同步到 src/)
+├── manifest.json              # 应用清单(双份,同步到 src/)
+├── pages.json                 # 页面注册(双份,同步到 src/)
+├── sync-config.cjs            # 双份同步脚本
+├── scripts/
+│   └── fixup-mp-components.cjs  # 微信小程序组件 fixup 脚本
+└── src/
+    ├── main.ts                # ★ 本分支:.js 升级为 .ts
+    ├── App.vue                # 根组件(<script setup lang="ts">)
+    ├── uni.scss               # 全局 SCSS 变量入口
+    ├── pages/                 # 业务页面
+    │   ├── login/index.vue
+    │   ├── index/index.vue    # 首页(TabBar)
+    │   ├── workbench/index.vue
+    │   ├── user/index.vue
+    │   └── common/{notice,profile}/...
+    ├── api/                   # 接口层
+    ├── store/                 # Pinia
+    ├── utils/                 # 工具
+    ├── directive/             # 权限指令
+    ├── permission.ts          # ★ 本分支:.js 升级为 .ts
+    └── static/                # 静态资源
+```
+
+### 7.4 关键设计
+
+- **登录流程**:`/captchaImage` → `/login`(RSA 公钥加密密码)→ `/getInfo` → `/getRouters`
+- **Token 存储**:`uni.getStorageSync('Basic-Token')`
+- **请求封装**:`utils/request.ts` 实现拦截器(401 跳登录)
+- **权限指令**:`v-hasPermi`(uniapp 3 编译时不支持自定义指令,用 `v-if="hasPermi([...])"` 替代)
+- **双份 manifest/pages**:CLI build 找 `src/manifest.json`,dev 找根 `manifest.json`,
+  所以两边各放一份,`sync-config.cjs` 同步
+- **环境配置**:`src/config.js` 维护 `baseUrl`(默认 `http://localhost:8080`,
+  H5 通过 `vite.config.ts` 代理到 `/dev-api` → 8080;小程序/真机需改成局域网 IP)
+- **TypeScript**:`tsconfig.json` 配 `@/*` 路径别名 → `src/*`;`strict: false` 起步,
+  避免迁移时大量 `any` 报错;`include` 覆盖 `src/**/*.{ts,d.ts,tsx,vue}` + `vite.config.ts`
+
+### 7.5 运行
+
+```bash
+cd web-mp
+pnpm install
+
+# 类型检查
+pnpm typecheck              # vue-tsc --noEmit
+
+# 开发
+pnpm dev:h5            # 浏览器访问 http://localhost:8081
+pnpm dev:mp-weixin     # 用微信开发者工具打开 dist/dev/mp-weixin
+pnpm dev:app           # 编译到 unpackage/dist/dev/app
+
+# 生产构建
+pnpm build:h5          # 产物在 dist/build/h5
+pnpm build:mp-weixin   # 产物在 dist/build/mp-weixin
+pnpm build:app
+```
+
+### 7.6 待办(摘自子 README)
+
+- [ ] 接入动态菜单(`/getRouters` → pages.json)
+- [ ] 国际化(`vue-i18n` 已引入,词条待补)
+- [ ] 消息推送 / WebSocket
+- [ ] 修改密码页 + 个人中心编辑
+- [ ] 锁屏(手势/PIN)
+- [ ] TabBar 图标(`src/static/tabbar/` 需放 6 张 81x81 png)
+- [ ] `tsconfig.json` 严格度调高(目前 `strict: false`,逐步收紧)
+
+---
+
+## 八、目录速查
+
+```
+base-postgresql-vue3/
+├── pom.xml                              # 父 pom(7 个后端子模块,无 web-mp)
+├── README.md                            # 本文档
+├── ry.sh / ry.bat                       # RuoYi 启动脚本(原版遗留)
+├── basic-admin-api/                     # Spring Boot 启动模块
+├── basic-admin-core/                    # 业务核心(system 模块)
+├── basic-framework/                     # 框架配置
+├── basic-common/                        # 通用工具/基类
+├── business-core/                       # 业务扩展点
+├── extend-quartz/                       # Quartz 定时任务扩展
+├── extend-generator/                    # 代码生成扩展
+├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── file-sql/                            # SQL 脚本
+├── file-bin/                            # 二进制资源(jar 内置)
+├── file-doc/                            # 文档资源(jar 内置)
+├── web-ui/                              # PC 端前端(Vue3 + Element Plus + ★ TypeScript)
+└── web-mp/                              # 移动端前端(uni-app3 + uview-plus + ★ TypeScript)
+```
+
+> **本分支与 master 的差异**:`web-ui` 和 `web-mp` 都从 JS → TS;
+> `web-mp` 还多出 `tsconfig.json` 与 `vite.config.ts`,`web-ui` 多出 `src/types/` 目录。
