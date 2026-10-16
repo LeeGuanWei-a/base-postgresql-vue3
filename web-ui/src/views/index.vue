@@ -1,7 +1,7 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-      <el-col :sm="24" :lg="24" style="padding-left: 20px">
+      <el-col :sm="24" :lg="12" style="padding-left: 20px">
         <h2>基础平台</h2>
         <p>
           面向企业内部业务场景的统一管理平台，提供用户、角色、权限、部门、岗位、字典、参数等基础能力，以及系统监控、定时任务、代码生成等运维工具。
@@ -48,11 +48,11 @@
           <el-col :span="8">
             <h4>基础设施</h4>
             <ul>
-              <li>Springdoc OpenAPI</li>
+              <li>Keycloak（统一认证）</li>
               <li>Nginx</li>
               <li>MinIO</li>
               <li>Quartz</li>
-              <li>Yauaa（User-Agent 解析）</li>
+              <li>Swagger</li>
             </ul>
           </el-col>
         </el-row>
@@ -99,19 +99,66 @@
   </div>
 </template>
 
-<script setup lang="ts" name="Index">
+<script setup name="Index">
 import { useRouter } from 'vue-router'
 
-const version = ref<string>('4.0.0')
+const version = ref('4.0.0')
 const router = useRouter()
 
-function goRoute(path: string): void {
+function goRoute(path) {
   router.push(path)
 }
 </script>
 
 <style scoped lang="scss">
 .home {
-  padding: 20px;
+  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #676a6c;
+  overflow-x: hidden;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  h4 {
+    margin-top: 0px;
+  }
+
+  h2 {
+    margin-top: 10px;
+    font-size: 26px;
+    font-weight: 100;
+  }
+
+  p {
+    margin-top: 10px;
+    b { font-weight: 700; }
+  }
+
+  .quick-links {
+    .el-button {
+      margin: 0 8px 8px 0;
+    }
+  }
+
+  .notice-list {
+    padding-left: 0;
+    li {
+      padding: 6px 0;
+      line-height: 1.8;
+      border-bottom: 1px dashed #eee;
+      &:last-child { border-bottom: none; }
+      code {
+        background: #f5f7fa;
+        padding: 1px 6px;
+        border-radius: 3px;
+        color: #e6a23c;
+        font-size: 12px;
+      }
+    }
+  }
 }
 </style>
