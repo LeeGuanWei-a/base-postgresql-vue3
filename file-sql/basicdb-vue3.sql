@@ -5,7 +5,7 @@
 -- Dumped from database version 15.1
 -- Dumped by pg_dump version 17.0
 
--- Started on 2026-10-16 09:50:43
+-- Started on 2026-10-16 16:59:17
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -454,41 +454,41 @@ BEGIN
     IF upper($2) = upper('%Y-%m-%d') THEN
         return to_char($1,'YYYY-MM-DD');
     END IF;
-	
+
 	IF upper($2) = upper('%Y-%m') THEN
         return to_char($1,'YYYY-MM');
     END IF;
-	
+
 	IF upper($2) = upper('%Y') THEN
         return to_char($1,'YYYY');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i-%s') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i-%S') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %H-%i') THEN
         return to_char($1,'YYYY-MM-DD HH24-MI');
     END IF;
-	
+
 	IF upper($2) = upper('%Y-%m-%d %h-%i-%s') THEN
         return to_char($1,'YYYY-MM-DD HH-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %h-%i-%S') THEN
         return to_char($1,'YYYY-MM-DD HH-MI-SS');
     END IF;
- 
+
     IF upper($2) = upper('%Y-%m-%d %h-%i') THEN
         return to_char($1,'YYYY-MM-DD HH-MI');
     END IF;
- 
+
     raise exception '时间格式:% 未在函数中定义，请添加！',$2;
- 
+
     return null;
 END;
 $_$;
@@ -5679,6 +5679,9 @@ INSERT INTO basicdb_flowable.sys_logininfor VALUES (738, 'admin', '127.0.0.1', '
 INSERT INTO basicdb_flowable.sys_logininfor VALUES (739, 'admin', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '登录成功', '2026-10-16 08:53:57');
 INSERT INTO basicdb_flowable.sys_logininfor VALUES (740, 'admin', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '退出成功', '2026-10-16 08:55:26');
 INSERT INTO basicdb_flowable.sys_logininfor VALUES (741, 'admin', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '登录成功', '2026-10-16 08:55:28');
+INSERT INTO basicdb_flowable.sys_logininfor VALUES (742, 'admin', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '登录成功', '2026-10-16 10:11:32');
+INSERT INTO basicdb_flowable.sys_logininfor VALUES (743, 'xiaoan', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '登录成功', '2026-10-16 10:49:26');
+INSERT INTO basicdb_flowable.sys_logininfor VALUES (744, 'admin', '127.0.0.1', '内网IP', 'Chrome 15', 'Windows 10', '0', '登录成功', '2026-10-16 16:52:05');
 
 
 --
@@ -5729,13 +5732,6 @@ INSERT INTO basicdb_flowable.sys_menu VALUES (1029, '字典删除', 105, 4, '#',
 INSERT INTO basicdb_flowable.sys_menu VALUES (1031, '参数查询', 106, 1, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1032, '参数新增', 106, 2, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1033, '参数修改', 106, 3, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:edit', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (100, '用户管理', 1, 1, 'user', 'system/user/index', '', '1', '0', 'C', '0', '0', 'system:user:list', 'user', 'admin', '2023-02-28 17:09:30', 'admin', '2025-09-04 11:06:34', '用户管理菜单', NULL, '0', 'user management', '用戶管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (101, '角色管理', 1, 2, 'role', 'system/role/index', '', '1', '0', 'C', '0', '0', 'system:role:list', 'peoples', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:19:54', '角色管理菜单', NULL, '0', 'role management', '角色管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (103, '部门管理', 1, 4, 'dept', 'system/dept/index', '', '1', '0', 'C', '0', '0', 'system:dept:list', 'tree', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:20:14', '部门管理菜单', NULL, '0', 'sector management', '部門管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (104, '岗位管理', 1, 5, 'post', 'system/post/index', '', '1', '0', 'C', '0', '0', 'system:post:list', 'post', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:35', '岗位管理菜单', NULL, '0', 'post management', '崗位管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/index', '', '1', '0', 'C', '0', '0', 'system:dict:list', 'dict', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:42', '字典管理菜单', NULL, '0', 'dictionary management', '字典管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (106, '参数设置', 1, 7, 'config', 'system/config/index', '', '1', '0', 'C', '0', '0', 'system:config:list', 'edit', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:51', '参数设置菜单', NULL, '0', 'parameter setting', '參數設置');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567041, '国际化', 1, 10, 'i18n', NULL, NULL, '1', '0', 'C', '0', '0', '', 'language', 'admin', '2025-08-14 15:36:20', 'admin', '2025-08-14 15:36:59', NULL, NULL, NULL, 'internationalization', '國際化');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1034, '参数删除', 106, 4, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:remove', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1036, '公告查询', 107, 1, '#', '', '', '1', '0', 'F', '0', '0', 'system:notice:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:57', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1037, '公告新增', 107, 2, '#', '', '', '1', '0', 'F', '0', '0', 'system:notice:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:57', '', NULL, '0', NULL, NULL);
@@ -5752,37 +5748,17 @@ INSERT INTO basicdb_flowable.sys_menu VALUES (1056, '生成修改', 115, 2, '#',
 INSERT INTO basicdb_flowable.sys_menu VALUES (1046, '在线查询', 109, 1, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:online:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:05', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1049, '任务查询', 110, 1, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:12', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1050, '任务新增', 110, 2, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:12', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753952621629796354, '查询', 1061, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:query', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753952621629796355, '新增', 1061, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:add', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753952621629796356, '修改', 1061, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:edit', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753952621629796357, '删除', 1061, 5, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:remove', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753952621629796358, '导出', 1061, 6, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:export', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1754778882690195458, '页面示例', 3, 0, 'business', NULL, NULL, '1', '0', 'M', '0', '0', '', 'tab', 'admin', '2024-02-06 16:07:43', 'admin', '2024-05-28 17:52:59', NULL, NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1035, '参数导出', 106, 5, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:export', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1048, '单条强退', 109, 3, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:online:forceLogout', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:05', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1051, '任务修改', 110, 3, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:edit', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1052, '任务删除', 110, 4, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:remove', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1053, '状态修改', 110, 5, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:changeStatus', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1054, '任务导出', 110, 7, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:export', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', '1', '0', 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:18:36', '菜单管理菜单', NULL, '0', 'menu management', '菜單管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/index', '', '1', '0', 'C', '0', '0', 'system:notice:list', 'message', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:57', '通知公告菜单', NULL, '0', 'notice announcement', '通知公告');
-INSERT INTO basicdb_flowable.sys_menu VALUES (500, '操作日志', 108, 1, 'operlog', 'monitor/operlog/index', '', '1', '0', 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:09', '操作日志菜单', NULL, '0', 'operation log', '操作日誌');
-INSERT INTO basicdb_flowable.sys_menu VALUES (501, '登录日志', 108, 2, 'logininfor', 'monitor/logininfor/index', '', '1', '0', 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:15', '登录日志菜单', NULL, '0', 'login logs', '登錄日誌');
-INSERT INTO basicdb_flowable.sys_menu VALUES (111, '数据监控', 3, 4, 'druid', 'monitor/druid/index', '', '1', '0', 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:59', '数据监控菜单', NULL, '0', 'data monitoring', '數據監控');
-INSERT INTO basicdb_flowable.sys_menu VALUES (109, '在线用户', 3, 5, 'online', 'monitor/online/index', '', '1', '0', 'C', '0', '0', 'monitor:online:list', 'online', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:05', '在线用户菜单', NULL, '0', 'online users', '在線用戶');
-INSERT INTO basicdb_flowable.sys_menu VALUES (112, '服务监控', 3, 7, 'server', 'monitor/server/index', '', '1', '0', 'C', '0', '0', 'monitor:server:list', 'server', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:21', '服务监控菜单', NULL, '0', 'service monitoring', '服務監控');
-INSERT INTO basicdb_flowable.sys_menu VALUES (113, '缓存监控', 3, 8, 'cache', 'monitor/cache/index', '', '1', '0', 'C', '0', '0', 'monitor:cache:list', 'redis', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:27', '缓存监控菜单', NULL, '0', 'Cache monitoring', '緩存監控');
-INSERT INTO basicdb_flowable.sys_menu VALUES (114, '表单构建', 3, 1, 'build', 'tool/build/index', '', '1', '0', 'C', '0', '0', 'tool:build:list', 'build', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:36', '表单构建菜单', NULL, '0', 'Form construction', '表單構建');
-INSERT INTO basicdb_flowable.sys_menu VALUES (115, '代码生成', 3, 2, 'gen', 'tool/gen/index', '', '1', '0', 'C', '0', '0', 'tool:gen:list', 'code', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:44', '代码生成菜单', NULL, '0', 'code generation', '代碼生成');
-INSERT INTO basicdb_flowable.sys_menu VALUES (116, '系统接口', 3, 3, 'swagger', 'tool/swagger/index', '', '1', '0', 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:54', '系统接口菜单', NULL, '0', 'system interface', '系統接口');
-INSERT INTO basicdb_flowable.sys_menu VALUES (110, '定时任务', 3, 6, 'job', 'monitor/job/index', '', '1', '0', 'C', '0', '0', 'monitor:job:list', 'job', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:11', '定时任务菜单', NULL, '0', 'scheduled task', '定時任務');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1061, '表单示例', 1754778882690195458, 10, 'demo', NULL, NULL, '1', '1', 'C', '0', '0', 'business:demo:list', 'education', 'admin', '2024-01-26 09:46:30', 'admin', '2024-02-07 12:00:10', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_menu VALUES (1753950971045343233, '示例表单', 1061, 0, 'demoForm', NULL, NULL, '1', '1', 'C', '1', '0', 'business:demo:add,business:demo:edit,business:demo:query', '', 'admin', '2024-02-04 09:17:53', 'admin', '2024-02-06 16:08:37', NULL, '0', '0', NULL, NULL);
 INSERT INTO basicdb_flowable.sys_menu VALUES (1561, '表单新增', 1509, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:form:saveForm', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1506, '流程分类', 1500, 6, 'category', 'workflow/category/index', NULL, '1', '0', 'C', '0', '0', 'workflow:category:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程分类管理', NULL, NULL, 'Category', '流程分類');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1507, '流程模型', 1500, 7, 'model', 'workflow/model/index', NULL, '1', '0', 'C', '0', '0', 'workflow:model:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程模型管理', NULL, NULL, 'Model', '流程模型');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1509, '表单管理', 1500, 9, 'form', 'workflow/form/index', NULL, '1', '0', 'C', '0', '0', 'workflow:form:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程表单管理', NULL, NULL, 'Form', '表單管理');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1510, '表达式管理', 1500, 10, 'expression', 'workflow/expression/index', NULL, '1', '0', 'C', '0', '0', 'workflow:expression:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '表达式字典管理', NULL, NULL, 'Expression', '表達式管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (102, '菜单管理', 1, 3, 'menu', 'basic-admin/system/menu/index', '', '1', '0', 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:18:36', '菜单管理菜单', NULL, '0', 'menu management', '菜單管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (107, '通知公告', 1, 8, 'notice', 'basic-admin/system/notice/index', '', '1', '0', 'C', '0', '0', 'system:notice:list', 'message', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:57', '通知公告菜单', NULL, '0', 'notice announcement', '通知公告');
+INSERT INTO basicdb_flowable.sys_menu VALUES (500, '操作日志', 108, 1, 'operlog', 'basic-admin/monitor/operlog/index', '', '1', '0', 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:09', '操作日志菜单', NULL, '0', 'operation log', '操作日誌');
+INSERT INTO basicdb_flowable.sys_menu VALUES (501, '登录日志', 108, 2, 'logininfor', 'basic-admin/monitor/logininfor/index', '', '1', '0', 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:15', '登录日志菜单', NULL, '0', 'login logs', '登錄日誌');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1530, '分类查询', 1506, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:category:query', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1531, '分类新增', 1506, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:category:add', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1532, '分类修改', 1506, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:category:edit', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
@@ -5792,13 +5768,17 @@ INSERT INTO basicdb_flowable.sys_menu VALUES (1541, '模型新增', 1507, 2, NUL
 INSERT INTO basicdb_flowable.sys_menu VALUES (1542, '模型修改', 1507, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:model:edit', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1543, '模型删除', 1507, 4, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:model:remove', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1544, '模型部署', 1507, 5, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:model:deploy', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1501, '我的待办', 1500, 1, 'task/todo', 'workflow/task/todo', NULL, '1', '0', 'C', '0', '0', 'workflow:process:todoList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我的待办任务', NULL, NULL, 'Todo', '我的待辦');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1502, '我的已办', 1500, 2, 'task/finished', 'workflow/task/finished', NULL, '1', '0', 'C', '0', '0', 'workflow:process:finishedList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我的已办任务', NULL, NULL, 'Finished', '我的已辦');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1503, '我的已发', 1500, 3, 'task/own', 'workflow/task/own', NULL, '1', '0', 'C', '0', '0', 'workflow:process:ownList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我发起的流程', NULL, NULL, 'Own', '我的已發');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1504, '抄送我的', 1500, 4, 'task/copy', 'workflow/task/copy', NULL, '1', '0', 'C', '0', '0', 'workflow:process:copyList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '抄送我的任务', NULL, NULL, 'Copy', '抄送我的');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1505, '待签收', 1500, 5, 'task/claim', 'workflow/task/claim', NULL, '1', '0', 'C', '0', '0', 'workflow:process:claimList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '待签收任务', NULL, NULL, 'Claim', '待簽收');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1560, '表单查询', 1509, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:form:getInfo', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1505, '待签收', 1500, 5, 'task/claim', 'basic-extend/workflow/task/claim', NULL, '1', '0', 'C', '0', '0', 'workflow:process:claimList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '待签收任务', NULL, NULL, 'Claim', '待簽收');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1500, '流程引擎', 0, 5, 'workflow', NULL, NULL, '1', '0', 'M', '0', '0', '', 'tree', 'admin', '2026-10-14 16:31:42', 'admin', '2026-10-15 08:40:09', '工作流目录', NULL, NULL, 'Workflow', '工作流程');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1506, '流程分类', 1500, 6, 'category', 'basic-extend/workflow/category/index', NULL, '1', '0', 'C', '0', '0', 'workflow:category:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程分类管理', NULL, NULL, 'Category', '流程分類');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1510, '表达式管理', 1500, 10, 'expression', 'basic-extend/workflow/expression/index', NULL, '1', '0', 'C', '0', '0', 'workflow:expression:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '表达式字典管理', NULL, NULL, 'Expression', '表達式管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1509, '表单管理', 1500, 9, 'form', 'basic-extend/workflow/form/index', NULL, '1', '0', 'C', '0', '0', 'workflow:form:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程表单管理', NULL, NULL, 'Form', '表單管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1507, '流程模型', 1500, 7, 'model', 'basic-extend/workflow/model/index', NULL, '1', '0', 'C', '0', '0', 'workflow:model:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '流程模型管理', NULL, NULL, 'Model', '流程模型');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1501, '我的待办', 1500, 1, 'task/todo', 'basic-extend/workflow/task/todo', NULL, '1', '0', 'C', '0', '0', 'workflow:process:todoList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我的待办任务', NULL, NULL, 'Todo', '我的待辦');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1502, '我的已办', 1500, 2, 'task/finished', 'basic-extend/workflow/task/finished', NULL, '1', '0', 'C', '0', '0', 'workflow:process:finishedList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我的已办任务', NULL, NULL, 'Finished', '我的已辦');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1503, '我的已发', 1500, 3, 'task/own', 'basic-extend/workflow/task/own', NULL, '1', '0', 'C', '0', '0', 'workflow:process:ownList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '我发起的流程', NULL, NULL, 'Own', '我的已發');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1504, '抄送我的', 1500, 4, 'task/copy', 'basic-extend/workflow/task/copy', NULL, '1', '0', 'C', '0', '0', 'workflow:process:copyList', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '抄送我的任务', NULL, NULL, 'Copy', '抄送我的');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1580, '表达式查询', 1510, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:expression:list', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1581, '表达式新增', 1510, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:expression:add', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1582, '表达式修改', 1510, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:expression:edit', '#', 'admin', '2026-10-14 16:31:42', NULL, NULL, '', NULL, NULL, '', '');
@@ -5902,14 +5882,28 @@ INSERT INTO basicdb_flowable.sys_menu VALUES (1688, '按实例与节点查表单
 INSERT INTO basicdb_flowable.sys_menu VALUES (1689, '按实例与业务key查表单', 1500, 89, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:taskForm:selectFormJsonDataByProcInsIdAndBusinessKey', '#', 'admin', '2026-10-14 22:53:13', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1690, '按任务与节点查表单', 1500, 90, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:taskForm:selectFormJsonDataByTaskIdAndActIdToList', '#', 'admin', '2026-10-14 22:53:13', NULL, NULL, '', NULL, NULL, '', '');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1691, '按业务key改字段', 1500, 91, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:taskForm:updateFieldValueByBusinessKey', '#', 'admin', '2026-10-14 22:53:13', NULL, NULL, '', NULL, NULL, '', '');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1511, '流程中心', 1500, 0, 'center', 'workflow/center/index', NULL, '1', '0', 'C', '0', '0', 'workflow:process:selectProcessPrcInstance', '#', 'admin', '2026-10-15 11:33:56', NULL, NULL, '系统上正在流转的流程，可直接废除', NULL, NULL, 'Process Center', '流程中心');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1699, '测试启动流程', 1500, 20, 'process/start', 'workflow/process/start', NULL, '1', '0', 'C', '0', '0', 'workflow:model:publishModel', '#', 'admin', '2026-10-15 10:15:13', NULL, NULL, '快速测试流程发起与流转（仅测试用途）', NULL, NULL, 'Test Start', '測試啟動流程');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567042, '流程迁移', 1500, 31, 'migrate', 'basic-extend/workflow/migrate/index', NULL, '1', '0', 'C', '0', '0', 'workflow:process:migrate', 'Promotion', 'admin', '2026-10-16 08:53:07', NULL, NULL, '运行中流程实例迁移到新流程定义（人事变动/版本切换）', NULL, NULL, 'Process Migrate', '流程遷移');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1699, '测试启动流程', 1500, 20, 'process/start', 'basic-extend/workflow/process/start', NULL, '1', '0', 'C', '0', '0', 'workflow:model:publishModel', '#', 'admin', '2026-10-15 10:15:13', NULL, NULL, '快速测试流程发起与流转（仅测试用途）', NULL, NULL, 'Test Start', '測試啟動流程');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567043, '执行替换', 1955896250820567042, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:process:migrate', '#', 'admin', '2026-10-16 08:53:07', NULL, NULL, '对运行中流程执行替换', NULL, NULL, 'Replace', '執行替換');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567044, '校验参数', 1955896250820567042, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:process:migrate', '#', 'admin', '2026-10-16 08:53:07', NULL, NULL, '校验替换参数（不实际执行）', NULL, NULL, 'Validate', '校驗參數');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567045, '列新流程 userTask', 1955896250820567042, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:process:migrate', '#', 'admin', '2026-10-16 08:53:07', NULL, NULL, '取新流程定义的 userTask 节点列表（前端智能推荐用）', NULL, NULL, 'List UserTasks', '列新流程用戶任務');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567046, '取旧流程当前 task', 1955896250820567042, 4, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:process:migrate', '#', 'admin', '2026-10-16 08:53:07', NULL, NULL, '取旧流程当前 taskDefinitionKey（前端智能推荐用）', NULL, NULL, 'Get Current Task', '取舊流程當前任務');
-INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567042, '流程迁移', 1500, 31, 'migrate', 'workflow/migrate/index', NULL, '1', '0', 'C', '0', '0', 'workflow:process:migrate', 'Promotion', 'admin', '2026-10-16 08:53:07', NULL, NULL, '运行中流程实例迁移到新流程定义（人事变动/版本切换）', NULL, NULL, 'Process Migrate', '流程遷移');
 INSERT INTO basicdb_flowable.sys_menu VALUES (1955896250820567047, '清空全部流程数据', 1511, 10, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'workflow:process:clearAll', '#', 'admin', '2026-10-16 09:44:16', NULL, NULL, '危险操作：清空流程实例/定义/部署/模型与全部业务流程表', NULL, NULL, 'Clear All Process Data', '清空全部流程數據');
+INSERT INTO basicdb_flowable.sys_menu VALUES (100, '用户管理', 1, 1, 'user', 'basic-admin/system/user/index', '', '1', '0', 'C', '0', '0', 'system:user:list', 'user', 'admin', '2023-02-28 17:09:30', 'admin', '2025-09-04 11:06:34', '用户管理菜单', NULL, '0', 'user management', '用戶管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (101, '角色管理', 1, 2, 'role', 'basic-admin/system/role/index', '', '1', '0', 'C', '0', '0', 'system:role:list', 'peoples', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:19:54', '角色管理菜单', NULL, '0', 'role management', '角色管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (103, '部门管理', 1, 4, 'dept', 'basic-admin/system/dept/index', '', '1', '0', 'C', '0', '0', 'system:dept:list', 'tree', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:20:14', '部门管理菜单', NULL, '0', 'sector management', '部門管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (104, '岗位管理', 1, 5, 'post', 'basic-admin/system/post/index', '', '1', '0', 'C', '0', '0', 'system:post:list', 'post', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:35', '岗位管理菜单', NULL, '0', 'post management', '崗位管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (105, '字典管理', 1, 6, 'dict', 'basic-admin/system/dict/index', '', '1', '0', 'C', '0', '0', 'system:dict:list', 'dict', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:42', '字典管理菜单', NULL, '0', 'dictionary management', '字典管理');
+INSERT INTO basicdb_flowable.sys_menu VALUES (106, '参数设置', 1, 7, 'config', 'basic-admin/system/config/index', '', '1', '0', 'C', '0', '0', 'system:config:list', 'edit', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:51', '参数设置菜单', NULL, '0', 'parameter setting', '參數設置');
+INSERT INTO basicdb_flowable.sys_menu VALUES (111, '数据监控', 3, 4, 'druid', 'basic-admin/monitor/druid/index', '', '1', '0', 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:59', '数据监控菜单', NULL, '0', 'data monitoring', '數據監控');
+INSERT INTO basicdb_flowable.sys_menu VALUES (109, '在线用户', 3, 5, 'online', 'basic-admin/monitor/online/index', '', '1', '0', 'C', '0', '0', 'monitor:online:list', 'online', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:05', '在线用户菜单', NULL, '0', 'online users', '在線用戶');
+INSERT INTO basicdb_flowable.sys_menu VALUES (112, '服务监控', 3, 7, 'server', 'basic-admin/monitor/server/index', '', '1', '0', 'C', '0', '0', 'monitor:server:list', 'server', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:21', '服务监控菜单', NULL, '0', 'service monitoring', '服務監控');
+INSERT INTO basicdb_flowable.sys_menu VALUES (113, '缓存监控', 3, 8, 'cache', 'basic-admin/monitor/cache/index', '', '1', '0', 'C', '0', '0', 'monitor:cache:list', 'redis', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:27', '缓存监控菜单', NULL, '0', 'Cache monitoring', '緩存監控');
+INSERT INTO basicdb_flowable.sys_menu VALUES (110, '定时任务', 3, 6, 'job', 'basic-admin/monitor/job/index', '', '1', '0', 'C', '0', '0', 'monitor:job:list', 'job', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:11', '定时任务菜单', NULL, '0', 'scheduled task', '定時任務');
+INSERT INTO basicdb_flowable.sys_menu VALUES (114, '表单构建', 3, 1, 'build', 'basic-admin/tool/build/index', '', '1', '0', 'C', '0', '0', 'tool:build:list', 'build', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:36', '表单构建菜单', NULL, '0', 'Form construction', '表單構建');
+INSERT INTO basicdb_flowable.sys_menu VALUES (115, '代码生成', 3, 2, 'gen', 'basic-admin/tool/gen/index', '', '1', '0', 'C', '0', '0', 'tool:gen:list', 'code', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:44', '代码生成菜单', NULL, '0', 'code generation', '代碼生成');
+INSERT INTO basicdb_flowable.sys_menu VALUES (116, '系统接口', 3, 3, 'swagger', 'basic-admin/tool/swagger/index', '', '1', '0', 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:54', '系统接口菜单', NULL, '0', 'system interface', '系統接口');
+INSERT INTO basicdb_flowable.sys_menu VALUES (1511, '流程中心', 1500, 0, 'center', 'basic-extend/workflow/center/index', NULL, '1', '0', 'C', '0', '0', 'workflow:process:selectProcessPrcInstance', '#', 'admin', '2026-10-15 11:33:56', NULL, NULL, '系统上正在流转的流程，可直接废除', NULL, NULL, 'Process Center', '流程中心');
 
 
 --
@@ -5965,6 +5959,18 @@ INSERT INTO basicdb_flowable.sys_oper_log VALUES (395, '角色管理', 2, 'com.b
   建议：You will need to rewrite or cast the expression.
   位置：127', '2026-10-15 14:22:37');
 INSERT INTO basicdb_flowable.sys_oper_log VALUES (396, '角色管理', 2, 'com.basic.web.controller.system.SysRoleController.edit()', 'PUT', 1, 'admin', NULL, '/system/role', '127.0.0.1', '内网IP', '{"searchValue":null,"createBy":null,"createTime":"2023-02-28 17:09:30","updateBy":"admin","updateTime":null,"remark":"普通角色","params":{},"roleId":2,"roleName":"普通角色","roleKey":"common","roleSort":2,"dataScope":"2","menuCheckStrictly":true,"deptCheckStrictly":true,"status":"0","delFlag":"0","flag":false,"menuIds":[1,105,3,100,1001,1002,1003,1004,1005,1006,1007,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,103,1017,1018,1019,1020,104,1021,1022,1023,1024,1025,1026,106,107,108,500,501,2,114,115,116,111,109,110,112,113,1500,1511,1501,1570,1571,1572,1573,1574,1575,1576,1502,1503,1577,1504,1505,1506,1601,1530,1602,1531,1603,1532,1533,1507,1540,1541,1542,1543,1544,1615,1616,1617,1618,1619,1620,1621,1622,1623,1624,1625,1509,1560,1561,1562,1563,1608,1609,1610,1611,1612,1613,1614,1678,1679,1680,1681,1510,1580,1581,1582,1583,1606,1607,1699,1626,1627,1628,1629,1630,1631,1632,1633,1634,1635,1636,1637,1638,1639,1640,1641,1642,1643,1644,1645,1646,1647,1648,1649,1650,1651,1652,1653,1654,1655,1656,1657,1658,1659,1660,1661,1662,1663,1664,1665,1666,1667,1668,1669,1670,1671,1672,1673,1674,1675,1676,1677,1682,1683,1684,1685,1686,1687,1688,1689,1690,1691],"deptIds":null,"admin":false}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-15 14:24:56');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (397, '流程分类', 1, 'com.basic.workflow.controller.WfCategoryController.add()', 'POST', 1, 'admin', NULL, '/workflow/category', '127.0.0.1', '内网IP', '{"searchValue":null,"createBy":"admin","createTime":"2026-10-16 10:12:03","updateBy":null,"updateTime":null,"remark":null,"params":{},"categoryId":"2110916651872251906","categoryName":"测试","code":"testflowable","parent":0,"delFlag":"0","codes":null,"url":null}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 10:12:04');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (398, '用户管理', 2, 'com.basic.web.controller.system.SysUserController.resetPwd()', 'PUT', 1, 'admin', NULL, '/system/user/resetPwd', '127.0.0.1', '内网IP', '{"searchValue":null,"createBy":null,"createTime":null,"updateBy":"admin","updateTime":null,"remark":null,"params":{},"userId":4,"deptId":null,"userName":null,"nickName":null,"email":null,"phonenumber":null,"sex":null,"avatar":null,"password":"$2a$10$srPo2jG9eqmnP6WNP9RuTO.vcH58wWIn9M01vkYRjtcdDnpZAkNay","salt":null,"status":null,"delFlag":null,"loginIp":null,"loginDate":null,"dept":null,"roles":null,"roleIds":null,"postIds":null,"roleId":null,"admin":false}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 10:49:21');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (399, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1955896250820567041', '127.0.0.1', '内网IP', '{menuId=1955896250820567041}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:55:41');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (400, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1061', '127.0.0.1', '内网IP', '{menuId=1061}', '{"msg":"存在子菜单,不允许删除","code":500}', 0, NULL, '2026-10-16 16:56:20');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (401, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753950971045343233', '127.0.0.1', '内网IP', '{menuId=1753950971045343233}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:23');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (402, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796354', '127.0.0.1', '内网IP', '{menuId=1753952621629796354}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:26');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (403, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796355', '127.0.0.1', '内网IP', '{menuId=1753952621629796355}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:28');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (404, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796356', '127.0.0.1', '内网IP', '{menuId=1753952621629796356}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:30');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (405, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796357', '127.0.0.1', '内网IP', '{menuId=1753952621629796357}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:33');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (406, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796358', '127.0.0.1', '内网IP', '{menuId=1753952621629796358}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:35');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (407, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1061', '127.0.0.1', '内网IP', '{menuId=1061}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:37');
+INSERT INTO basicdb_flowable.sys_oper_log VALUES (408, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1754778882690195458', '127.0.0.1', '内网IP', '{menuId=1754778882690195458}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 16:56:40');
 
 
 --
@@ -6231,13 +6237,13 @@ INSERT INTO basicdb_flowable.sys_role_menu VALUES (1, 1955896250820567047);
 --
 
 INSERT INTO basicdb_flowable.sys_user VALUES (9, NULL, 'test002', '测试2', '00', NULL, NULL, '0', NULL, '$2a$10$udfBxRm0omFl7XpSmBk7/.wfsRfzP5qqc0EJ6bM0s01fgmoSiDIBq', '0', '0', '127.0.0.1', '2024-02-21 17:18:01', 'admin', '2024-02-21 17:17:44', NULL, '2024-02-21 17:18:00', NULL, NULL);
-INSERT INTO basicdb_flowable.sys_user VALUES (4, 101, 'xiaoan', '安全管理员', '00', 'xiaoan@email.com', '19999999999', '0', '/profile/avatar/2024/04/22/blob_20240422160106A001.jpeg', '$2a$10$So1TNdFpzE1dB09Z0eQs1OzFpFLMrWxbYtfTvxEFLMC/8SXTUPPEK', '0', '0', '127.0.0.1', '2024-10-11 10:13:43', 'admin', '2024-01-26 15:07:37', 'admin', '2024-10-11 10:13:42', '安全管理员', '2024-10-11 10:13:27');
 INSERT INTO basicdb_flowable.sys_user VALUES (6, NULL, '13249230230', 'AA', '00', NULL, NULL, '0', NULL, '$2a$10$.3MLA6zZE6RPDLzSx6jzseXhe9ShBXBgddJ5Z09Bp1immgkZ978JS', '0', '0', '192.168.170.21', '2024-02-06 15:51:51', 'admin', '2024-01-26 15:24:02', 'admin', '2024-02-06 15:51:50', NULL, '2024-02-21 11:49:28');
 INSERT INTO basicdb_flowable.sys_user VALUES (7, NULL, '用户1', 'user1', '00', NULL, NULL, '0', NULL, '$2a$10$wfJ4zAYQ0kaZyp2XRyLO7.5bnloK3/M0HiOatf3kRWt//u2KMUNdu', '0', '2', NULL, NULL, 'admin', '2024-02-06 16:51:53', NULL, NULL, NULL, '2024-02-21 11:49:28');
 INSERT INTO basicdb_flowable.sys_user VALUES (2, 105, 'xiaoshen', '审计管理员', '00', 'xiaoshen@qq.com', '17777777777', '1', '/profile/avatar/2024/02/06/blob_20240206154427A003.jpeg', '$2a$10$MpBkNRsOzwiy54C/Vx8JoOjk6NV3Zz.jws030m1DMvguCcPP4OLJ6', '0', '0', '192.168.170.21', '2024-02-07 08:21:20', 'admin', '2023-02-28 17:09:30', 'admin', '2024-02-07 08:21:19', '审计管理员', '2024-02-21 11:49:28');
 INSERT INTO basicdb_flowable.sys_user VALUES (8, NULL, 'test001', '测试', '00', NULL, NULL, '0', NULL, '$2a$10$RAs8Dzmmt.UUD4JZvLX4Wes1Eblh0Z/OpQceqseQk78zhNvI62XvK', '0', '0', '127.0.0.1', '2025-08-14 10:43:36', 'admin', '2024-02-21 17:09:51', 'admin', '2025-08-14 10:43:36', NULL, '2025-08-14 10:43:21');
 INSERT INTO basicdb_flowable.sys_user VALUES (5, 100, 'xiaoxi', '系统管理员', '00', 'xiaoxi@email.com', '13333333333', '0', NULL, '$2a$10$Dr57Zwq8p4Zbo9yTGBBsL.crFeovrvMGhZcz/eom0yXAdxfYkPxnm', '0', '0', '127.0.0.1', '2026-10-15 16:43:12', 'admin', '2024-01-26 15:10:01', 'admin', '2026-10-15 16:43:12', '系统管理员', '2024-04-22 16:03:29');
-INSERT INTO basicdb_flowable.sys_user VALUES (1, 100, 'admin', '超*管', '00', 'xiaochao@163.com', '18888888888', '1', '/profile/avatar/2024/02/06/blob_20240206154306A002.jpeg', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-10-16 08:55:27', 'admin', '2023-02-28 17:09:30', '', '2026-10-16 08:55:28', '管理员', '2024-02-21 11:49:28');
+INSERT INTO basicdb_flowable.sys_user VALUES (4, 101, 'xiaoan', '安全管理员', '00', 'xiaoan@email.com', '19999999999', '0', '/profile/avatar/2024/04/22/blob_20240422160106A001.jpeg', '$2a$10$srPo2jG9eqmnP6WNP9RuTO.vcH58wWIn9M01vkYRjtcdDnpZAkNay', '0', '0', '127.0.0.1', '2026-10-16 10:49:25', 'admin', '2024-01-26 15:07:37', 'admin', '2026-10-16 10:49:26', '安全管理员', '2024-10-11 10:13:27');
+INSERT INTO basicdb_flowable.sys_user VALUES (1, 100, 'admin', '超*管', '00', 'xiaochao@163.com', '18888888888', '1', '/profile/avatar/2024/02/06/blob_20240206154306A002.jpeg', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-10-16 16:52:04', 'admin', '2023-02-28 17:09:30', '', '2026-10-16 16:52:05', '管理员', '2024-02-21 11:49:28');
 
 
 --
@@ -6439,7 +6445,7 @@ SELECT pg_catalog.setval('basicdb_flowable.sys_job_log_job_log_id_seq', 1, false
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE SET; Schema: basicdb_flowable; Owner: postgres
 --
 
-SELECT pg_catalog.setval('basicdb_flowable.sys_logininfor_info_id_seq', 741, true);
+SELECT pg_catalog.setval('basicdb_flowable.sys_logininfor_info_id_seq', 744, true);
 
 
 --
@@ -6475,7 +6481,7 @@ SELECT pg_catalog.setval('basicdb_flowable.sys_notice_read_read_id_seq', 1, fals
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE SET; Schema: basicdb_flowable; Owner: postgres
 --
 
-SELECT pg_catalog.setval('basicdb_flowable.sys_oper_log_oper_id_seq', 396, true);
+SELECT pg_catalog.setval('basicdb_flowable.sys_oper_log_oper_id_seq', 408, true);
 
 
 --
@@ -9282,7 +9288,7 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_f
 GRANT ALL ON SEQUENCE basicdb_flowable.sys_user_user_id_seq TO PUBLIC;
 
 
--- Completed on 2026-10-16 09:50:44
+-- Completed on 2026-10-16 16:59:17
 
 --
 -- PostgreSQL database dump complete
