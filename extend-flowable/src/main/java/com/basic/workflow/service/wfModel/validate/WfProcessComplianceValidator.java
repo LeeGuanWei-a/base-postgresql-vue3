@@ -2,14 +2,19 @@ package com.basic.workflow.service.wfModel.validate;
 
 import com.basic.flowable.utils.ModelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.flowable.bpmn.model.BoundaryEvent;
 import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.ExclusiveGateway;
+import org.flowable.bpmn.model.CancelEventDefinition;
 import org.flowable.bpmn.model.EndEvent;
+import org.flowable.bpmn.model.ErrorEventDefinition;
+import org.flowable.bpmn.model.EventDefinition;
+import org.flowable.bpmn.model.ExclusiveGateway;
 import org.flowable.bpmn.model.FlowElement;
-import org.flowable.bpmn.model.FlowNode;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.bpmn.model.StartEvent;
+import org.flowable.bpmn.model.SubProcess;
+import org.flowable.bpmn.model.TimerEventDefinition;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -22,7 +27,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 流程模型保存前的合规校验。
@@ -67,6 +74,8 @@ public class WfProcessComplianceValidator {
         validateUserTasks(bpmnModel, problems);
         validateGateways(mainProcess, problems);
         validateStartAndEnd(mainProcess, problems);
+        // 3. 边界事件（boundary event）业务校验
+        validateBoundaryEvents(bpmnModel, problems);
         return problems;
     }
 
@@ -181,6 +190,107 @@ public class WfProcessComplianceValidator {
         if (endCount < 1) {
             problems.add("流程至少需要一个结束节点");
         }
+    }
+
+    /**
+     * 边界事件（BoundaryEvent）业务校验。
+     *
+     * <p>校验规则：</p>
+     * <ul>
+     *   <li>每个 boundary 必须挂在某个 Activity（UserTask / SubProcess / CallActivity）边界上</li>
+     *   <li>同一宿主活动上同一种事件定义类型（按 eventDefinition 的 $type 区分）只能出现 1 次，
+     *       否则引擎行为未定义且容易踩坑（不是阻断性错误，记录 warning）</li>
+     *   <li>timer boundary：timeDuration / timeCycle / timeDate 至少要有一个
+     *       （Flowable 自身不阻断，但运行期永远不会触发，留着只是占位）</li>
+     *   <li>error boundary：必须配置 errorRef（错误码），且不能挂在 start event 上</li>
+     *   <li>cancel boundary：仅在子流程（含 call activity）边界有效，
+     *       挂在 UserTask 上 Flowable 会忽略</li>
+     *   <li>message / signal boundary：建议配置 messageRef / signalRef（不阻断但记录告警）</li>
+     * </ul>
+     */
+    private void validateBoundaryEvents(BpmnModel bpmnModel, List<String> problems) {
+        Process mainProcess = bpmnModel.getMainProcess();
+        if (mainProcess == null) {
+            return;
+        }
+        // 1. 遍历主流程与所有子流程的 FlowElement
+        // 宿主活动 id -> 该宿主上的 boundary 类型 -> 出现次数
+        Map<String, Map<String, Integer>> hostBoundaryTypeCount = new HashMap<>();
+        walkBoundary(mainProcess.getFlowElements(), hostBoundaryTypeCount, problems);
+        // 2. 检查重复（同宿主同类型 boundary 重复）
+        hostBoundaryTypeCount.forEach((hostId, typeMap) -> typeMap.forEach((type, count) -> {
+            if (count > 1) {
+                problems.add("宿主活动[" + hostId + "] 上挂了 " + count + " 个同类型（" + type + "）的边界事件，"
+                        + "Flowable 行为未定义，建议合并或换成不同类型");
+            }
+        }));
+    }
+
+    /**
+     * 递归遍历主流程/子流程/事件子流程的 FlowElement，校验每个 BoundaryEvent。
+     */
+    private void walkBoundary(Collection<FlowElement> elements,
+                              Map<String, Map<String, Integer>> hostBoundaryTypeCount,
+                              List<String> problems) {
+        if (elements == null || elements.isEmpty()) {
+            return;
+        }
+        for (FlowElement element : elements) {
+            if (element instanceof BoundaryEvent) {
+                checkOneBoundary((BoundaryEvent) element, hostBoundaryTypeCount, problems);
+            }
+            if (element instanceof SubProcess) {
+                walkBoundary(((SubProcess) element).getFlowElements(), hostBoundaryTypeCount, problems);
+            }
+        }
+    }
+
+    /**
+     * 校验单个 boundary event。
+     */
+    private void checkOneBoundary(BoundaryEvent boundary,
+                                  Map<String, Map<String, Integer>> hostBoundaryTypeCount,
+                                  List<String> problems) {
+        String name = StringUtils.isNotBlank(boundary.getName()) ? boundary.getName() : boundary.getId();
+        // 1. 宿主活动校验
+        String hostActivityId = boundary.getAttachedToRefId();
+        if (StringUtils.isBlank(hostActivityId)) {
+            problems.add("边界事件[" + name + "] 没有挂在任何活动上（必须 attachedToRef 一个 UserTask/SubProcess/CallActivity）");
+            return;
+        }
+        // 2. 统计 type 用于后续"同宿主同类型"重复检查
+        EventDefinition eventDef = boundary.getEventDefinitions().isEmpty() ? null
+                : boundary.getEventDefinitions().get(0);
+        if (eventDef == null) {
+            problems.add("边界事件[" + name + "] 没有配置事件定义（必须配 timer/error/message/signal/cancel/... 之一）");
+            return;
+        }
+        String type = eventDef.getClass().getSimpleName();
+        hostBoundaryTypeCount.computeIfAbsent(hostActivityId, k -> new HashMap<>())
+                .merge(type, 1, Integer::sum);
+        // 3. 按事件类型逐项校验
+        if (eventDef instanceof TimerEventDefinition) {
+            TimerEventDefinition timer = (TimerEventDefinition) eventDef;
+            boolean hasAny = timer.getTimeDuration() != null
+                    || timer.getTimeCycle() != null
+                    || timer.getTimeDate() != null;
+            if (!hasAny) {
+                problems.add("定时器边界事件[" + name + "] 没有配置时长(timeDuration/cycle/date)，"
+                        + "运行期永远不会触发，请补充配置");
+            }
+        } else if (eventDef instanceof ErrorEventDefinition) {
+            ErrorEventDefinition error = (ErrorEventDefinition) eventDef;
+            if (StringUtils.isBlank(error.getErrorCode())) {
+                problems.add("错误边界事件[" + name + "] 必须配置 errorCode（错误码），"
+                        + "没有错误码则 ServiceTask 抛 BpmnError 时无法定位到该边界");
+            }
+        } else if (eventDef instanceof CancelEventDefinition) {
+            // cancel 边界按 BPMN 规范只能挂在 transaction 子流程或 call activity 边界上
+            // Flowable 不会阻断，但运行期永远不会触发；这里给个 warning
+            problems.add("取消边界事件[" + name + "] 仅在 transaction / call activity 子流程边界有效，"
+                    + "挂在 UserTask 上时运行期不会触发，建议改用 timer/error/message 类型");
+        }
+        // 4. message / signal / escalation / compensation / conditional 的非强制校验（如需要可后续补）
     }
 
     /**

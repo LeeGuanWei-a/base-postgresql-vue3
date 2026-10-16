@@ -23,10 +23,11 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="180" fixed="right">
+      <el-table-column label="操作" align="center" width="240" fixed="right">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="handleDetail(scope.row)">详情</el-button>
           <el-button link type="danger" v-if="scope.row.processStatus === 'running'" icon="RefreshLeft" @click="handleRevoke(scope.row)">撤回</el-button>
+          <el-button link type="warning" v-if="scope.row.processStatus === 'running'" v-hasPermi="['workflow:process:migrate']" icon="Promotion" @click="handleMigrate(scope.row)">迁移</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -72,6 +73,10 @@ async function handleRevoke(row) {
   await proxy.$modal.confirm('确认撤回该流程？')
   const res = await revokeProcess({ procInsId: row.procInsId })
   if (res.code === 200) { proxy.$modal.msgSuccess('撤回成功'); getList() }
+}
+function handleMigrate(row) {
+  // 跳到独立迁移页，oldProcInsId 作为 query 传入，自动填到表单
+  router.push({ path: '/workflow/migrate', query: { oldProcInsId: row.procInsId } })
 }
 
 getList()

@@ -40,6 +40,51 @@ public class WfTaskAuthService {
 
     private static final Logger log = LoggerFactory.getLogger(WfTaskAuthService.class);
 
+    /**
+     * 系统内部调用标记。
+     *
+     * <p>用于"代表他人推进流程"的场景（如流程替换的镜像推进、定时任务批量处理）：
+     * 此时当前登录用户不是任务的处理人/候选人，但操作是系统行为，应当放行。</p>
+     *
+     * <p><b>安全性</b>：这是 {@link ThreadLocal}，只能由服务端代码设置，
+     * <b>HTTP 请求体无法设置它</b>（{@code WfTaskBo} 里没有对应字段），
+     * 因此不会成为绕过权限的入口。</p>
+     */
+    private static final ThreadLocal<Boolean> SYSTEM_INVOKE = new ThreadLocal<>();
+
+    /**
+     * 系统内部调用的动作，可抛异常。
+     */
+    @FunctionalInterface
+    public interface SystemCallable<T> {
+        T call() throws Exception;
+    }
+
+    /**
+     * 以"系统身份"执行一段逻辑：执行期间跳过任务操作权限校验。
+     *
+     * <p>示例：</p>
+     * <pre>
+     * WfTaskAuthService.callAsSystem(() -&gt; {
+     *     wfTaskService.complete(bo);
+     *     return null;
+     * });
+     * </pre>
+     */
+    public static <T> T callAsSystem(SystemCallable<T> action) throws Exception {
+        Boolean previous = SYSTEM_INVOKE.get();
+        SYSTEM_INVOKE.set(Boolean.TRUE);
+        try {
+            return action.call();
+        } finally {
+            if (previous == null) {
+                SYSTEM_INVOKE.remove();
+            } else {
+                SYSTEM_INVOKE.set(previous);
+            }
+        }
+    }
+
     @Autowired
     private TaskService taskService;
 
@@ -51,6 +96,11 @@ public class WfTaskAuthService {
     public void checkOperateAuth(String taskId) {
         if (StringUtils.isBlank(taskId)) {
             throw new ServiceException("任务id不能为空");
+        }
+        // 系统内部调用（流程替换镜像推进等）直接放行
+        if (Boolean.TRUE.equals(SYSTEM_INVOKE.get())) {
+            log.info("系统内部调用，跳过任务操作权限校验。taskId={}", taskId);
+            return;
         }
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         if (task == null) {

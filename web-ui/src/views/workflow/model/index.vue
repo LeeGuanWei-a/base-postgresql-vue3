@@ -95,6 +95,15 @@
           >设计</el-button>
 
           <el-button
+            v-if="scope.row.pendingRedeploy === true"
+            v-hasPermi="['workflow:model:deploy']"
+            link
+            type="danger"
+            icon="Upload"
+            @click="handleRedeploy(scope.row)"
+          >重新部署</el-button>
+
+          <el-button
             v-if="scope.row.deploy === true && scope.row.suspended !== true"
             v-hasPermi="['workflow:model:suspended']"
             link
@@ -185,6 +194,7 @@ import {
   delModel,
   suspendedModel,
   activateModel,
+  deployModel,
   getModelBpmnXml
 } from '@/api/workflow/model'
 import { listCategoryAll } from '@/api/workflow/category'
@@ -326,6 +336,19 @@ async function handleActivate(row) {
     getList()
   } else {
     proxy.$modal.msgError(res.msg || '激活失败')
+  }
+}
+
+async function handleRedeploy(row) {
+  await proxy.$modal.confirm(
+    `确认重新部署「${row.modelName}」？\n将用最新 bpmn XML 覆盖当前部署版本，已发起的流程不受影响。`
+  )
+  const res = await deployModel({ modelId: row.modelId })
+  if (res.code === 200) {
+    proxy.$modal.msgSuccess('已重新部署')
+    getList()
+  } else {
+    proxy.$modal.msgError(res.msg || '重新部署失败')
   }
 }
 

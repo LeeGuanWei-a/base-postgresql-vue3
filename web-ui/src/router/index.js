@@ -135,6 +135,21 @@ export const constantRoutes = [
     ]
   },
   {
+    // 流程迁移：菜单靠 sys_menu 驱动（parent_id=1500 流程引擎下）。
+    // router 这条只作路由占位 + activeMenu 高亮跟随流程引擎，不在左侧菜单独立显示。
+    path: '/workflow/migrate',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/workflow/migrate/index'),
+        name: 'WfProcessMigrate',
+        meta: { title: '流程迁移', activeMenu: '/workflow' }
+      }
+    ]
+  },
+  {
     path: '/workflow/process/detail',
     component: Layout,
     hidden: true,
