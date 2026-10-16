@@ -5,7 +5,7 @@
 -- Dumped from database version 15.1
 -- Dumped by pg_dump version 17.0
 
--- Started on 2026-10-15 15:50:00
+-- Started on 2026-10-16 17:08:19
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2180,13 +2180,7 @@ INSERT INTO basicdb.sys_menu VALUES (1029, '字典删除', 105, 4, '#', '', '', 
 INSERT INTO basicdb.sys_menu VALUES (1031, '参数查询', 106, 1, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1032, '参数新增', 106, 2, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1033, '参数修改', 106, 3, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:edit', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (100, '用户管理', 1, 1, 'user', 'system/user/index', '', '1', '0', 'C', '0', '0', 'system:user:list', 'user', 'admin', '2023-02-28 17:09:30', 'admin', '2025-09-04 11:06:34', '用户管理菜单', NULL, '0', 'user management', '用戶管理');
-INSERT INTO basicdb.sys_menu VALUES (101, '角色管理', 1, 2, 'role', 'system/role/index', '', '1', '0', 'C', '0', '0', 'system:role:list', 'peoples', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:19:54', '角色管理菜单', NULL, '0', 'role management', '角色管理');
-INSERT INTO basicdb.sys_menu VALUES (103, '部门管理', 1, 4, 'dept', 'system/dept/index', '', '1', '0', 'C', '0', '0', 'system:dept:list', 'tree', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:20:14', '部门管理菜单', NULL, '0', 'sector management', '部門管理');
-INSERT INTO basicdb.sys_menu VALUES (104, '岗位管理', 1, 5, 'post', 'system/post/index', '', '1', '0', 'C', '0', '0', 'system:post:list', 'post', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:35', '岗位管理菜单', NULL, '0', 'post management', '崗位管理');
-INSERT INTO basicdb.sys_menu VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/index', '', '1', '0', 'C', '0', '0', 'system:dict:list', 'dict', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:42', '字典管理菜单', NULL, '0', 'dictionary management', '字典管理');
-INSERT INTO basicdb.sys_menu VALUES (106, '参数设置', 1, 7, 'config', 'system/config/index', '', '1', '0', 'C', '0', '0', 'system:config:list', 'edit', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:51', '参数设置菜单', NULL, '0', 'parameter setting', '參數設置');
-INSERT INTO basicdb.sys_menu VALUES (1955896250820567041, '国际化', 1, 10, 'i18n', NULL, NULL, '1', '0', 'C', '0', '0', '', 'language', 'admin', '2025-08-14 15:36:20', 'admin', '2025-08-14 15:36:59', NULL, NULL, NULL, 'internationalization', '國際化');
+INSERT INTO basicdb.sys_menu VALUES (100, '用户管理', 1, 1, 'user', 'basic-admin/system/user/index', '', '1', '0', 'C', '0', '0', 'system:user:list', 'user', 'admin', '2023-02-28 17:09:30', 'admin', '2025-09-04 11:06:34', '用户管理菜单', NULL, '0', 'user management', '用戶管理');
 INSERT INTO basicdb.sys_menu VALUES (1034, '参数删除', 106, 4, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:remove', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1036, '公告查询', 107, 1, '#', '', '', '1', '0', 'F', '0', '0', 'system:notice:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:57', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1037, '公告新增', 107, 2, '#', '', '', '1', '0', 'F', '0', '0', 'system:notice:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:57', '', NULL, '0', NULL, NULL);
@@ -2197,38 +2191,35 @@ INSERT INTO basicdb.sys_menu VALUES (1041, '操作删除', 500, 2, '#', '', '', 
 INSERT INTO basicdb.sys_menu VALUES (1042, '日志导出', 500, 4, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:operlog:export', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:40:09', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1043, '登录查询', 501, 1, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:logininfor:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:40:15', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1044, '登录删除', 501, 2, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:logininfor:remove', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:40:15', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (2, '系统监控', 0, 2, 'monitor', NULL, '', '1', '0', 'M', '1', '1', '', 'monitor', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:21', '系统监控目录', NULL, '0', 'system monitoring', '系統監控');
 INSERT INTO basicdb.sys_menu VALUES (1055, '生成查询', 115, 1, '#', '', '', '1', '0', 'F', '0', '0', 'tool:gen:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:40:44', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1056, '生成修改', 115, 2, '#', '', '', '1', '0', 'F', '0', '0', 'tool:gen:edit', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:40:44', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1046, '在线查询', 109, 1, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:online:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:05', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1049, '任务查询', 110, 1, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:query', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:12', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1050, '任务新增', 110, 2, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:add', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:12', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753952621629796354, '查询', 1061, 1, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:query', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753952621629796355, '新增', 1061, 2, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:add', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753952621629796356, '修改', 1061, 3, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:edit', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753952621629796357, '删除', 1061, 5, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:remove', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753952621629796358, '导出', 1061, 6, NULL, NULL, NULL, '1', '0', 'F', '0', '0', 'business:demo:export', '#', 'admin', '2024-02-04 09:24:27', 'admin', '2024-02-06 16:08:37', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1754778882690195458, '页面示例', 3, 0, 'business', NULL, NULL, '1', '0', 'M', '0', '0', '', 'tab', 'admin', '2024-02-06 16:07:43', 'admin', '2024-05-28 17:52:59', NULL, NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1035, '参数导出', 106, 5, '#', '', '', '1', '0', 'F', '0', '0', 'system:config:export', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:39:51', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1048, '单条强退', 109, 3, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:online:forceLogout', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:05', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1051, '任务修改', 110, 3, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:edit', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1052, '任务删除', 110, 4, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:remove', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1053, '状态修改', 110, 5, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:changeStatus', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
 INSERT INTO basicdb.sys_menu VALUES (1054, '任务导出', 110, 7, '#', '', '', '1', '0', 'F', '0', '0', 'monitor:job:export', '#', 'admin', '2023-02-28 17:35:14', 'admin', '2025-08-14 10:41:13', '', NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', '1', '0', 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:18:36', '菜单管理菜单', NULL, '0', 'menu management', '菜單管理');
-INSERT INTO basicdb.sys_menu VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/index', '', '1', '0', 'C', '0', '0', 'system:notice:list', 'message', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:57', '通知公告菜单', NULL, '0', 'notice announcement', '通知公告');
-INSERT INTO basicdb.sys_menu VALUES (500, '操作日志', 108, 1, 'operlog', 'monitor/operlog/index', '', '1', '0', 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:09', '操作日志菜单', NULL, '0', 'operation log', '操作日誌');
-INSERT INTO basicdb.sys_menu VALUES (501, '登录日志', 108, 2, 'logininfor', 'monitor/logininfor/index', '', '1', '0', 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:15', '登录日志菜单', NULL, '0', 'login logs', '登錄日誌');
-INSERT INTO basicdb.sys_menu VALUES (111, '数据监控', 3, 4, 'druid', 'monitor/druid/index', '', '1', '0', 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:59', '数据监控菜单', NULL, '0', 'data monitoring', '數據監控');
-INSERT INTO basicdb.sys_menu VALUES (109, '在线用户', 3, 5, 'online', 'monitor/online/index', '', '1', '0', 'C', '0', '0', 'monitor:online:list', 'online', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:05', '在线用户菜单', NULL, '0', 'online users', '在線用戶');
-INSERT INTO basicdb.sys_menu VALUES (112, '服务监控', 3, 7, 'server', 'monitor/server/index', '', '1', '0', 'C', '0', '0', 'monitor:server:list', 'server', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:21', '服务监控菜单', NULL, '0', 'service monitoring', '服務監控');
-INSERT INTO basicdb.sys_menu VALUES (113, '缓存监控', 3, 8, 'cache', 'monitor/cache/index', '', '1', '0', 'C', '0', '0', 'monitor:cache:list', 'redis', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:27', '缓存监控菜单', NULL, '0', 'Cache monitoring', '緩存監控');
-INSERT INTO basicdb.sys_menu VALUES (114, '表单构建', 3, 1, 'build', 'tool/build/index', '', '1', '0', 'C', '0', '0', 'tool:build:list', 'build', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:36', '表单构建菜单', NULL, '0', 'Form construction', '表單構建');
-INSERT INTO basicdb.sys_menu VALUES (115, '代码生成', 3, 2, 'gen', 'tool/gen/index', '', '1', '0', 'C', '0', '0', 'tool:gen:list', 'code', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:44', '代码生成菜单', NULL, '0', 'code generation', '代碼生成');
-INSERT INTO basicdb.sys_menu VALUES (116, '系统接口', 3, 3, 'swagger', 'tool/swagger/index', '', '1', '0', 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:54', '系统接口菜单', NULL, '0', 'system interface', '系統接口');
-INSERT INTO basicdb.sys_menu VALUES (110, '定时任务', 3, 6, 'job', 'monitor/job/index', '', '1', '0', 'C', '0', '0', 'monitor:job:list', 'job', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:11', '定时任务菜单', NULL, '0', 'scheduled task', '定時任務');
-INSERT INTO basicdb.sys_menu VALUES (1061, '表单示例', 1754778882690195458, 10, 'demo', NULL, NULL, '1', '1', 'C', '0', '0', 'business:demo:list', 'education', 'admin', '2024-01-26 09:46:30', 'admin', '2024-02-07 12:00:10', NULL, NULL, '0', NULL, NULL);
-INSERT INTO basicdb.sys_menu VALUES (1753950971045343233, '示例表单', 1061, 0, 'demoForm', NULL, NULL, '1', '1', 'C', '1', '0', 'business:demo:add,business:demo:edit,business:demo:query', '', 'admin', '2024-02-04 09:17:53', 'admin', '2024-02-06 16:08:37', NULL, '0', '0', NULL, NULL);
+INSERT INTO basicdb.sys_menu VALUES (2, '系统监控', 0, 2, 'monitor', NULL, '', '1', '0', 'M', '1', '1', '', 'monitor', 'admin', '2023-02-28 17:09:30', 'admin', '2026-10-16 17:07:09', '系统监控目录', NULL, '0', 'system monitoring', '系統監控');
+INSERT INTO basicdb.sys_menu VALUES (101, '角色管理', 1, 2, 'role', 'basic-admin/system/role/index', '', '1', '0', 'C', '0', '0', 'system:role:list', 'peoples', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:19:54', '角色管理菜单', NULL, '0', 'role management', '角色管理');
+INSERT INTO basicdb.sys_menu VALUES (102, '菜单管理', 1, 3, 'menu', 'basic-admin/system/menu/index', '', '1', '0', 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:18:36', '菜单管理菜单', NULL, '0', 'menu management', '菜單管理');
+INSERT INTO basicdb.sys_menu VALUES (103, '部门管理', 1, 4, 'dept', 'basic-admin/system/dept/index', '', '1', '0', 'C', '0', '0', 'system:dept:list', 'tree', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:20:14', '部门管理菜单', NULL, '0', 'sector management', '部門管理');
+INSERT INTO basicdb.sys_menu VALUES (104, '岗位管理', 1, 5, 'post', 'basic-admin/system/post/index', '', '1', '0', 'C', '0', '0', 'system:post:list', 'post', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:35', '岗位管理菜单', NULL, '0', 'post management', '崗位管理');
+INSERT INTO basicdb.sys_menu VALUES (105, '字典管理', 1, 6, 'dict', 'basic-admin/system/dict/index', '', '1', '0', 'C', '0', '0', 'system:dict:list', 'dict', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:42', '字典管理菜单', NULL, '0', 'dictionary management', '字典管理');
+INSERT INTO basicdb.sys_menu VALUES (107, '通知公告', 1, 8, 'notice', 'basic-admin/system/notice/index', '', '1', '0', 'C', '0', '0', 'system:notice:list', 'message', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:57', '通知公告菜单', NULL, '0', 'notice announcement', '通知公告');
+INSERT INTO basicdb.sys_menu VALUES (106, '参数设置', 1, 7, 'config', 'basic-admin/system/config/index', '', '1', '0', 'C', '0', '0', 'system:config:list', 'edit', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:39:51', '参数设置菜单', NULL, '0', 'parameter setting', '參數設置');
+INSERT INTO basicdb.sys_menu VALUES (500, '操作日志', 108, 1, 'operlog', 'basic-admin/monitor/operlog/index', '', '1', '0', 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:09', '操作日志菜单', NULL, '0', 'operation log', '操作日誌');
+INSERT INTO basicdb.sys_menu VALUES (501, '登录日志', 108, 2, 'logininfor', 'basic-admin/monitor/logininfor/index', '', '1', '0', 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:15', '登录日志菜单', NULL, '0', 'login logs', '登錄日誌');
+INSERT INTO basicdb.sys_menu VALUES (111, '数据监控', 3, 4, 'druid', 'basic-admin/monitor/druid/index', '', '1', '0', 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:59', '数据监控菜单', NULL, '0', 'data monitoring', '數據監控');
+INSERT INTO basicdb.sys_menu VALUES (109, '在线用户', 3, 5, 'online', 'basic-admin/monitor/online/index', '', '1', '0', 'C', '0', '0', 'monitor:online:list', 'online', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:05', '在线用户菜单', NULL, '0', 'online users', '在線用戶');
+INSERT INTO basicdb.sys_menu VALUES (112, '服务监控', 3, 7, 'server', 'basic-admin/monitor/server/index', '', '1', '0', 'C', '0', '0', 'monitor:server:list', 'server', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:21', '服务监控菜单', NULL, '0', 'service monitoring', '服務監控');
+INSERT INTO basicdb.sys_menu VALUES (113, '缓存监控', 3, 8, 'cache', 'basic-admin/monitor/cache/index', '', '1', '0', 'C', '0', '0', 'monitor:cache:list', 'redis', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:27', '缓存监控菜单', NULL, '0', 'Cache monitoring', '緩存監控');
+INSERT INTO basicdb.sys_menu VALUES (110, '定时任务', 3, 6, 'job', 'basic-admin/monitor/job/index', '', '1', '0', 'C', '0', '0', 'monitor:job:list', 'job', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:41:11', '定时任务菜单', NULL, '0', 'scheduled task', '定時任務');
+INSERT INTO basicdb.sys_menu VALUES (114, '表单构建', 3, 1, 'build', 'basic-admin/tool/build/index', '', '1', '0', 'C', '0', '0', 'tool:build:list', 'build', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:36', '表单构建菜单', NULL, '0', 'Form construction', '表單構建');
+INSERT INTO basicdb.sys_menu VALUES (115, '代码生成', 3, 2, 'gen', 'basic-admin/tool/gen/index', '', '1', '0', 'C', '0', '0', 'tool:gen:list', 'code', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:44', '代码生成菜单', NULL, '0', 'code generation', '代碼生成');
+INSERT INTO basicdb.sys_menu VALUES (116, '系统接口', 3, 3, 'swagger', 'basic-admin/tool/swagger/index', '', '1', '0', 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:54', '系统接口菜单', NULL, '0', 'system interface', '系統接口');
 
 
 --
@@ -2257,6 +2248,17 @@ INSERT INTO basicdb.sys_oper_log VALUES (379, '操作日志', 9, 'com.basic.web.
 INSERT INTO basicdb.sys_oper_log VALUES (380, '登录日志', 9, 'com.basic.web.controller.monitor.SysLogininforController.clean()', 'DELETE', 1, 'admin', NULL, '/monitor/logininfor/clean', '127.0.0.1', '内网IP', '{}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-14 14:17:20');
 INSERT INTO basicdb.sys_oper_log VALUES (381, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1754778882690195458', '127.0.0.1', '内网IP', '{menuId=1754778882690195458}', '{"msg":"存在子菜单,不允许删除","code":500}', 0, NULL, '2026-10-14 14:17:33');
 INSERT INTO basicdb.sys_oper_log VALUES (382, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1064', '127.0.0.1', '内网IP', '{menuId=1064}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-14 14:17:41');
+INSERT INTO basicdb.sys_oper_log VALUES (383, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1955896250820567041', '127.0.0.1', '内网IP', '{menuId=1955896250820567041}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:06:47');
+INSERT INTO basicdb.sys_oper_log VALUES (384, '菜单管理', 2, 'com.basic.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', NULL, '/system/menu', '127.0.0.1', '内网IP', '{"searchValue":null,"createBy":null,"createTime":"2023-02-28 17:09:30","updateBy":"admin","updateTime":null,"remark":null,"params":{},"menuId":2,"menuName":"系统监控","parentName":null,"parentId":0,"orderNum":2,"path":"monitor","component":null,"query":"","isFrame":"1","isCache":"0","menuType":"M","visible":"0","status":"0","perms":"","icon":"monitor","children":[]}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:06:56');
+INSERT INTO basicdb.sys_oper_log VALUES (385, '菜单管理', 2, 'com.basic.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', NULL, '/system/menu', '127.0.0.1', '内网IP', '{"searchValue":null,"createBy":null,"createTime":"2023-02-28 17:09:30","updateBy":"admin","updateTime":null,"remark":null,"params":{},"menuId":2,"menuName":"系统监控","parentName":null,"parentId":0,"orderNum":2,"path":"monitor","component":null,"query":"","isFrame":"1","isCache":"0","menuType":"M","visible":"1","status":"1","perms":"","icon":"monitor","children":[]}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:09');
+INSERT INTO basicdb.sys_oper_log VALUES (386, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753950971045343233', '127.0.0.1', '内网IP', '{menuId=1753950971045343233}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:24');
+INSERT INTO basicdb.sys_oper_log VALUES (387, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796354', '127.0.0.1', '内网IP', '{menuId=1753952621629796354}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:26');
+INSERT INTO basicdb.sys_oper_log VALUES (388, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796355', '127.0.0.1', '内网IP', '{menuId=1753952621629796355}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:30');
+INSERT INTO basicdb.sys_oper_log VALUES (389, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796356', '127.0.0.1', '内网IP', '{menuId=1753952621629796356}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:32');
+INSERT INTO basicdb.sys_oper_log VALUES (390, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796357', '127.0.0.1', '内网IP', '{menuId=1753952621629796357}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:34');
+INSERT INTO basicdb.sys_oper_log VALUES (391, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1753952621629796358', '127.0.0.1', '内网IP', '{menuId=1753952621629796358}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:37');
+INSERT INTO basicdb.sys_oper_log VALUES (392, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1061', '127.0.0.1', '内网IP', '{menuId=1061}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:39');
+INSERT INTO basicdb.sys_oper_log VALUES (393, '菜单管理', 3, 'com.basic.web.controller.system.SysMenuController.remove()', 'DELETE', 1, 'admin', NULL, '/system/menu/1754778882690195458', '127.0.0.1', '内网IP', '{menuId=1754778882690195458}', '{"msg":"操作成功","code":200}', 0, NULL, '2026-10-16 17:07:42');
 
 
 --
@@ -2500,7 +2502,7 @@ SELECT pg_catalog.setval('basicdb.sys_notice_read_read_id_seq', 1, false);
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE SET; Schema: basicdb; Owner: postgres
 --
 
-SELECT pg_catalog.setval('basicdb.sys_oper_log_oper_id_seq', 382, true);
+SELECT pg_catalog.setval('basicdb.sys_oper_log_oper_id_seq', 393, true);
 
 
 --
@@ -3274,7 +3276,7 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb.s
 GRANT ALL ON SEQUENCE basicdb.sys_user_user_id_seq TO PUBLIC;
 
 
--- Completed on 2026-10-15 15:50:00
+-- Completed on 2026-10-16 17:08:20
 
 --
 -- PostgreSQL database dump complete

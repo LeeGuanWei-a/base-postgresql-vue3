@@ -49,12 +49,12 @@ export const constantRoutes = [
   },
   {
     path: "/:pathMatch(.*)*",
-    component: () => import('@/views/error/404.vue'),
+    component: () => import('@/views/basic-common/error/404.vue'),
     hidden: true
   },
   {
     path: '/401',
-    component: () => import('@/views/error/401.vue'),
+    component: () => import('@/views/basic-common/error/401.vue'),
     hidden: true
   },
   {
@@ -84,7 +84,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'profile/:activeTab?',
-        component: () => import('@/views/system/user/profile/index.vue'),
+        component: () => import('@/views/basic-admin/system/user/profile/index.vue'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
       }
@@ -102,7 +102,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: 'role/:userId(\\d+)',
-        component: () => import('@/views/system/user/authRole.vue'),
+        component: () => import('@/views/basic-admin/system/user/authRole.vue'),
         name: 'AuthRole',
         meta: { title: '分配角色', activeMenu: '/system/user' }
       }
@@ -116,7 +116,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: 'user/:roleId(\\d+)',
-        component: () => import('@/views/system/role/authUser.vue'),
+        component: () => import('@/views/basic-admin/system/role/authUser.vue'),
         name: 'AuthUser',
         meta: { title: '分配用户', activeMenu: '/system/role' }
       }
@@ -130,7 +130,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: 'index/:dictId(\\d+)',
-        component: () => import('@/views/system/dict/data.vue'),
+        component: () => import('@/views/basic-admin/system/dict/data.vue'),
         name: 'Data',
         meta: { title: '字典数据', activeMenu: '/system/dict' }
       }
@@ -144,7 +144,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: 'index/:jobId(\\d+)',
-        component: () => import('@/views/monitor/job/log.vue'),
+        component: () => import('@/views/basic-admin/monitor/job/log.vue'),
         name: 'JobLog',
         meta: { title: '调度日志', activeMenu: '/monitor/job' }
       }
@@ -158,7 +158,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/editTable.vue'),
+        component: () => import('@/views/basic-admin/tool/gen/editTable.vue'),
         name: 'GenEdit',
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
