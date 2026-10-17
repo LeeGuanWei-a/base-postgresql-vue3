@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>basic</artifactId>
+        <groupId>com.basic</groupId>
+        <version>4.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>extend-flowable</artifactId>
+
+    <description>
+        流程引擎模块（基于 Flowable 8.0.0，对接 Spring Boot 4 + Java 21 + Jackson 3）。
+        PR1 仅包含引擎集成骨架与最简"部署→启动→完成"示例。
+        PR2 补齐自定义表单（wf_form / wf_deploy_form / wf_task_form）+ 流程定义/启动/任务主链路。
+    </description>
+
+    <dependencies>
+
+        <!-- 核心模块（提供 BaseController / AjaxResult / PageQuery 等） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-admin-core</artifactId>
+        </dependency>
+
+        <!-- 通用工具 -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-common</artifactId>
+        </dependency>
+
+        <!-- Flowable 8.0 核心 starter（启动时自动建表 + 装配 ProcessEngine / TaskService 等） -->
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-process</artifactId>
+            <version>${flowable.version}</version>
+        </dependency>
+
+        <!-- 说明：Flowable 7 起官方移除了 BPMN JSON 转换器（flowable-json-converter 最后版本 6.8.1），
+             8.0.0 不再提供 org.flowable.editor.language.json.converter.*。
+             因此本模块的流程模型统一以 BPMN 2.0 XML 存储/部署（前端用 bpmn-js 产 XML），
+             不再依赖任何 JSON↔BPMN 转换器，也不再往自己的源码里塞 org.flowable.* 的同名类。 -->
+
+        <!-- 自定义表单业务表（wf_form / wf_deploy_form / wf_task_form）走 MyBatis-Plus，
+             复用平台已经接入的 starter，避免重复声明 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+        </dependency>
+
+        <!-- 表达式引擎（FindNextNodeUtil 里做条件表达式求值） -->
+        <dependency>
+            <groupId>com.googlecode.aviator</groupId>
+            <artifactId>aviator</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <!-- XML 解析（BPMN 自定义属性 / 扩展元素解析，WfModelSaveXmlService 使用） -->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!-- Hutool 工具集（流程工具类会用；集合/字符串工具统一用它，不再引 commons-collections 3/4） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+        </dependency>
+
+        <!-- JSON：统一用平台封装 com.basic.common.utils.JsonUtils（底层是 Spring Boot 4 自带的 Jackson 3，
+             即 tools.jackson.*）。本模块不直接引 Jackson 2，也不引 fastjson -->
+
+        <!-- OpenAPI 3 注解（io.swagger.v3.oas.annotations.*，Spring Boot 4 走 springdoc）。
+             37 个 domain/vo/bo/controller 用了 @Schema / @Tag / @Operation，
+             springdoc 间接没拉这个包，显式声明。
+             注：swagger2 的 io.swagger:swagger-annotations 已移除，@ApiImplicitParam 全部改成
+             springdoc 按方法签名自动生成参数文档。 -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.31</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

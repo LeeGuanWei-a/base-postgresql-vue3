@@ -1,9 +1,10 @@
-# Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus)
+# Basic Admin (Spring Boot 4.1.1 + Flowable 8.0.0 + Vue 3 + Element Plus)
 
-基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot3` 分支**唯一区别**:**后端从 Spring Boot 3.5.16 升级到 Spring Boot 4.1.1**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
+基于若依 RuoYi-Vue 3.9.2 改造。本分支在 `springboot4`(后端 SB 4.1.1 / JDK 21)的基础上,**新增 `extend-flowable` 子模块集成 Flowable 8.0.0 流程引擎**,并配齐流程建模 / 发起 / 审批的前端页面与菜单权限。
 
-> 当前分支:`springboot4` ——「**springboot3 + 后端 SB 3.5.16 → 4.1.1 升级**」。
-> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot4**。
+> 当前分支:`springboot4-extend-flowable`。
+> 与 `springboot4` 的**唯一区别**:多出 `extend-flowable` 模块 + 工作流前端页面/菜单 + 数据库 schema 换成 `basicdb_flowable8`;`springboot4` 自身的升级(Jackson 3 / Spring Security 7 / Jakarta 6 等)本分支**全部继承**,本文前半部分即这些内容。
+> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支。
 
 ---
 
@@ -64,12 +65,14 @@
 
 ## 二、本分支是什么
 
-`springboot4` 分支以 **`springboot3` 分支**为基线,只做了一件事:
+`springboot4-extend-flowable` = **`springboot4`(后端 SB 4.1.1 / JDK 21)+ `extend-flowable` 流程引擎模块**。
 
-> **把后端从 Spring Boot 3.5.16 一次性升级到 Spring Boot 4.1.1**,
-> 前端两端(`web-ui` / `web-mp`)、业务功能、数据库脚本**完全不动**。
+具体而言,本分支在 `springboot4` 之上只做了一件事:
 
-具体而言:
+> **新增 `extend-flowable` 子模块,集成 Flowable 8.0.0 流程引擎**,
+> 并把数据库 schema 换成 `basicdb_flowable8`、补上工作流的前端页面(建模 / 发起 / 审批 / 流程图 / 迁移)与 1500～1699 菜单权限。
+
+`springboot4` 那部分(JDK 17 → 21、SB 3.5.16 → 4.1.1、Jackson 2 → 3 等)**原样继承**,改动清单如下:
 
 1. **JDK 17 → 21**
 2. **Spring Boot 3.5.16 → 4.1.1**
@@ -129,9 +132,9 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 + tools.jackson.core:jackson-databind          ← 新增(Jackson 3 替换 Jackson 2)
 ```
 
-### 3.2 7 个子模块 `pom.xml`
+### 3.2 8 个子模块 `pom.xml`
 
-- 7 个子模块的 `parent.version` 从 `3.9.2` → **`4.0.0`**
+- 8 个子模块的 `parent.version` 从 `3.9.2` → **`4.0.0`**
 - `basic-common/pom.xml`:
   - `mybatis-plus-spring-boot3-starter` → `spring-boot4-starter`
   - `com.fasterxml.jackson.core:jackson-databind` → `tools.jackson.core:jackson-databind`
@@ -322,7 +325,7 @@ public <T> T getCacheObject(final String key) {
 | **前端 web-mp** | 与 `springboot3` 一致(uni-app 3 + uview-plus 3 + Vite 5.2.8,JS 版) |
 | **业务功能** | 锁屏解锁、SQL bug 修复等与 master 共同的改动全部继承 |
 | **数据库脚本** | `file-sql/basicdb-vue3.sql`(34 张表 + 5 函数,`basicdb` schema) |
-| **目录结构** | 7 个后端 maven module + `web-ui/` + `web-mp/` |
+| **目录结构** | 8 个后端 maven module + `web-ui/` + `web-mp/` |
 | **`application.yml` 数据源** | PostgreSQL `jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb` |
 | **Spring Security 5→6 改动** | `WebSecurityConfigurerAdapter` → `SecurityFilterChain` Bean、`antMatchers` → `requestMatchers` 等(SB 3 时代已做) |
 | **Jakarta EE 改造** | `javax.*` → `jakarta.*` 全部 import(SB 3 时代已做) |
@@ -338,7 +341,7 @@ public <T> T getCacheObject(final String key) {
 - [x] `cd web-mp && pnpm install` 拉依赖(移动端)
 - [ ] `pnpm dev` 验证 PC 端启动(`web-ui`)
 - [ ] `pnpm dev:h5` 验证移动端 H5 启动(`web-mp`)
-- [x] 7 个子模块 `parent.version` 一致为 **`4.0.0`** ★★ 与 master / `springboot3` 都不一样
+- [x] 8 个子模块 `parent.version` 一致为 **`4.0.0`** ★★ 与 master / `springboot3` 都不一样
 - [x] IDE 工程的 Project SDK 设为 **JDK 21**,Language level **21** ★★ 与 master / `springboot3` 都不一样
 - [x] `mvn clean compile` 0 ERROR
 - [x] `mvn package -DskipTests` 0 ERROR
@@ -366,7 +369,7 @@ public <T> T getCacheObject(final String key) {
 - [ ] `MyBatis-Plus 3.5.7 → 3.5.17` 跨多个小版本的中间变更未逐个核对,只测了用到的 API
 - [ ] `springdoc 2.9 → 3.1` 跨多个小版本的 OpenAPI Schema 兼容性未验证
 - [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数兼容性是否完全保留未测
-- [ ] 集成 Flowable 流程引擎(已经在 `master-extend-flowable` 分支做了)
+- [x] 集成 Flowable 流程引擎(Flowable **8.0.0** + 自定义表单,使用手册见 [docs/流程引擎使用说明.md](./docs/流程引擎使用说明.md))
 
 ---
 
@@ -381,7 +384,8 @@ public <T> T getCacheObject(final String key) {
 | `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
 | `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc;前端保持 JS |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
-| `springboot4_TypeScript` | **`springboot4` + 前端 TS 化**(本分支 + TS 版,最完整栈) |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化 |
+| `springboot4-extend-flowable` | **本分支**:`springboot4` + **Flowable 8.0.0** 流程引擎(新增 `extend-flowable` 子模块),含自定义表单(vform3)、bpmn-js 流程设计器、全链路工作流页面与菜单;数据库 schema `basicdb_flowable8` |
 
 > 本分支 `springboot4` ≈ `springboot3` + 后端 SB 升级,可以视作"`springboot3` 的 SB 4 升级版"。
 
@@ -488,8 +492,8 @@ pnpm build:app
 
 ## 十一、数据库脚本 (`file-sql/basicdb-vue3.sql`)
 
-> 本分支运行所需的 **PostgreSQL 全库结构 + 初始化数据** 都在 `file-sql/basicdb-vue3.sql`。
-> 其它 `file-sql/*.sql` 是历史中间产物,本分支**不直接使用**;真正要执行的就是这一个。
+> 本分支运行所需的 **PostgreSQL 全库结构 + 初始化数据** 都在 `file-sql/basicdb-vue3.sql`(schema `basicdb_flowable8`,含 Flowable 引擎表与工作流业务表)。
+> `file-sql/` 下现在只剩它和 `reset-admin-password.sql` 两个文件,其余历史脚本已清理(见 §11.7)。
 
 ### 11.1 脚本基本信息
 
@@ -498,20 +502,46 @@ pnpm build:app
 | 文件路径 | `file-sql/basicdb-vue3.sql` |
 | 来源 | `pg_dump` 导出(导出自 PostgreSQL 15.1,导出工具 pg_dump 17.0) |
 | 数据库角色 | 所有对象 `OWNER TO system`(导入前**必须**先有 `system` 角色) |
-| Schema | `basicdb`(脚本里所有表/函数/序列都在该 schema 下) |
-| 表数量 | **34 张**(`gen_*` 2 + `qrtz_*` 11 + `sys_*` 21) |
+| Schema | **`basicdb_flowable8`**(脚本里所有表/函数/序列都在该 schema 下,不是 `public`) |
+| 表数量 | **建表语句 90 张**;应用启动后实际 **92 张**(多出的 `list_table` / `list_column` 是后补的,见 §11.2) |
+| 表构成 | Flowable 引擎 `act_*` **39** + 事件/批处理 `flw_*` **7** + 工作流业务 `wf_*` **9** + `tbl_flow_extend_procinst` **1** + 若依 `sys_*` **21** + `qrtz_*` **11** + `gen_*` **2** + `list_*` **2** |
 | 函数数量 | 5 个(`date_format` / `exec` / `find_in_set` / `ifnull` / `tabledef`) |
 | 数据加载方式 | `COPY ... FROM stdin;`(原生 psql `\copy` 流式导入,**不**走 `INSERT`) |
 | PostgreSQL 要求 | **>= 15.1** |
 
-### 11.2 表清单(共 34 张,均位于 `basicdb` schema)
+### 11.2 表清单(共 92 张,均位于 `basicdb_flowable8` schema)
 
-#### 代码生成(`gen_*`,2 张)
+#### Flowable 引擎表(`act_*`,39 张)
 
-| 表 | 用途 |
-|---|---|
-| `gen_table` | 代码生成业务表配置 |
-| `gen_table_column` | 代码生成字段配置 |
+| 前缀 | 张数 | 用途 |
+|---|---|---|
+| `act_re_*` + `act_ge_*` + `act_procdef_info` | 6 | 部署、流程定义、模型、通用资源(含 BPMN XML / 流程图 PNG) |
+| `act_ru_*` | 13 | **运行中**:执行流、任务、变量、身份链接、各类作业(定时器 / 死信 / 挂起) |
+| `act_hi_*` | 10 | **历史**:实例、任务、节点、变量、意见、附件、身份链接 |
+| `act_id_*` | 9 | Flowable 自带 IDM 表。本项目已 `flowable.idm.enabled=false`,这些表**存在但不用** |
+| `act_evt_log` | 1 | 引擎事件日志 |
+
+#### 工作流业务表(`wf_*` 9 张 + `tbl_flow_extend_procinst` 1 张 + `flw_expression`)
+
+`wf_category` / `wf_category_org_link` / `wf_comment_info` / `wf_copy` / `wf_deploy_form` /
+`wf_form` / `wf_form_category` / `wf_form_template` / `wf_task_form` / `tbl_flow_extend_procinst` / `flw_expression`
+
+> 每张表的字段含义、对应界面与排查 SQL,见 [docs/流程引擎使用说明.md 第十一章](./docs/流程引擎使用说明.md#十一表数据对应关系)。
+
+#### 事件与批处理(`flw_*`,7 张)
+
+`flw_channel_definition` / `flw_event_definition` / `flw_event_deployment` / `flw_event_resource` /
+`flw_ru_batch` / `flw_ru_batch_part` / `flw_expression`(最后这张被本项目复用为「表达式字典」)
+
+#### 若依基础表(`sys_*`,21 张)
+
+`sys_config` / `sys_demo` / `sys_dept` / `sys_dict_data` / `sys_dict_type` / `sys_files` / `sys_i18n` /
+`sys_job` / `sys_job_log` / `sys_logininfor` / `sys_menu` / `sys_notice` / `sys_notice_read` /
+`sys_oper_log` / `sys_post` / `sys_role` / `sys_role_dept` / `sys_role_menu` / `sys_user` /
+`sys_user_post` / `sys_user_role`
+
+> `sys_menu` 含 `is_resource` / `show_tags` / `menu_name_en` / `menu_name_zh_hant` 等扩展列;
+> 工作流菜单在 1500～1699 区段(1 目录 + 11 页面 + 117 按钮)。
 
 #### 定时任务(`qrtz_*`,11 张)
 
@@ -519,55 +549,39 @@ pnpm build:app
 `qrtz_job_details` / `qrtz_locks` / `qrtz_paused_trigger_grps` / `qrtz_scheduler_state` /
 `qrtz_simple_triggers` / `qrtz_simprop_triggers` / `qrtz_triggers`
 
-#### 业务系统(`sys_*`,21 张)
+#### 代码生成与增补(`gen_*` 2 + `list_*` 2)
 
 | 表 | 用途 |
 |---|---|
-| `sys_config` | 全局参数 |
-| `sys_demo` | 演示样例 |
-| `sys_dept` | 部门 |
-| `sys_dict_data` | 字典值 |
-| `sys_dict_type` | 字典类型 |
-| `sys_files` | 文件 |
-| `sys_i18n` | 国际化文案 |
-| `sys_job` | 定时任务 |
-| `sys_job_log` | 定时任务日志 |
-| `sys_logininfor` | 登录日志 |
-| `sys_menu` | 菜单(含 `is_resource` / `show_tags` / `menu_name_en` / `menu_name_zh_hant` 等扩展列) |
-| `sys_notice` | 通知公告 |
-| `sys_oper_log` | 操作日志 |
-| `sys_post` | 岗位 |
-| `sys_role` | 角色 |
-| `sys_role_dept` | 角色-部门关联 |
-| `sys_role_menu` | 角色-菜单关联 |
-| `sys_sms_message` | 短信发送记录 |
-| `sys_user` | 用户 |
-| `sys_user_post` | 用户-岗位关联 |
-| `sys_user_role` | 用户-角色关联 |
+| `gen_table` | 代码生成业务表配置 |
+| `gen_table_column` | 代码生成字段配置 |
+| `list_table` / `list_column` | 后补的列表配置表(**不在 dump 的 90 张里**,当前库中存在) |
 
 ### 11.3 恢复步骤(全新数据库)
 
 ```bash
-# 1) 建 system 角色和 basicdb 库(SQL 脚本本身不建角色,必须先建好)
+# 1) 建 system 角色和库(SQL 脚本本身不建角色,必须先建好)
 psql -U postgres -h localhost -c "CREATE ROLE system LOGIN PASSWORD 'system';"
-psql -U postgres -h localhost -c "CREATE DATABASE basicdb OWNER system;"
+psql -U postgres -h localhost -c "CREATE DATABASE \"basicdb-vue3\" OWNER system;"
 
-# 2) 导入 schema + 数据
-psql -U system -h localhost -d basicdb -f file-sql/basicdb-vue3.sql
+# 2) 导入 schema + 数据(脚本内含 CREATE SCHEMA basicdb_flowable8,无需手工建 schema)
+psql -U system -h localhost -d basicdb-vue3 -f file-sql/basicdb-vue3.sql
 
-# 3) 验证(应返回 34)
-psql -U system -h localhost -d basicdb -c \
-  "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb';"
+# 3) 验证(应返回 90)
+psql -U system -h localhost -d basicdb-vue3 -c \
+  "SELECT count(*) FROM information_schema.tables WHERE table_schema='basicdb_flowable8';"
 ```
 
 如果本地 PostgreSQL 实例没有 `system` 角色,直接执行第 2 步会报
 `ERROR: role "system" does not exist`,补一步 1) 即可。
 
+> 库名里带 `-`,在 SQL 里引用要加双引号(`"basicdb-vue3"`);JDBC URL 里直接写 `basicdb-vue3` 即可。
+
 ### 11.4 重新备份成同款脚本
 
 ```bash
-pg_dump -U system -h localhost -d basicdb \
-  --schema=basicdb --no-owner --no-privileges \
+pg_dump -U system -h localhost -d basicdb-vue3 \
+  --schema=basicdb_flowable8 --no-owner --no-privileges \
   --file=file-sql/basicdb-vue3.sql
 ```
 
@@ -590,38 +604,128 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb
+    url: jdbc:postgresql://localhost:5432/basicdb-vue3?useSSL=false&currentSchema=basicdb_flowable8
     username: system
     password: system
+  flowable:
+    database-schema: basicdb_flowable8   # 必须与 currentSchema 一致
 ```
 
-> `currentSchema=basicdb` 必须加,否则 MyBatis 找不到 `sys_user` / `sys_menu` 等表
-> (脚本里所有表都建在 `basicdb` schema 下,不是 `public`)。
+> `currentSchema=basicdb_flowable8` 必须加,否则 MyBatis 找不到 `sys_user` / `sys_menu` 等表
+> (脚本里所有表都建在 `basicdb_flowable8` schema 下,不是 `public`)。
+> Flowable 的 `spring.flowable.database-schema` 也要写成同一个值,否则引擎建表/查表会落到别的 schema。
 
-### 11.7 其它 `file-sql/*.sql` 说明(本分支**不直接使用**,留作历史)
+### 11.7 `file-sql/` 目录现状
 
 | 文件 | 角色 |
 |---|---|
-| `basic-sql-2023-03-02.sql` | 早期 MySQL 5.7 全库脚本,**非 PostgreSQL**,本分支不要混用 |
-| `quartz.sql` | 单独的 Quartz 建表脚本,**已被 `basicdb-vue3.sql` 内置的 11 张 `qrtz_*` 表覆盖** |
-| `ry_20210908.sql` | RuoYi 3.8.2 原始 MySQL 全库脚本,**非 PostgreSQL**,对照用 |
+| `basicdb-vue3.sql` | **运行本项目只需要这一个**(含 `basicdb_flowable8` 全部 90 张表结构与初始化数据) |
 | `reset-admin-password.sql` | 把 `admin` 密码重置回 `admin123` 的小工具,按需手动跑 |
-| `reset-all-passwords.sql` | 把**所有**用户密码统一重置回默认的小工具,慎用 |
-| `fix-sys-menu-component.sql` | 修 `sys_menu.component` 路径里 `system` 写错的,按需手动跑 |
-| `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
+
+> 与 `master-extend-flowable` / 早期分支不同,本分支已经把 `basic-sql-2023-03-02.sql` / `quartz.sql` /
+> `ry_20210908.sql` / `reset-all-passwords.sql` / `fix-sys-menu-component.sql` / `create-sys-notice-read.sql`
+> 等历史中间脚本删掉了(`sys_notice_read` 表已并入主脚本);`flowable8-*.sql` 系列补丁脚本也已合并进主脚本。
 
 > 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
-> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
-> 本分支**仍保留**。)
 
 ---
 
-## 十二、目录速查
+## 十二、Flowable 流程引擎集成
+
+> 本章是**集成概览**;面向使用者的操作手册(怎么建模型、怎么配审批人、边界事件/迁移/清盘怎么用)见
+> **[docs/流程引擎使用说明.md](./docs/流程引擎使用说明.md)**。
+
+### 12.1 是什么
+
+本分支在 `springboot4` 基础上新增 `extend-flowable` 子模块,集成 **Flowable 8.0.0**,并配套一套自研的流程定制层与前端页面:
+
+| 层 | 内容 |
+|---|---|
+| 引擎 | Flowable 8.0.0(`flowable-spring-boot-starter-process`),只用它的 `RepositoryService` / `RuntimeService` / `TaskService` / `HistoryService` |
+| 定制层 | `extend-flowable/`(223 个 Java 文件):模型/部署/流程/任务/表单/分类/表达式/边界事件/迁移/清盘 |
+| 前端 | `web-ui/src/views/basic-extend/workflow/**`(21 个 vue)+ `web-ui/src/plugins/package/**`(bpmn-js 设计器、属性面板) |
+| 数据库 | schema **`basicdb_flowable8`**,92 张表(`act_*` 39 + `flw_*` 7 + `wf_*` 9 + `tbl_flow_extend_procinst` 1 + `sys_*` 21 + `qrtz_*` 11 + `gen_*` 2 + `list_*` 2) |
+
+### 12.2 与 `master-extend-flowable`(Flowable 6.8.0)的差异
+
+| 维度 | `master-extend-flowable` | 本分支 |
+|---|---|---|
+| 引擎 | Flowable 6.8.0 | **Flowable 8.0.0** |
+| 平台 | Spring Boot 2.5.14 + JDK 11 | Spring Boot **4.1.1** + JDK **21** |
+| schema | `basicdb_flowable`(86 张表 + 2 视图) | **`basicdb_flowable8`**(92 张表) |
+| 模型存储 | 设计器 **JSON**(`flowable-json-converter`) | Flowable 7 起移除该转换器,模型编辑器源改为 **BPMN XML**(`WfModelSaveXmlService` 写、`WfModelQueryXmlService` 读) |
+| 建模器表 | 有 `act_de_*` | **无 `act_de_*`**,模型只在 `act_re_model` + `act_ge_bytearray` |
+| 前端目录 | `views/workflow/**` | 按业务域重组为 **`views/basic-extend/workflow/**`** |
+| 前端依赖 | 旧版 bpmn-js | **bpmn-js 17.11.1** + `bpmn-js-properties-panel 5.28` + **vform3-builds 3.0.10** |
+
+### 12.3 模块结构(`extend-flowable/`)
+
+```
+extend-flowable/src/main/java/com/basic/
+├── constant/             # 节点扩展属性常量(ExtensionConstant)
+├── enm/                  # 流程/意见枚举
+├── flowable/             # 引擎级封装
+│   ├── common/           #   常量(ProcessConstants)、枚举(边界事件类型、流程状态、表单类型)
+│   ├── config/           #   引擎启动校验
+│   ├── flow/             #   流程图生成(自定义画布)、节点推导(FindNextNodeUtil)、Flowable 工具集
+│   ├── listener/         #   全局事件监听、到期监听、用户任务监听
+│   └── utils/            #   模型/表单/任务/安全 XML/ID 工具
+└── workflow/             # 业务层
+    ├── controller/       #   13 个 Controller(模型/部署/流程/任务/表单/分类/表达式/边界/迁移/清盘)
+    ├── service/          #   接口 + impl + wfModel(保存/部署/激活/删除)+ wfProcessInfo/wfProcessTask 细粒度子服务
+    ├── service/migrate/  #   运行中实例迁移(WfProcessMigratePlan / Result / Exception)
+    ├── cmd/              #   Flowable Command:动态注入用户任务、添加意见、回滚(RollbackCmd + 6 种策略)
+    ├── domain/           #   实体 / BO / VO
+    ├── mapper/           #   MyBatis-Plus Mapper(含直接操作 act_* 的 SQL)
+    └── handler|builder   #   多实例处理、动态任务构建
+```
+
+### 12.4 能力清单
+
+| 能力 | 说明 | 权限串(摘要) |
+|---|---|---|
+| 流程分类 / 模型 / 表单 / 表达式 | 增删改查与树形结构 | `workflow:category:*` / `workflow:model:*` / `workflow:form:*` / `workflow:expression:*` |
+| 建模即部署 | 设计器保存 BPMN XML → 合规校验 → 自动部署 | `workflow:model:save` / `deploy` |
+| 发起 / 审批 | 同意、驳回、退回、转办、委派、前加签、后加签、会签回退、终止、撤回、跳过节点、变更处理人 | `workflow:process:*` |
+| 抄送 | 随审批动作提交,「抄送我的」查看与标记已读 | `workflow:process:copyList` / `readCopy` |
+| 边界事件 | timer / message / signal / error / escalation / cancel / compensation / conditional 8 种;4 个外部触发接口 | `workflow:boundary:trigger` / `query` |
+| 流程迁移 | 把运行中实例迁到新流程定义(自动镜像 / 手动指定节点),事务内失败回滚 | `workflow:process:migrate` |
+| 流程清盘 | 一键清空全部流程数据(46 张表),两步确认 + 确认短语 | `workflow:process:clearAll` |
+| 废除 / 删除 | 终止 + 物理删除历史与业务数据 | `workflow:process:abolishProcess` / `deleteProcessByIds` |
+
+### 12.5 关键配置与坑
+
+```yaml
+spring:
+  flowable:
+    database-schema-update: true
+    history-level: audit
+    check-process-definitions: false
+    database-schema: basicdb_flowable8   # 必须与 JDBC currentSchema 一致
+    idm:
+      enabled: false                     # Flowable 7/8 的正确键,别写 flowable.common.app.idm-enabled
+    form-field-validation-enabled: false
+  main:
+    allow-circular-references: true      # extend-flowable 里 Wf*Service 相互依赖
+```
+
+| 坑 | 说明 |
+|---|---|
+| 配置键写错不报错 | Flowable 的键以 `spring-configuration-metadata.json` 为准,写错的键被**静默忽略**,以日志与表结构为准 |
+| `act_id_*` 表仍会建 | 即使 `idm.enabled: false`,历史版本或首次初始化仍可能建出 `act_id_*`(9 张),不影响运行 |
+| 模型是 BPMN XML | Flowable 8 没有 json-converter,旧分支导出的「模型 JSON」不能直接导入,要按 BPMN 2.0 XML 处理 |
+| 表单快照 | 审批读的是 `wf_deploy_form`,改了 `wf_form` 必须重新部署才对新实例生效 |
+
+---
+
+## 十三、目录速查
 
 ```
 base-postgresql-vue3/
-├── pom.xml                              # 父 pom(7 个后端子模块,无 web-mp)
+├── pom.xml                              # 父 pom(8 个后端子模块,无 web-mp)
 ├── README.md                            # 本文档
+├── docs/                                # 项目文档
+│   └── 流程引擎使用说明.md               # ★ Flowable 8 使用手册
 ├── ry.sh / ry.bat                       # RuoYi 启动脚本(原版遗留)
 ├── basic-admin-api/                     # Spring Boot 启动模块(SB 4.1.1)
 ├── basic-admin-core/                    # 业务核心(system 模块)
@@ -630,14 +734,14 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展(用 spring-boot-starter-quartz)
 ├── extend-generator/                    # 代码生成扩展
-├── extend-flowable/                     # (仅 master-extend-flowable 分支)
-├── file-sql/                            # SQL 脚本
+├── extend-flowable/                      # ★ Flowable 8 流程引擎(本分支新增)
+├── file-sql/                            # SQL 脚本(只需 basicdb-vue3.sql)
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
-├── web-ui/                              # PC 端前端(Vue3 + Element Plus,JavaScript)
+├── web-ui/                              # PC 端前端(Vue3 + Element Plus + bpmn-js + vform3,JavaScript)
 └── web-mp/                              # 移动端前端(uni-app3 + uview-plus,JavaScript)
 ```
 
-> **本分支与 `springboot3` 的差异**:仅后端从 SB 3.5.16(JDK 17 / Security 6 / Jackson 2 / Jakarta 5)
-> 升级到 SB 4.1.1(JDK 21 / Security 7 / **Jackson 3** / Jakarta 6);
-> 前端两端、SQL 脚本、`web-mp` 移动端、目录结构**完全相同**。
+> **本分支与 `springboot4` 的差异**:多出 `extend-flowable` 模块(含 13 个 Controller、流程设计与审批页面、
+> 1500～1699 菜单区段)与 `docs/流程引擎使用说明.md`;数据库 schema 换成 `basicdb_flowable8`。
+> `springboot4` 自身的后端升级(JDK 21 / SB 4.1.1 / Security 7 / Jackson 3 / Jakarta 6)本分支完全一致。

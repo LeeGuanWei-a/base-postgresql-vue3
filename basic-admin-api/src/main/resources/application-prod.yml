@@ -109,3 +109,15 @@ spring:
           max-active: 100
           # #连接池最大阻塞等待时间（使用负值表示没有限制）
           max-wait: -1ms
+
+# ============================================================
+# springdoc-openapi：生产环境关闭
+#   /v3/api-docs、/swagger-ui/** 在 SecurityConfig 里是 permitAll 的（联调方便），
+#   生产必须关掉，避免把全部接口清单和调试页面暴露给任何能访问端口的人。
+#   需要临时看文档时，用启动参数 --springdoc.api-docs.enabled=true 单独放开。
+# ============================================================
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

@@ -30,7 +30,12 @@ public class SysDeptController extends BaseController
     private ISysDeptService deptService;
 
     /**
-     * 获取部门列表
+     * @return AjaxResult 部门列表
+     * @description 按查询条件返回部门列表（扁平结构），前端据此拼装部门树
+     * @params [dept] 查询条件，含部门名称、状态、上级部门等
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:list')")
     @GetMapping("/list")
@@ -41,7 +46,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 查询部门列表（排除节点）
+     * @return AjaxResult 剔除指定部门及其所有下级后的部门列表
+     * @description 查询全部部门后剔除指定部门本身以及 ancestors 中包含它的部门，用于「上级部门」下拉避免出现环
+     * @params [deptId] 要排除的部门 id
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:list')")
     @GetMapping("/list/exclude/{deptId}")
@@ -62,7 +72,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 根据部门编号获取详细信息
+     * @return AjaxResult 部门详细信息
+     * @description 先校验部门数据权限，再按部门 id 返回详情
+     * @params [deptId] 部门 id
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:query')")
     @GetMapping(value = "/{deptId}")
@@ -73,7 +88,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 获取部门下拉树列表
+     * @return AjaxResult 部门下拉树，节点含 id、label 与 children
+     * @description 按查询条件取部门列表并构造成树形下拉数据，供前端选择上级部门
+     * @params [dept] 查询条件，含部门名称、状态等
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @GetMapping("/treeselect")
     public AjaxResult treeselect(SysDept dept)
@@ -83,8 +103,14 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 加载对应角色部门列表树
+     * @return AjaxResult 含 checkedKeys（角色已勾选的部门 id）与 depts（完整部门树）
+     * @description 返回角色数据权限配置页所需的「已选部门」与「全部部门树」两部分数据
+     * @params [roleId] 角色 id
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
+    @PreAuthorize("@ss.hasPermi('system:role:query')")
     @GetMapping(value = "/roleDeptTreeselect/{roleId}")
     public AjaxResult roleDeptTreeselect(@PathVariable("roleId") Long roleId)
     {
@@ -96,7 +122,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 新增部门
+     * @return AjaxResult 新增结果，部门名称重复时返回错误提示
+     * @description 先校验部门名称唯一，再写入创建人并新增部门
+     * @params [dept] 部门对象，部门名称、上级部门、显示顺序等必填
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
     @Log(title = "部门管理", businessType = BusinessType.INSERT)
@@ -112,7 +143,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 修改部门
+     * @return AjaxResult 修改结果，校验不通过时返回具体错误提示
+     * @description 依次校验数据权限、部门名称唯一、上级不能是自己、停用时不能仍有未停用子部门，再写入修改人与部门
+     * @params [dept] 部门对象，主键必填
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
     @Log(title = "部门管理", businessType = BusinessType.UPDATE)
@@ -138,7 +174,12 @@ public class SysDeptController extends BaseController
     }
 
     /**
-     * 删除部门
+     * @return AjaxResult 删除结果，存在下级部门或部门下仍有用户时拒绝删除
+     * @description 删除部门前校验下级部门与部门内用户，再校验数据权限后删除
+     * @params [deptId] 部门 id
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @PreAuthorize("@ss.hasPermi('system:dept:remove')")
     @Log(title = "部门管理", businessType = BusinessType.DELETE)

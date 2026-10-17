@@ -89,6 +89,91 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  // ==================== 工作流 hidden 路由（操作型页面，不在侧边栏显示）====================
+  {
+    path: '/workflow/category/dataForm',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/category/dataForm'),
+        name: 'WfCategoryForm',
+        meta: { title: '流程分类表单', activeMenu: '/workflow/category' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/model/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/model/design'),
+        name: 'WfModelDesign',
+        meta: { title: '流程设计器', activeMenu: '/workflow/model' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/process/start',
+    component: Layout,
+    // 兼容两种访问方式：
+    // 1) 从「流程模型」列表点「发起」按钮进入（隐藏路由，activeMenu 指向 /workflow/model）
+    // 2) 直接点左侧菜单「测试启动流程」进入（独立菜单项，由后端菜单数据驱动）
+    // activeMenu 留空，让前端按实际路由路径自动匹配高亮
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/process/start'),
+        name: 'WfProcessStart',
+        meta: { title: '测试启动流程', activeMenu: '' }
+      }
+    ]
+  },
+  {
+    // 流程迁移：菜单靠 sys_menu 驱动（parent_id=1500 流程引擎下）。
+    // router 这条只作路由占位 + activeMenu 高亮跟随流程引擎，不在左侧菜单独立显示。
+    path: '/workflow/migrate',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/migrate/index'),
+        name: 'WfProcessMigrate',
+        meta: { title: '流程迁移', activeMenu: '/workflow' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/process/detail',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/process/detail'),
+        name: 'WfProcessDetail',
+        meta: { title: '流程详情', activeMenu: '/workflow/task/todo' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/form/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/form/design'),
+        name: 'WfFormDesign',
+        meta: { title: '表单设计器', activeMenu: '/workflow/form' }
+      }
+    ]
   }
 ]
 

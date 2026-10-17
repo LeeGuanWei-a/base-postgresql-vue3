@@ -1,0 +1,361 @@
+package com.basic.workflow.cmd.rollBack.impl;
+
+
+import com.basic.workflow.cmd.rollBack.AbstractRollbackOperateStrategy;
+import com.basic.workflow.cmd.rollBack.RollbackConstants;
+import com.basic.workflow.cmd.rollBack.RollbackParamsTemplate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.flowable.common.engine.impl.interceptor.CommandContext;
+import org.flowable.engine.impl.bpmn.behavior.MultiInstanceActivityBehavior;
+import org.flowable.engine.impl.bpmn.behavior.SequentialMultiInstanceBehavior;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
+import org.flowable.engine.impl.util.CommandContextUtil;
+import org.flowable.task.api.Task;
+import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.task.service.impl.HistoricTaskInstanceQueryImpl;
+import org.flowable.task.service.impl.persistence.entity.HistoricTaskInstanceEntity;
+import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.flowable.variable.service.impl.HistoricVariableInstanceQueryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
+/**
+ * @description 会签任务回滚策略，针对正在执行中的多实例会签节点重建执行与任务，并同步处理子流程内的实例
+ * @author Zengjunlong
+ * @date 15:37 2024/3/7
+ */
+@Slf4j
+public class ActiveMultiInstanceTaskRollbackOperateStrategy extends AbstractRollbackOperateStrategy {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(NextDefaultUserTaskRollbackOperateStrategy.class);
+
+    /**
+     * @description 用回滚参数模板构造策略，用于撤回正在执行中的会签任务
+     * @params [paramsTemplate] 回滚参数模板，含历史任务与当前节点元素
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    public ActiveMultiInstanceTaskRollbackOperateStrategy(RollbackParamsTemplate paramsTemplate) {
+        super(paramsTemplate);
+    }
+
+    boolean isSequential = false;
+
+    /**
+     * 会签任务 单个执行人 表达式
+     */
+    private String assigneeExpr = "assignee";
+
+    /**
+     * 会签任务 集合 表达式
+     */
+    private String assigneeListExpr = "assigneeList";
+
+    /**
+     * @description 绑定命令上下文与处理人，判定会签是串行还是并行后创建回滚执行实例
+     * @params [commandContext, assignee, variables] 当前命令上下文；回滚后重新指派的处理人；回滚需要写入的流程变量
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    @Override
+    public void process(CommandContext commandContext, String assignee, Map<String, Object> variables) {
+
+        this.commandContext = commandContext;
+        this.assignee = assignee;
+        this.variables = variables;
+
+        // 串行会签
+        if (paramsTemplate.getCurrentTaskElement().getBehavior() instanceof SequentialMultiInstanceBehavior) {
+            isSequential = true;
+        } else if (paramsTemplate.getCurrentTaskElement().getBehavior() instanceof MultiInstanceActivityBehavior) {
+            isSequential = false;
+        }
+
+        LOGGER.info("创建实例");
+        createExecution();
+    }
+
+    /**
+     * @description 覆盖会签任务默认使用的单个执行人与执行人集合变量名
+     * @params [assigneeExpr, assigneeListExpr] 单个执行人变量名；执行人集合变量名
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    @Override
+    public void setAssigneeExpr(String assigneeExpr, String assigneeListExpr) {
+        this.assigneeExpr = assigneeExpr;
+        this.assigneeListExpr = assigneeListExpr;
+    }
+
+    /**
+     * @description 查出当前会签节点的运行任务，确认尚未全部完成后按串行或并行分流创建回滚执行实例
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    @Override
+    public void createExecution() {
+
+        HistoricTaskInstance hisTask = paramsTemplate.getHisTask();
+        List<Task> currentTaskList =  taskService.createTaskQuery()
+                .processInstanceId(hisTask.getProcessInstanceId())
+                .taskDefinitionKey(hisTask.getTaskDefinitionKey())
+                .list();
+
+        if (currentTaskList.isEmpty()) {
+            String msg = "当前会签任务已经完成";
+            throw new RuntimeException(msg);
+        }
+
+        if (!isSequential) {
+            LOGGER.info("处理并行会签");
+            processMultiInstance();
+        } else {
+            LOGGER.info("处理串行会签");
+            processSequentialInstance();
+        }
+
+
+    }
+
+    /**
+     * @description 回退串行会签：先校验其后没有已完成的线性任务，再按是否已生成下一节点分别回退计数器并重建任务
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    private void processSequentialInstance() {
+
+        HistoricTaskInstance hisTask = paramsTemplate.getHisTask();
+        // 确认是否具有下一线性完成任务
+        existNextFinishedTask(hisTask);
+
+        // 进行任务回退操作
+        ExecutionEntity executionEntity = processCommon(hisTask);
+
+
+        if (executionEntity.getId().equals(hisTask.getExecutionId())) {
+            log.info("未生成过下一节点");
+
+            // 移除正在执行任务
+            List<TaskEntity> taskEntityList = CommandContextUtil.getTaskService(commandContext).findTasksByExecutionId(executionEntity.getId());
+            taskEntityList.forEach(obj -> {
+                LOGGER.info("移除正在当前任务记录 [ id = " + obj.getId() + " ] ");
+                CommandContextUtil.getTaskService(commandContext).deleteTask(obj, true);
+                HistoricTaskInstance historicTaskInstance = CommandContextUtil.getHistoricTaskService(commandContext).getHistoricTask(obj.getId());
+                CommandContextUtil.getHistoricTaskService(commandContext).deleteHistoricTask((HistoricTaskInstanceEntity) historicTaskInstance);
+            });
+
+            // 配置任务执行人
+            executionEntity.setVariable(assigneeExpr, assignee);
+            // 计数器前置一位
+            int loopCounter = (int) executionEntity.getVariable(RollbackConstants.MultiInstanceConstants.LOOP_COUNTER);
+            executionEntity.setVariable(RollbackConstants.MultiInstanceConstants.LOOP_COUNTER, loopCounter - 1);
+            // 将任务重新激活
+            executionEntity.setActive(true);
+            // 创建新任务
+            CommandContextUtil.getAgenda(commandContext).planContinueProcessInCompensation(executionEntity);
+        } else {
+            log.info("已生成过下一任务节点,无法找到当前 execution");
+
+            List<Task> taskList =  taskService.createTaskQuery()
+                    .processInstanceId(hisTask.getProcessInstanceId())
+                    .taskCreatedAfter(hisTask.getEndTime())
+                    .list();
+
+            Task currentTask = taskList.get(0);
+
+            Integer currentLoopCounter = (Integer) runtimeService.getVariableLocal(currentTask.getExecutionId(), RollbackConstants.MultiInstanceConstants.LOOP_COUNTER);
+            Object list =  runtimeService.getVariable(currentTask.getExecutionId(), assigneeListExpr);
+            String a = list.toString()
+                .replaceAll("[\\[\\]\\s]", ""); // 同时移除方括号和所有空白字符// 使用正则表达式同时移除左右方括号
+            List<String> assigneeList = Arrays.asList(a.split(","));
+            if (StringUtils.isEmpty(hisTask.getAssignee())) {
+                throw new RuntimeException("没有找到历史任务执行人,无法进行 执行顺序判断");
+            }
+
+            int index = assigneeList.indexOf(hisTask.getAssignee());
+            if (index == -1) {
+                throw new RuntimeException("执行人不存在于初始参数,无法进行 执行顺序判断");
+            }
+
+            if (index != currentLoopCounter - 1) {
+                throw new RuntimeException("任务执行人不是 当前执行人的前位 , 不合法回退");
+            }
+            // 持久化变量
+            assigneeList.set(index, assignee);
+            runtimeService.setVariableLocal(currentTask.getProcessInstanceId(), assigneeListExpr, assigneeList);
+
+            // 修改变量
+            ExecutionEntity newExecution = CommandContextUtil.getExecutionEntityManager(commandContext).findById(currentTask.getExecutionId());
+            newExecution.setVariableLocal(RollbackConstants.MultiInstanceConstants.LOOP_COUNTER, currentLoopCounter - 1);
+            newExecution.setVariableLocal(assigneeExpr, assignee);
+
+            // 创建新任务
+            CommandContextUtil.getAgenda(commandContext).planContinueMultiInstanceOperation(newExecution, executionEntity, currentLoopCounter - 1);
+            // 移除当前任务
+            CommandContextUtil.getTaskService(commandContext).deleteTask((TaskEntity) currentTask, true);
+            // 移除历史任务
+            HistoricTaskInstance historicTaskInstance = CommandContextUtil.getHistoricTaskService(commandContext).getHistoricTask(currentTask.getId());
+            CommandContextUtil.getHistoricTaskService(commandContext).deleteHistoricTask((HistoricTaskInstanceEntity) historicTaskInstance);
+        }
+
+        // 移除当前历史任务
+        removeHisTask(hisTask);
+//        historyActivityInstanceMapper.deleteHisActinst(hisTask.getProcessInstanceId(),hisTask.getId());
+//        historyActivityInstanceMapper.deleteHisIdentitylink(hisTask.getId());
+//        historyActivityInstanceMapper.deleteToCommentForTaskId(hisTask.getId());
+//        historyActivityInstanceMapper.deleteTaskForm(hisTask.getId(),hisTask.getTaskDefinitionKey());
+    }
+
+    /**
+     * @description 校验同一会签节点之后是否已有完成的线性任务，存在时抛出异常禁止回退
+     * @params [hisTask] 待回滚的历史任务
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    public void existNextFinishedTask(HistoricTaskInstance hisTask) {
+
+        List<HistoricTaskInstance> list = CommandContextUtil.getHistoricTaskService().findHistoricTaskInstancesByQueryCriteria(
+                (HistoricTaskInstanceQueryImpl) new HistoricTaskInstanceQueryImpl()
+                        .processInstanceId(hisTask.getProcessInstanceId())
+                        .taskDefinitionKey(hisTask.getTaskDefinitionKey())
+                        .finished()
+                        .taskCompletedAfter(hisTask.getEndTime())
+        );
+
+        if (!list.isEmpty()) {
+            String msg = "串行会签回滚，已经具有下一线性完成任务,无法进行任务回退";
+            LOGGER.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+    }
+
+
+    /**
+     * @description 回退并行会签：找到对应循环序号的执行实例并重置指派人与计数器，重建任务后清理历史任务与表单数据
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    private void processMultiInstance() {
+        HistoricTaskInstance hisTask = paramsTemplate.getHisTask();
+
+        // 通用操作部分
+        ExecutionEntity executionEntity = processCommon(hisTask);
+
+        // 未生成过下一节点
+        if (executionEntity.getId().equals(hisTask.getExecutionId())) {
+            log.info("未生成过下一节点");
+            // 配置任务执行人
+            executionEntity.setVariable(assigneeExpr, assignee);
+            // 将任务重新激活
+            executionEntity.setActive(true);
+            // 创建新任务
+            CommandContextUtil.getAgenda(commandContext).planContinueProcessInCompensation(executionEntity);
+        } else {
+            log.info("已生成过下一任务节点,无法找到当前 execution");
+
+            List<HistoricVariableInstance> historicVariableInstanceList = CommandContextUtil.getHistoricVariableService().findHistoricVariableInstancesByQueryCriteria(
+                    new HistoricVariableInstanceQueryImpl()
+                            .processInstanceId(hisTask.getProcessInstanceId())
+                            .executionId(hisTask.getExecutionId())
+            );
+
+            Map<String, Object> hisVarMap = historicVariableInstanceList.stream().collect(Collectors.toMap(HistoricVariableInstance::getVariableName, item -> item.getValue()));
+
+            // 流程执行变量
+            Integer loopCounter = (Integer) hisVarMap.get(RollbackConstants.MultiInstanceConstants.LOOP_COUNTER);
+
+            List<ExecutionEntity> executionEntities = CommandContextUtil.getExecutionEntityManager(commandContext)
+                    .findChildExecutionsByParentExecutionId(executionEntity.getId());
+
+            List<ExecutionEntity> linkExecutions = executionEntities.stream()
+                    .filter(obj -> {
+                        if (!obj.isActive()) {
+                            Integer currentLoopCounter = (Integer) obj.getVariable(RollbackConstants.MultiInstanceConstants.LOOP_COUNTER);
+                            if (currentLoopCounter.equals(loopCounter)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).collect(Collectors.toList());
+
+            if (linkExecutions.isEmpty()) {
+                throw new RuntimeException("没有找到映射节点");
+            }
+
+            ExecutionEntity newExecution = linkExecutions.get(0);
+
+            newExecution.setCurrentFlowElement(paramsTemplate.getCurrentTaskElement());
+            newExecution.setActive(true);
+            newExecution.setVariables(hisVarMap);
+            newExecution.setVariable(assigneeExpr, assignee);
+
+            // 创建新任务
+            CommandContextUtil.getAgenda(commandContext).planContinueMultiInstanceOperation(newExecution, executionEntity, loopCounter);
+        }
+
+        // 移除当前历史任务
+        removeHisTask(hisTask);
+
+//        historyActivityInstanceMapper.deleteHisActinst(hisTask.getProcessInstanceId(),hisTask.getId());
+        historyActivityInstanceMapper.deleteHisIdentitylink(hisTask.getId());
+        historyActivityInstanceMapper.deleteToCommentForTaskId(hisTask.getId());
+        historyActivityInstanceMapper.deleteTaskForm(hisTask.getId(),hisTask.getTaskDefinitionKey());
+
+    }
+
+
+    /**
+     * @return ExecutionEntity 会签节点的父执行实例
+     * @description 取历史任务对应的执行实例，找不到时用其后创建的任务兜底，并把父执行的活跃计数加一、完成计数减一
+     * @params [hisTask] 待回滚的历史任务
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    private ExecutionEntity processCommon(HistoricTaskInstance hisTask) {
+
+
+        ExecutionEntity executionEntity = CommandContextUtil
+                .getExecutionEntityManager(commandContext).findById(hisTask.getExecutionId());
+
+        if (null == executionEntity) {
+            LOGGER.error("没有找到历史任务[ executionId = " + hisTask.getExecutionId() + " ]");
+
+            List<Task> taskEntityList =  taskService.createTaskQuery()
+                    .processInstanceId(hisTask.getProcessInstanceId())
+                    .taskCreatedAfter(hisTask.getEndTime())
+                    .list();
+
+
+            executionEntity = CommandContextUtil.getExecutionEntityManager(commandContext).findById(taskEntityList.get(0).getExecutionId());
+        }
+
+        ExecutionEntity parentExecutionEntity = CommandContextUtil
+                .getExecutionEntityManager(commandContext).findById(executionEntity.getParentId());
+
+        /**
+         *  将计数器 进行 前移
+         */
+        int nrOfActiveInstances = (int) parentExecutionEntity.getVariable(RollbackConstants.MultiInstanceConstants.NR_OF_ACTIVE_INSTANCES);
+        int nrOfCompletedInstances = (int) parentExecutionEntity.getVariable(RollbackConstants.MultiInstanceConstants.NR_OF_COMPLETE_INSTANCES);
+
+        runtimeService.setVariable(parentExecutionEntity.getId(), RollbackConstants.MultiInstanceConstants.NR_OF_ACTIVE_INSTANCES, nrOfActiveInstances + 1);
+        runtimeService.setVariable(parentExecutionEntity.getId(), RollbackConstants.MultiInstanceConstants.NR_OF_COMPLETE_INSTANCES, nrOfCompletedInstances - 1);
+
+        return parentExecutionEntity;
+    }
+}

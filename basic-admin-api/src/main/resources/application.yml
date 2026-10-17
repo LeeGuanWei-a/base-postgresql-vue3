@@ -22,8 +22,15 @@ spring:
   messages:
     # 国际化资源文件路径
     basename: i18n/messages
-  profiles: 
+  profiles:
     active: dev
+  # 允许循环引用
+  # 背景：参考分支 master-extend-flowable 基于 Flowable 6 + Spring Boot 2 平台，
+  # 大量 Wf*Service / Wf*ServiceImpl 之间存在构造器 / @Resource 循环依赖（A 持有 B 字段，B 也持有 A 字段）。
+  # Spring Boot 3+ 默认禁止循环引用导致启动失败，临时打开此开关恢复 Spring 5 行为。
+  # 后续 PR 重构这些 Service 之间的依赖关系时再移除。
+  main:
+    allow-circular-references: true
   # 文件上传
   servlet:
      multipart:
@@ -46,6 +53,33 @@ spring:
     locale: zh
     # 设置全局时区
     time-zone: GMT+8
+
+# ============================================================
+# Flowable 8.0 流程引擎配置
+# 说明：Flowable 8 的可用配置键以 flowable-spring-boot-autoconfigure 8.0.0 的
+#      spring-configuration-metadata.json 为准，写错的键会被 Spring 静默忽略。
+# 联调环境用 database-schema-update: true 自动建表；生产请改为 false 并用
+#      file-sql/basicdb-vue3-flowable8.sql 初始化。
+# ============================================================
+flowable:
+  # 启动时检查/同步表结构：true=自动建表/增量更新；false=不检查
+  database-schema-update: true
+  # 历史级别（audit：流程实例 + 变量 + 表单属性）
+  history-level: audit
+  # 关闭"自动部署 resources/processes 下的 BPMN"——本仓库没有该目录
+  check-process-definitions: false
+  # 锁定 Flowable 表归属的 schema，与 JDBC URL 的 currentSchema 保持一致
+  database-schema: basicdb_flowable8
+  # 关闭 Flowable 自带的 IDM（用户/角色/权限表）。
+  # 注意：Flowable 7/8 的正确键是 flowable.idm.enabled；
+  #      历史写法 flowable.common.app.idm-enabled 是无效键（会被静默忽略，仍会建 ACT_ID_* 表）。
+  #      已建出来的 ACT_ID_* 表不影响运行，可保留，也可手工删除。
+  idm:
+    enabled: false
+  # 关闭 Form Service 的字段强校验（业务侧 wf_form 走自定义 JSON 校验）
+  form-field-validation-enabled: false
+  # 说明：Flowable 8 的 REST 端点由独立的 flowable-spring-boot-starter-rest-api 提供，
+  #      本项目不引入该 starter，因此无需（也没有）*-rest-api-enabled 这类开关。
 
 # token配置
 token:
@@ -112,7 +146,7 @@ springdoc:
     tags-sorter: alpha
 
 # 防止XSS攻击
-xss: 
+xss:
   # 过滤开关
   enabled: true
   # 排除链接（多个用逗号分隔）

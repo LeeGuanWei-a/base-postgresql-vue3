@@ -29,7 +29,7 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:postgresql://192.168.170.125:54321/basicdb-vue3?useSSL=false&currentSchema=basicdb
+        url: jdbc:postgresql://192.168.170.125:54321/basicdb-vue3?useSSL=false&currentSchema=basicdb_flowable8
         username: system
         password: '12354'
         validationQuery: SELECT 1
@@ -64,8 +64,9 @@ spring:
         enabled: false
       statViewServlet:
         enabled: true
-        # 设置白名单，不填则允许所有访问
-        allow:
+        # 设置白名单，不填则允许所有访问。默认只放行本机：
+        # /druid/** 在 SecurityConfig 里是 permitAll 的，若这里再留空，等于把 SQL 监控面板暴露给任何能访问端口的人
+        allow: 127.0.0.1,::1
         url-pattern: /druid/*
         # 控制台管理用户名和密码
         login-username: basic

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfDeployFormMapper">
+
+    <resultMap type="com.basic.workflow.domain.WfDeployForm" id="WfDeployFormResult">
+        <result property="deployId" column="deploy_id"/>
+        <result property="formId" column="form_id"/>
+        <result property="activityId" column="activity_id"/>
+        <result property="formName" column="form_name"/>
+        <result property="activityName" column="activity_name"/>
+        <result property="activityType" column="activity_type"/>
+        <result property="modelKey" column="model_key"/>
+        <result property="content" column="content"/>
+    </resultMap>
+    <!--    根据部署deployId删除流程部署表单信息-->
+    <delete id="deleteDeployFormForDeployId">
+    delete from wf_deploy_form where deploy_id = #{deployId}
+    </delete>
+
+</mapper>

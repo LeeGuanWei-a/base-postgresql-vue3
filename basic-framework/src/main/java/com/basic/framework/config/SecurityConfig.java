@@ -66,7 +66,12 @@ public class SecurityConfig {
     private PermitAllUrlProperties permitAllUrl;
 
     /**
-     * 解决无法直接注入 AuthenticationManager
+     * @return AuthenticationManager Spring Security 的认证管理器实例
+     * @description 从认证配置中取出容器已构建的 AuthenticationManager 并暴露为 Bean
+     * @params [authenticationConfiguration] Spring Security 认证配置
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -74,19 +79,16 @@ public class SecurityConfig {
     }
 
     /**
-     * anyRequest          |   匹配所有请求路径
-     * access              |   SpringEl表达式结果为true时可以访问
-     * anonymous           |   匿名可以访问
-     * denyAll             |   用户不能访问
-     * fullyAuthenticated  |   用户完全认证可以访问（非remember-me下自动登录）
-     * hasAnyAuthority     |   如果有参数，参数表示权限，则其中任何一个权限可以访问
-     * hasAnyRole          |   如果有参数，参数表示角色，则其中任何一个角色可以访问
-     * hasAuthority        |   如果有参数，参数表示权限，则其权限可以访问
-     * hasIpAddress        |   如果有参数，参数表示IP地址，如果用户IP和参数匹配，则可以访问
-     * hasRole             |   如果有参数，参数表示角色，则其角色可以访问
-     * permitAll           |   用户可以任意访问
-     * rememberMe          |   允许通过remember-me登录的用户访问
-     * authenticated       |   用户登录后可访问
+     * @return SecurityFilterChain Spring Security 过滤器链
+     * @description 关闭 csrf 与缓存标头、改用无状态 session，放行匿名地址并对剩余请求要求鉴权，同时挂载 JWT、跨域与退出过滤器
+     * 常用请求匹配器：anyRequest 匹配所有路径；permitAll 任意访问；anonymous 匿名可访问；denyAll 拒绝所有用户；
+     * authenticated 登录后可访问；rememberMe 允许 remember-me 登录用户访问；fullyAuthenticated 需完全认证（非 remember-me 自动登录）；
+     * hasAuthority / hasAnyAuthority 按权限判定；hasRole / hasAnyRole 按角色判定；hasIpAddress 按请求 IP 判定；
+     * access 用 SpringEl 表达式判定，表达式为 true 时可访问。
+     * @params [httpSecurity] Spring Security 的 HttpSecurity 构建器
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -105,7 +107,7 @@ public class SecurityConfig {
                         permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                     }
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
-                    requests.requestMatchers("/login", "/register", "/captchaImage", "/monitor/shutdown").permitAll()
+                    requests.requestMatchers("/login", "/register", "/captchaImage").permitAll()
                             // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.html", "/**/*.css", "/**/*.js", "/profile/**").permitAll()
                             // springdoc-openapi
@@ -124,7 +126,11 @@ public class SecurityConfig {
     }
 
     /**
-     * 强散列哈希加密实现
+     * @return BCryptPasswordEncoder BCrypt 强散列加密器
+     * @description 创建 BCrypt 强散列哈希加密实现并注册为 Bean
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
      */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {

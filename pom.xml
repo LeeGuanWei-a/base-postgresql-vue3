@@ -34,6 +34,9 @@
         <jwt.version>0.9.1</jwt.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <springdoc.version>3.1.1</springdoc.version>
+
+        <!-- Flowable 流程引擎版本（Flowable 8.0 要求 Spring Boot 4 + Java 17+，本仓库已满足） -->
+        <flowable.version>8.0.0</flowable.version>
     </properties>
 
     <!-- 依赖声明（dependencyManagement 与 base-agent-platform-keycloak 3.9.2 对齐） -->
@@ -210,6 +213,13 @@
                 <version>${basic.version}</version>
             </dependency>
 
+            <!-- 流程引擎 -->
+            <dependency>
+                <groupId>com.basic</groupId>
+                <artifactId>extend-flowable</artifactId>
+                <version>${basic.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -220,6 +230,7 @@
         <module>basic-common</module>
         <module>extend-quartz</module>
         <module>extend-generator</module>
+        <module>extend-flowable</module>
         <module>business-core</module>
     </modules>
     <packaging>pom</packaging>
