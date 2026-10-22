@@ -28,6 +28,10 @@ import com.basic.framework.manager.factory.AsyncFactory;
 import com.basic.system.service.ISysConfigService;
 import com.basic.system.service.ISysUserService;
 
+import cloud.tianai.captcha.application.ImageCaptchaApplication;
+import cloud.tianai.captcha.common.response.ApiResponse;
+import cloud.tianai.captcha.validator.common.model.dto.ImageCaptchaTrack;
+
 /**
  * 登录校验方法
  * 
@@ -51,22 +55,26 @@ public class SysLoginService
     @Autowired
     private ISysConfigService configService;
 
+    @Autowired
+    private cloud.tianai.captcha.application.ImageCaptchaApplication imageCaptchaApplication;
+
     /**
-     * 登录验证
-     * 
-     * @param username 用户名
-     * @param password 密码
-     * @param code 验证码
-     * @param uuid 唯一标识
-     * @return 结果
+     * 登录验证(行为验证码 tianai-captcha 版本)
+     *
+     * @param username    用户名
+     * @param password    密码
+     * @param code        行为验证码 id(由 /captchaImage 返回的 uuid;兼容老 kaptcha 接口,作为占位符)
+     * @param uuid        行为验证码 id(同 code;保留旧字段兼容)
+     * @param captchaData 行为验证码轨迹 JSON 字符串(ImageCaptchaTrack);4 种类型都用该字段
+     * @return 登录成功后的 token
      */
-    public String login(String username, String password, String code, String uuid)
+    public String login(String username, String password, String code, String uuid, String captchaData)
     {
         boolean captchaOnOff = configService.selectCaptchaOnOff();
         // 验证码开关
         if (captchaOnOff)
         {
-            validateCaptcha(username, code, uuid);
+            validateTianaiCaptcha(username, uuid, captchaData);
         }
         // 用户验证
         Authentication authentication = null;
@@ -135,28 +143,72 @@ public class SysLoginService
     }
 
     /**
-     * 校验验证码
+     * 校验行为验证码(tianai-captcha)
      *
-     * @param username 用户名
-     * @param code 验证码
-     * @param uuid 唯一标识
-     * @return 结果
+     * @param username    用户名(用于登录失败日志)
+     * @param captchaId   验证码 id(由 /captchaImage 返回的 uuid)
+     * @param captchaData 行为验证码轨迹数据 JSON 字符串(ImageCaptchaTrack 序列化结果)
      */
-    public void validateCaptcha(String username, String code, String uuid)
+    public void validateTianaiCaptcha(String username, String captchaId, String captchaData)
     {
-        String verifyKey = Constants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
-        String captcha = redisCache.getCacheObject(verifyKey);
-        redisCache.deleteObject(verifyKey);
-        if (captcha == null)
+        if (StringUtils.isEmpty(captchaId))
         {
-            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire")));
+            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, "行为验证码 id 缺失"));
             throw new CaptchaExpireException();
         }
-        if (!code.equalsIgnoreCase(captcha))
+        if (StringUtils.isEmpty(captchaData))
         {
-            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.error")));
+            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, "行为验证码轨迹缺失"));
+            throw new CaptchaExpireException();
+        }
+
+        // /captcha/check 已经用 matching() 校验过一次(会消费验证码缓存), 并写下 verified 标记.
+        // 这里若命中标记则直接放行并删除, 保证同一个验证码只能用一次.
+        String verifiedKey = "captcha:verified:" + captchaId;
+        try
+        {
+            Object verifiedFlag = redisCache.getCacheObject(verifiedKey);
+            if (verifiedFlag != null)
+            {
+                redisCache.deleteObject(verifiedKey);
+                return;
+            }
+        }
+        catch (Exception ignore)
+        {
+            // redis 不可用时走下面的 matching 兜底
+        }
+
+        ImageCaptchaTrack track;
+        try
+        {
+            track = jsonToTrack(captchaData);
+        }
+        catch (Exception e)
+        {
+            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, "行为验证码轨迹解析失败"));
             throw new CaptchaException();
         }
+
+        ApiResponse<?> result = imageCaptchaApplication.matching(captchaId, track);
+        if (result == null || !result.isSuccess())
+        {
+            String msg = (result != null && result.getMsg() != null) ? result.getMsg() : MessageUtils.message("user.jcaptcha.error");
+            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, msg));
+            throw new CaptchaException();
+        }
+    }
+
+    /**
+     * 把前端提交的轨迹 JSON 字符串反序列化为 ImageCaptchaTrack
+     * 使用 Jackson(项目默认在 spring-web 里)以兼容 application/json 格式
+     */
+    private ImageCaptchaTrack jsonToTrack(String json) throws java.io.IOException
+    {
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        // startTime/stopTime 可能是 long 毫秒,也可能是 ISO 字符串
+        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper.readValue(json, ImageCaptchaTrack.class);
     }
 
     /**

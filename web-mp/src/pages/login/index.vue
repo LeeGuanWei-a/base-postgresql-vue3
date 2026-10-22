@@ -15,8 +15,12 @@
       </up-form-item>
       <up-form-item v-if="captchaEnabled" label="验证码" prop="code" :border-bottom="true">
         <view class="captcha-row">
-          <up-input v-model="form.code" placeholder="请输入验证码" :clearable="true" class="captcha-input" />
-          <image v-if="captchaImg" :src="captchaImg" class="captcha-img" mode="aspectFit" @click="refreshCaptcha" />
+          <tianai-captcha
+            ref="captchaRef"
+            :show-type-switch="true"
+            default-type="SLIDER"
+            @success="onCaptchaSuccess"
+          />
         </view>
       </up-form-item>
     </up-form>
@@ -37,68 +41,58 @@ import { getCaptcha, login } from '@/api/login'
 import { useUserStore } from '@/store/modules/user'
 import config from '@/config'
 import { encrypt as rsaEncrypt } from '@/utils/jsencrypt'
+import tianaiCaptcha from '@/components/tianai-captcha/tianai-captcha.vue'
 
 const userStore = useUserStore()
 
 const formRef = ref(null)
+const captchaRef = ref(null)
 const loading = ref(false)
-const form = reactive({ username: 'admin', password: 'admin123', code: '', uuid: '' })
-// 用 ref + 整体替换：避开 mp wxml 对 reactive 嵌套属性的追踪问题
+const form = reactive({ username: 'admin', password: 'admin123', code: '1', uuid: '', captchaData: '' })
 const captchaEnabled = ref(false)
-const captchaImg = ref('')
-const captchaUuid = ref('')
 
 const defaultAccount = { username: 'admin', password: 'admin123' }
 
 const rules = {
   username: [{ required: true, message: '请输入账号', trigger: ['blur', 'change'] }],
   password: [{ required: true, message: '请输入密码', trigger: ['blur', 'change'] }],
-  code: [{ required: captchaEnabled.value, message: '请输入验证码', trigger: ['blur', 'change'] }]
+  code: [{ required: captchaEnabled.value, message: '请完成行为验证码', trigger: ['blur', 'change'] }]
 }
 
-async function refreshCaptcha() {
-  try {
-    console.log('[login] refreshCaptcha() start')
-    const res = await getCaptcha()
-    console.log('[login] getCaptcha response:', res)
-    captchaEnabled.value = !!(res.captchaOnOff ?? res.captchaEnabled)
-    console.log('[login] captchaEnabled =', captchaEnabled.value)
-    const raw = res.img || ''
-    captchaImg.value = raw && raw.startsWith('data:') ? raw : 'data:image/jpeg;base64,' + raw
-    captchaUuid.value = res.uuid
-    form.uuid = captchaUuid.value
-  } catch (e) {
-    console.error('[login] refreshCaptcha error:', e)
-  }
+// 行为验证码成功:把 id / data 写入 form,后续登录一次性提交
+function onCaptchaSuccess(payload) {
+  form.uuid = payload.id
+  form.captchaData = JSON.stringify(payload.data)
+  form.code = '1'
+  uni.showToast({ title: '验证通过', icon: 'success', duration: 600 })
 }
 
 function encodePwd(pwd) {
-  // config.rsa = true 时用公钥 RSA 加密（与 web-ui 同套密钥）
   if (!config.rsa) return pwd
   try {
     const cipher = rsaEncrypt(pwd)
-    if (!cipher) {
-      console.error('[login] RSA 加密返回空')
-      return pwd
-    }
+    if (!cipher) return pwd
     return cipher
   } catch (e) {
-    console.error('[login] RSA 加密失败', e)
     return pwd
   }
 }
 
 async function handleLogin() {
+  if (captchaEnabled.value && (!form.captchaData || !form.uuid)) {
+    uni.showToast({ title: '请先完成行为验证码', icon: 'none' })
+    return
+  }
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
   loading.value = true
   try {
-    // 用 store 的 login（自动 setToken 到 storage + state），不要直接用 @/api/login
     await userStore.login({
       username: form.username,
       password: encodePwd(form.password),
       code: form.code,
-      uuid: form.uuid
+      uuid: form.uuid,
+      captchaData: form.captchaData
     })
     await userStore.fetchUserInfo()
     uni.showToast({ title: '登录成功', icon: 'success' })
@@ -110,18 +104,13 @@ async function handleLogin() {
   }
 }
 
-refreshCaptcha()
+// 启动后由 TianaiCaptcha 内部去拉 /captchaImage,根据返回 captchaOnOff 决定是否显示
+// 这里默认开,组件会自动隐藏
+captchaEnabled.value = true
 
-// 调试：把 reactive 状态暴露到 window，浏览器 console 可看
 if (typeof window !== 'undefined') {
   setTimeout(() => {
-    window.__LOGIN_DEBUG = { captchaEnabled, captchaImg, captchaUuid, form }
-    console.log('[login] captcha after 1.5s:', {
-      captchaEnabled: captchaEnabled.value,
-      hasImg: !!captchaImg.value,
-      imgLen: captchaImg.value?.length,
-      imgPrefix: captchaImg.value?.slice(0, 30)
-    })
+    window.__LOGIN_DEBUG = { captchaEnabled, form }
   }, 1500)
 }
 </script>

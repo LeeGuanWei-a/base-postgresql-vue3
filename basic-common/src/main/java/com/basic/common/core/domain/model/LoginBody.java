@@ -23,9 +23,14 @@ public class LoginBody
     private String code;
 
     /**
-     * 唯一标识
+     * 唯一标识(行为验证码模式下,存验证码 id;兼容老 kaptcha 模式)
      */
     private String uuid;
+
+    /**
+     * 行为验证码滑动轨迹数据(tianai-captcha 的 ImageCaptchaTrack JSON 字符串,4 种类型都用这个字段)
+     */
+    private String captchaData;
 
     public String getUsername()
     {
@@ -65,5 +70,15 @@ public class LoginBody
     public void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getCaptchaData()
+    {
+        return captchaData;
+    }
+
+    public void setCaptchaData(String captchaData)
+    {
+        this.captchaData = captchaData;
     }
 }

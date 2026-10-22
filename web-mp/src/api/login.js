@@ -6,9 +6,15 @@ import { appConfig } from '@/utils/config'
  * 对接后端 `/login` `/logout` `/captchaImage` `/getInfo` `/getRouters` 等标准接口
  */
 
-/** 1. 获取验证码（silent: 失败时不弹错） */
-export function getCaptcha() {
-  return http.get('/captchaImage', undefined, { silent: true })
+/** 1. 获取验证码（silent: 失败时不弹错）。type 可选 SLIDER/ROTATE/WORD_IMAGE_CLICK */
+export function getCaptcha(type) {
+  const params = type ? { type } : undefined
+  return http.get('/captchaImage', params, { silent: true })
+}
+
+/** 1.5 行为验证码二次校验(可选,主流程走 /login 一次性提交) */
+export function checkCaptcha(data) {
+  return http.post('/captcha/check', data, { silent: true })
 }
 
 /**

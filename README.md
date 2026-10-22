@@ -1,9 +1,9 @@
 # Basic Admin (Spring Boot 2.5.14 + Vue 3 + Element Plus)
 
-基于若依 RuoYi-Vue 3.8.2 改造,**未做后端版本升级**,只是修复了 sql bug 和加了锁屏解锁功能。
+基于若依 RuoYi-Vue 3.8.2 改造,**未做后端版本升级**,只是修复了 sql bug、加了锁屏解锁功能、并集成 tianai-captcha 行为验证码。
 
-> 当前分支:`master` ——「**RuoYi-Vue 3.8.2 最小改造基线**」。
-> 仓库另有 `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支做不同技术栈组合,本分支**只描述 master**。
+> 当前分支:`springboot2-tianai-captcha` ——「**RuoYi-Vue 3.8.2 最小改造 + 行为验证码**」。
+> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支做不同技术栈组合,本分支**只描述本分支**。
 
 ---
 
@@ -59,14 +59,15 @@
 
 ## 二、本分支是什么
 
-`master` 分支基于 **若依 RuoYi-Vue 3.8.2** 原始仓库改造而来,**后端保持 Spring Boot 2.5.14 / JDK 11 / Spring Security 5.5 不升级**,只叠加了以下改动:
+本分支 `springboot2-tianai-captcha` 基于 **若依 RuoYi-Vue 3.8.2** 原始仓库改造而来,**后端保持 Spring Boot 2.5.14 / JDK 11 / Spring Security 5.5 不升级**,在 `master` 基线上额外叠加了:
 
 1. **SQL bug 修复 + 锁屏解锁功能**(后端 `SysLoginController` / `SysLoginService` / `SysRole` / 若干 Mapper 微调)
 2. **数据库脚本切换到 PostgreSQL**:`file-sql/basicdb-vue3.sql`(34 张表 + 5 函数,`basicdb` schema,`COPY ... FROM stdin` 流式导入)
 3. **新增移动端前端 `web-mp/`**:uni-app 3 + uview-plus 3,支持 H5 / 微信小程序 / App,对接本仓库后端的 `/login` `/getInfo` `/getRouters` 等接口
-4. **README 与脚本多次重导出的整理**
+4. **行为验证码**:把原 kaptcha 字符验证码整体替换为 tianai-captcha 行为验证码,PC 端与移动端均支持 **滑动 / 旋转 / 文字点选** 三种类型切换(详见第九章)
+5. **README 与脚本多次重导出的整理**
 
-`master` 是「**最小可用 + 后端零升级**」的稳定基线,其他分支(`master-extend-flowable` / `springboot3` / `springboot4` 等)都基于或并行于本分支做技术栈升级。
+`master` 是「**最小可用 + 后端零升级**」的稳定基线,本分支在其之上只增加了行为验证码;其他分支(`master-extend-flowable` / `springboot3` / `springboot4` 等)都基于或并行于 `master` 做技术栈升级。
 
 ---
 
@@ -79,6 +80,9 @@
 | `SysRole` 实体微调 | `SysRole.java` |
 | 数据库脚本 | `file-sql/basicdb-vue3.sql`(由 RuoYi 原始 MySQL 脚本迁成 PostgreSQL,统一放在 `basicdb` schema) |
 | 移动端项目 | 新增 `web-mp/`(uni-app 3 + uview-plus 3,**不**在 maven module 列表里) |
+| 行为验证码(后端) | `TianaiCaptchaConfig.java`、`TypeAwareImageCaptchaValidator.java`、`CaptchaController.java`、`CaptchaCheckController.java`、`SysLoginService.java`、`LoginBody.java`、`SecurityConfig.java`、`basic-framework/pom.xml`;删除 `CaptchaConfig.java`、`KaptchaTextCreator.java` |
+| 行为验证码(前端) | 新增 `web-ui/src/components/TianaiCaptcha/`、`web-mp/src/components/tianai-captcha/`;改造两端登录页与 `api/login.js` |
+| 验证码背景图 | `basic-framework/src/main/resources/META-INF/cut-image/`(模板 + 背景图,丢图即生效) |
 
 ---
 
@@ -93,9 +97,10 @@
 - [x] 7 个子模块 `parent.version` 一致为 `3.8.2`
 - [x] IDE 工程的 Project SDK 设为 JDK 11,Language level 11
 - [x] `mvn clean compile` 0 ERROR
-- [ ] 应用启动成功
+- [ ] 应用启动成功,日志出现 `[tianai-captcha] ... loaded`
 - [ ] admin 登录成功(PC / 移动端)
-- [ ] 锁屏功能可用(本分支相对 RuoYi 原版新增的功能)
+- [ ] 锁屏功能可用(RuoYi 原版无此功能)
+- [ ] 三种验证码(滑动 / 旋转 / 点选)均可切换并通过校验
 
 ---
 
@@ -379,3 +384,246 @@ base-postgresql-vue3/
 ├── web-ui/                              # PC 端前端(Vue3 + Element Plus)
 └── web-mp/                              # 移动端前端(uni-app3 + uview-plus)★ 本分支新增
 ```
+
+---
+
+## 九、行为验证码(tianai-captcha 1.5.0)集成说明 ★ 本分支新增
+
+> **目标**:把原来的 kaptcha 字符验证码全替换为 tianai-captcha 行为验证码,支持 3 种类型可切换。
+> 后端用 `tianai-captcha-springboot-starter:1.5.0`(适配 Spring Boot 2.5.14 + `javax.servlet`);
+> 前端**不用官方 web-sdk**,三种交互全部自己实现。
+
+### 9.1 3 种行为验证码
+
+| 类型 | 常量 | 用户操作 | 适用场景 |
+|------|------|----------|----------|
+| 滑动 | `SLIDER` | 拖动滑块到图片缺口位置 | 登录、注册(最常用) |
+| 旋转 | `ROTATE` | 拖动图片/滑块旋转到与缺口重合 | 支付、敏感操作 |
+| 文字点选 | `WORD_IMAGE_CLICK` | 按顺序点击图中指定汉字 | 防机器人 |
+
+> **滑动还原 `CONCAT` 已下线**: 前端渲染效果不理想, 传入该类型会自动回退为 `SLIDER`。
+
+#### 效果预览
+
+**PC 端 `web-ui`** — 登录框内三种类型可自由切换,图示为「滑动」:
+
+![PC 端滑动验证码](web-ui.png)
+
+**移动端 `web-mp`** — H5 / 微信小程序 / App 通用,图示为「旋转」:
+
+![移动端旋转验证码](web-mp.png)
+
+### 9.2 后端变更
+
+| 文件 | 改动 |
+|------|------|
+| `basic-framework/pom.xml` | 加 `cloud.tianai.captcha:tianai-captcha-springboot-starter:1.5.0`(2.5.14 + javax.servlet 兼容版) |
+| `basic-framework/.../config/CaptchaConfig.java` | **删除**(原 kaptcha Bean 配置) |
+| `basic-framework/.../config/KaptchaTextCreator.java` | **删除** |
+| `basic-framework/.../config/TianaiCaptchaConfig.java` | **新增**,见 9.5 资源初始化 |
+| `basic-framework/.../config/TypeAwareImageCaptchaValidator.java` | **新增**,按类型区分容差(旋转容差 0.02 太苛刻) |
+| `basic-framework/.../config/SecurityConfig.java` | 放行 `/captchaImage`、`/captcha/**` |
+| `basic-admin-api/.../controller/common/CaptchaController.java` | **重写**:`GET /captchaImage?type=...` 生成验证码,并把 `viewData` 扁平化下发给前端 |
+| `basic-admin-api/.../controller/common/CaptchaCheckController.java` | **新增**:`POST /captcha/check` 即时校验,成功后写 Redis「已验证」凭证 |
+| `basic-admin-api/.../controller/system/SysLoginController.java` | `login()` 改 5 参,多传 `captchaData` |
+| `basic-framework/.../web/service/SysLoginService.java` | 新增 `validateTianaiCaptcha()`:先查 Redis 凭证,未命中才走 `matching()` |
+| `basic-common/.../core/domain/model/LoginBody.java` | 新增 `captchaData` 字段(轨迹 JSON 字符串) |
+
+### 9.3 前端变更
+
+| 文件 | 改动 |
+|------|------|
+| `web-ui/src/components/TianaiCaptcha/index.vue` | **新增**:PC 端 3 种验证码组件(纯 JS,无 TS),交互全部自实现 |
+| `web-ui/src/views/login.vue` | 验证码区域换成 `<TianaiCaptcha>`,登录时携带 `captchaData` |
+| `web-ui/src/api/login.js` | `getCodeImg(type)` 加 type 参数;新增 `checkCaptcha({id, data})` |
+| `web-ui/src/store/modules/user.js` | login 透传 `captchaData` |
+| `web-mp/src/components/tianai-captcha/tianai-captcha.vue` | **新增**:uni-app 跨端版(H5 / 小程序 / App) |
+| `web-mp/src/pages/login/index.vue` | 验证码区域换成 `<tianai-captcha>` |
+| `web-mp/src/api/login.js` | `getCaptcha(type)` 加 type 参数;新增 `checkCaptcha()` |
+
+> 前端**不依赖** tianai 官方 `tianai-captcha-web-sdk`,全部自己实现,便于深度定制样式与交互。
+
+### 9.4 一次校验的两段式设计
+
+tianai 的 `matching(id, track)` **校验成功后会删除验证码缓存**(防重放),所以不能"前端校验一次 + 登录再校验一次"。本项目的做法:
+
+```
+前端点「验证」 ──POST /captcha/check──> matching() 通过
+                                        └─ 写入 Redis: captcha:verified:{id} = 1 (TTL 120s)
+                                        └─ 返回 200
+
+前端点「登录」 ──POST /login──────────> 先查 captcha:verified:{id}
+                                         ├─ 命中 → 删除该 key(一次性) → 放行
+                                         └─ 未命中 → 走 matching() 兜底
+```
+
+好处:
+
+- 用户拖完立刻知道对错,不必等到登录才报错
+- 凭证一次性 + 120 秒过期,不会被重复使用
+- Redis 不可用时自动降级为登录时 `matching()`
+
+### 9.5 资源初始化(TianaiCaptchaConfig)
+
+官方 starter 默认 `captcha.init-default-resource=false`,**开箱即用会直接报「store 中模板为空」**。所以这里手动加载三类资源:
+
+| 资源 | 位置 | 说明 |
+|------|------|------|
+| SLIDER / ROTATE 模板 | `classpath:META-INF/cut-image/template/` | 从 tianai 官方仓库复制,含 `slider_1`、`slider_2`、`rotate_1` |
+| 背景图 | `classpath:META-INF/cut-image/resource/` | **自动扫描该目录**,放几张就随机出几张 |
+| 点选字体 | JDK 自带中文字体 | `WORD_IMAGE_CLICK` 必须注入字体,否则抛「请设置字体包」 |
+
+#### 想加背景图怎么办
+
+把图片直接丢进:
+
+```
+basic-framework/src/main/resources/META-INF/cut-image/resource/
+```
+
+- 启动时 `applicationContext.getResources(".../resource/*")` 自动全量注册
+- **不用改任何代码**
+- 建议 **600×300**(与 tianai 默认宽高比 2:1 一致)、JPG、50~300KB
+- 当前已内置 `1.jpg`(官方示例) + `pic1~pic5.jpg`
+
+> 注意 `Resource` 的 `data` 要填**纯 classpath 相对路径**(`META-INF/cut-image/resource/x.jpg`),不能带 `classpath:` 前缀 —— `ClassPathResourceProvider` 内部是直接 `getResourceAsStream(data)` 的。
+
+### 9.6 接口契约
+
+#### GET /captchaImage?type=SLIDER|ROTATE|WORD_IMAGE_CLICK
+
+```json
+{
+  "code": 200,
+  "captchaOnOff": true,
+  "uuid": "SLIDER_xxxx",          // 登录时回传
+  "img": "data:image/jpeg;base64,...",  // 兼容旧字段 = backgroundImage
+  "type": "SLIDER",
+  "data": {
+    "id": "SLIDER_xxxx",
+    "type": "SLIDER",
+    "backgroundImage": "data:image/jpeg;base64,...",
+    "templateImage": "data:image/png;base64,...",
+    "backgroundImageWidth": 600,
+    "backgroundImageHeight": 300,
+    "templateImageWidth": 110,
+    "templateImageHeight": 300
+  }
+}
+```
+
+- `type` 只接受 3 种,其它值(含已下线的 `CONCAT`)**自动回退为 `SLIDER`**
+- `data` 里还会扁平化 tianai 的 `CustomData.viewData`(如 `randomY`)
+- **`expand`(点选正确答案坐标)绝不会下发**,否则等于把答案给前端
+
+#### POST /captcha/check
+
+```json
+{
+  "id": "SLIDER_xxxx",
+  "data": {
+    "bgImageWidth": 600,
+    "bgImageHeight": 300,
+    "startTime": 1792661829872,
+    "stopTime": 1792661832073,
+    "left": 448,
+    "top": 0,
+    "trackList": [ { "t": 0, "x": 0, "y": 0, "type": "drag" } ]
+  }
+}
+```
+
+成功返回 `{"code":200,"msg":"校验通过"}`,失败返回具体原因(如 `basic check fail`)。
+
+#### POST /login
+
+请求体新增 `captchaData` 字段(轨迹对象的 **JSON 字符串**),其余不变。
+
+### 9.7 踩过的坑(改动时务必注意)
+
+#### 轨迹反机器人检测(tianai `BasicCaptchaTrackValidator`)
+
+滑动/旋转提交的 `trackList` 会过 7 项检测,任一不过就返回 `basic check fail`:
+
+| # | 检测 | 要求 |
+|---|------|------|
+| 1 | 滑动时长 | `stopTime - startTime > 300ms` |
+| 2 | 轨迹条数 | `10 <= size <= bgImageWidth * 5` |
+| 3 | **首条轨迹** | `\|x\| <= 10 且 \|y\| <= 10` |
+| 4 | y 不能全同 | 全相同的 y 视为机器 |
+| 5 | 相邻跳跃 | `\|Δx\| <= 50`、`\|Δy\| <= 50` |
+| 6 | 速度衰减 | 后 30% 平均间隔 > 前 70% 平均间隔(人手越接近目标越慢) |
+| 7 | 越界次数 | `x >= bgImageWidth` 的次数不超过 200 |
+
+对应实现要点:
+
+- **拖动开始立即补一条 `{t:0,x:0,y:0,type:'drag'}`** —— 采样定时器首拍时用户已拖出几十像素,不补必然触发检测 3
+- y 加 `sin(t/80)*1.5 + random*1.2` 的微抖动,避开检测 4
+- 松手后停留 150ms 再提交,让末段速度自然降低,满足检测 6
+
+#### 旋转角度换算
+
+后端 `StandardRotateImageCaptchaGenerator`:
+
+```java
+double degree = 360 - randomX / (bgWidth / 360);   // 抠图块被旋转 degree 度
+```
+
+用户把图转正时施加的角度 `rotateDeg ≡ -degree`,所以:
+
+```
+rotateDeg = 360 * randomX / bgWidth     =>     left = rotateDeg * bgWidth / 360
+```
+
+**写成 `(360 - rotateDeg)` 就反了**,会导致怎么对齐都失败。
+
+另外旋转容差默认 `0.02`(仅 ±7.2°),滑块根本调不准,所以 `TypeAwareImageCaptchaValidator` 把 `ROTATE` 放宽到 `0.10`(±36°),其余类型保持 `0.02`。
+
+#### 坐标一律用百分比
+
+`scaleRatio`(原始坐标 / 容器像素)在首帧必然是 1,次帧才更新,任何"用 `scaleRatio` 折算像素"的地方都会出现**先大后小 / 标记飘走**的跳动。
+
+所以模板图、点选标记、刻度条一律用**相对背景图的百分比**定位:
+
+```js
+left = (x / bgImageWidth) * 100 + '%'
+```
+
+只有真正要提交给后端的 `left`、`track.x` 才做一次 `sliderX * scaleRatio` 的换算。
+
+#### uni-app `<image>` 的三个雷
+
+1. 组件自带默认尺寸(`320×240`),`width:auto` / `height:100%` 都不生效 —— 必须用百分比显式给宽高
+2. 必须指定 `mode`(`scaleToFill` / `heightFix`),否则图片被裁
+3. `<script setup>` 里**没有 `this`**,`uni.createSelectorQuery().in(this)` 会静默失败 —— 要用 `getCurrentInstance().proxy`
+
+#### 其它
+
+- **不要改** `BasicConfig.captchaType`(`math/char` 是旧 kaptcha 值,会被统一回退成 `SLIDER`)
+- 父 pom 里的 kaptcha 依赖声明保留但无引用,删不删都无害
+- Spring Boot 3 分支请改用 `tianai-captcha-springboot-starter:1.5.5+`(jakarta.servlet)
+
+### 9.8 验证
+
+```bash
+# 后端
+mvn -q compile          # 应 0 ERROR
+
+# PC
+cd web-ui && pnpm install && pnpm dev
+
+# 移动端 H5
+cd web-mp && pnpm install && pnpm dev:h5
+```
+
+登录页可看到三种切换(滑动 / 旋转 / 点选),默认账号 `admin / admin123`。
+
+启动日志里应出现:
+
+```
+[tianai-captcha] default templates (SLIDER/ROTATE) loaded
+[tianai-captcha] registered N default background(s) for 3 captcha types
+[tianai-captcha] built N font wrapper(s) for WORD_IMAGE_CLICK
+```
+
+
