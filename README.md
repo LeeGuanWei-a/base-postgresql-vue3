@@ -3,7 +3,7 @@
 基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot3` 分支**唯一区别**:**后端从 Spring Boot 3.5.16 升级到 Spring Boot 4.1.1**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
 
 > 当前分支:`springboot4` ——「**springboot3 + 后端 SB 3.5.16 → 4.1.1 升级**」。
-> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot4**。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot4**。
 
 ---
 
@@ -366,7 +366,7 @@ public <T> T getCacheObject(final String key) {
 - [ ] `MyBatis-Plus 3.5.7 → 3.5.17` 跨多个小版本的中间变更未逐个核对,只测了用到的 API
 - [ ] `springdoc 2.9 → 3.1` 跨多个小版本的 OpenAPI Schema 兼容性未验证
 - [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数兼容性是否完全保留未测
-- [ ] 集成 Flowable 流程引擎(已经在 `master-extend-flowable` 分支做了)
+- [ ] 集成 Flowable 流程引擎(已经在 `springboot2-extend-flowable` 分支做了)
 
 ---
 
@@ -376,14 +376,21 @@ public <T> T getCacheObject(final String key) {
 
 | 分支 | 做什么 |
 |---|---|
-| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14,JDK 11,前端 JS,加 web-mp) |
-| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
-| `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
-| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc;前端保持 JS |
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14 / JDK 11,前端 JS,加 web-mp,**kaptcha 字符验证码**) |
+| `springboot2_TypeScript` | `master` + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
+| `springboot2-tianai-captcha` | `master` + **tianai-captcha 1.5.0** 行为验证码(后端仍 SB 2.5.14) |
+| `springboot2-extend-flowable` | `master` + **Flowable 6.8.0 流程引擎**(新增 `extend-flowable` 子模块),schema 改 `basicdb_flowable`(86 表 + 2 视图) |
+| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Security 6 + springdoc 2.9;前端保持 JS |
+| `springboot3-tianai-captcha` | `springboot3` + **tianai-captcha 1.5.2** 行为验证码 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
-| `springboot4_TypeScript` | **`springboot4` + 前端 TS 化**(本分支 + TS 版,最完整栈) |
+| `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
+| `springboot4` 🟢 | **当前分支**:后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Spring Framework 7 + springdoc 3.1 + MP 3.5.17;前端 **JS 不动**、DB 34 表不动 |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(**技术栈最完整**) |
+| `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |
 
-> 本分支 `springboot4` ≈ `springboot3` + 后端 SB 升级,可以视作"`springboot3` 的 SB 4 升级版"。
+> 命名约定:`springboot{N}` = 后端 SB 大版本基线;`_TypeScript` = 该基线 + 前端 TS 化;
+> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎。
+> 本分支 `springboot4` = `springboot3` + 后端 SB4 升级(**Jackson 3 是最大差异**),**不引入** Flowable / 行为验证码、**不做**前端 TS 化。
 
 ---
 
@@ -611,7 +618,7 @@ spring:
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
 > 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
-> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> (注:`springboot2-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
 > 本分支**仍保留**。)
 
 ---
@@ -630,7 +637,7 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展(用 spring-boot-starter-quartz)
 ├── extend-generator/                    # 代码生成扩展
-├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── extend-flowable/                     # (仅 springboot2-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
