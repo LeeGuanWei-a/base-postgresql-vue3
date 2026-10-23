@@ -16,7 +16,7 @@
 | 触发方式 | PC 浏览器、微信小程序、Android/iOS App,均通过 HTTP/JSON 调用后端 REST |
 | 数据形态 | PostgreSQL(34 张表) + 本地文件上传 + Redis 缓存(运行期) |
 | 范围边界 | RBAC 系统管理、字典/参数/通知、定时任务、代码生成、登录/锁屏、操作日志、PC + 移动两套前端 |
-| 不做清单(本分支) | 业务流程引擎(走 `master-extend-flowable` 分支)、多租户(走后续版本)、SSO 联邦(走 keycloak 集成项目)、Spring Boot 2 → 3/4 升级(走 `springboot3` / `springboot4` 分支) |
+| 不做清单(本分支) | 业务流程引擎(走 `springboot2-extend-flowable` 分支)、多租户(走后续版本)、SSO 联邦(走 keycloak 集成项目)、Spring Boot 2 → 3/4 升级(走 `springboot3` / `springboot4` 分支) |
 
 ### 1.1 核心用户动作必做项
 
@@ -194,7 +194,7 @@ qrtz_* 表持久化 → JobInvokeUtil 反射调 @Component("ryTask").ryXxx()
 | **M2(下一轮)** | 移动端:动态菜单 / 国际化 / WebSocket 推送 / 锁屏(手势/PIN) / 个人中心编辑 | 见 web-mp README §7.6 待办清单 | 业务方在移动端提出超过 5 个角色/菜单变更需求时即应排期 |
 | **M3(可选)** | SSO:接入 keycloak 联邦 | 账号互通,组织/角色从 keycloak 拉 | 出现第二个业务系统需要统一登录 |
 | **M4(分支)** | Spring Boot 3.5 + JDK 17 + Jakarta | 单独分支 `springboot3` | 公司层面升级 JDK 基线 |
-| **M5(分支)** | 流程引擎(Flowable 6.8) | 单独分支 `master-extend-flowable` | 出现审批流/业务流程需求 |
+| **M5(分支)** | 流程引擎(Flowable 6.8) | 单独分支 `springboot2-extend-flowable` | 出现审批流/业务流程需求 |
 
 **本次不做,直到有信号**:微服务拆分、K8s 化、灰度发布、APM 探针、消息中心抽象。
 
@@ -221,7 +221,7 @@ qrtz_* 表持久化 → JobInvokeUtil 反射调 @Component("ryTask").ryXxx()
 | R3 | `web-mp` 使用 `uni-app 3.0 (alpha)`,DCloud 官方尚未 GA | 中 | 锁版本 `@dcloudio/uni-app@3.0.0-4060620250520001`;`pdm-lock` 不引入更多 alpha |
 | R4 | `file-sql/` 多份历史脚本混在一起 | 低 | README 已注明:运行只用 `basicdb-vue3.sql`;历史脚本列入归档 |
 | R5 | `com.basic` + `com.core` 双包前缀,新人易混 | 低 | 文档明确:`com.basic`=平台,`com.core`=业务 |
-| R6 | `master-extend-flowable` 流程分支与 master 已分叉 | 中 | 各自维护;不强行合并 |
+| R6 | `springboot2-extend-flowable` 流程分支与 master 已分叉 | 中 | 各自维护;不强行合并 |
 | R7 | 操作日志若 DB 不可用,主链路要不要回滚? | 低 | `AsyncManager` 内部 `try/catch`,不污染主链路 |
 | R8 | 移动端无国际化文案 | 低 | vue-i18n 已引入,词条待补 |
 | R9 | 锁屏接口复用 `/login` — 移动端未实现 | 低 | web-mp 暂只做登录,锁屏待办已挂 |

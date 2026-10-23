@@ -435,7 +435,7 @@ sys_user_post  (user_id, post_id)            -- 复合 PK
 
 | 引擎 | 所在分支 |
 |---|---|
-| Flowable (`act_*` / `flw_*`) | `master-extend-flowable` 分支(`basicdb_flowable` schema,86 表 + 2 视图) |
+| Flowable (`act_*` / `flw_*`) | `springboot2-extend-flowable` 分支(`basicdb_flowable` schema,86 表 + 2 视图) |
 
 > 本分支不预建 Flowable 表。
 

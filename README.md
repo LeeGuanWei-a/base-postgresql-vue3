@@ -3,7 +3,7 @@
 基于若依 RuoYi-Vue 3.8.2 改造,**未做后端版本升级**,只是修复了 sql bug 和加了锁屏解锁功能。
 
 > 当前分支:`master` ——「**RuoYi-Vue 3.8.2 最小改造基线**」。
-> 仓库另有 `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支做不同技术栈组合,本分支**只描述 master**。
+> 仓库另有 `springboot2-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支做不同技术栈组合,本分支**只描述 master**。
 
 ---
 
@@ -66,7 +66,7 @@
 3. **新增移动端前端 `web-mp/`**:uni-app 3 + uview-plus 3,支持 H5 / 微信小程序 / App,对接本仓库后端的 `/login` `/getInfo` `/getRouters` 等接口
 4. **README 与脚本多次重导出的整理**
 
-`master` 是「**最小可用 + 后端零升级**」的稳定基线,其他分支(`master-extend-flowable` / `springboot3` / `springboot4` 等)都基于或并行于本分支做技术栈升级。
+`master` 是「**最小可用 + 后端零升级**」的稳定基线,其他分支(`springboot2-extend-flowable` / `springboot3` / `springboot4` 等)都基于或并行于本分支做技术栈升级。
 
 ---
 
@@ -105,14 +105,14 @@
 
 | 分支 | 做什么 |
 |---|---|
-| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
+| `springboot2-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
 | `springboot2_TypeScript` | 同 master 后端,前端 JS → TS 化 |
 | `springboot3` | 后端 SB 2.5.14 → 3.5.16(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc + ... |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
 | `springboot4` | 后端 SB 3.5.16 → 4.1.1(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
 | `springboot4_TypeScript` | `springboot4` + 前端 TS 化(最完整栈) |
 
-> `master-extend-flowable` 是从 master 的某个早期 commit 分叉而来,**包含 web-mp**;
+> `springboot2-extend-flowable` 是从 master 的某个早期 commit 分叉而来,**包含 web-mp**;
 > 其 HEAD 在 master 基础上多了一个 `feat(workflow): 集成 Flowable 流程引擎并切换到 PostgreSQL`
 > 的大变更(346 文件 / +58906 / -3072)。
 
@@ -255,7 +255,7 @@ spring:
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
 > 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
-> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> (注:`springboot2-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
 > 因为该分支的 `basicdb-vue3.sql` 已经覆盖了 Quartz 等内容;master 分支目前**仍保留**。)
 
 ---
@@ -372,7 +372,6 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展
 ├── extend-generator/                    # 代码生成扩展
-├── extend-flowable/                     # (仅 master-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)

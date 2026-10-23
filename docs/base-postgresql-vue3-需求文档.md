@@ -40,7 +40,7 @@
 
 ### 2.3 非目标(本分支不做)
 
-- 业务流程建模 / 审批(走 `master-extend-flowable` 分支)
+- 业务流程建模 / 审批(走 `springboot2-extend-flowable` 分支)
 - 多租户 / SaaS 化
 - SSO 联邦(走 keycloak 集成项目)
 - Spring Boot 2 → 3/4 升级(走 `springboot3` / `springboot4` 分支)
@@ -305,7 +305,7 @@
 
 ### 6.6 审批复核(本分支不涉及)
 
-> 走 `master-extend-flowable` 分支实现,见该分支 PRD。
+> 走 `springboot2-extend-flowable` 分支实现,见该分支 PRD。
 
 ### 6.7 统计报表
 
@@ -375,7 +375,7 @@
 
 | 项 | 说明 |
 |---|---|
-| 业务流程 | 走 `master-extend-flowable` |
+| 业务流程 | 走 `springboot2-extend-flowable` |
 | 微服务化 | 不做 |
 | SSO 联邦 | 不做(后续 keycloak 集成) |
 | SB 2 → 3 升级 | 走 `springboot3` 分支 |

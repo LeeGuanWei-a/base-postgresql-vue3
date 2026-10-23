@@ -685,7 +685,7 @@ public class DemoController extends BaseController {
 
 ## 7. 审批旁路(本分支不实现)
 
-> `master-extend-flowable` 分支提供:`extend-flowable` 模块 + Flowable 6.8.0 + `basicdb_flowable` schema。
+> `springboot2-extend-flowable` 分支提供:`extend-flowable` 模块 + Flowable 6.8.0 + `basicdb_flowable` schema。
 > 本分支保留以下钩子位点(无实现):
 >
 > - `BusinessType.GRANT` 注解预留给工作流触发
