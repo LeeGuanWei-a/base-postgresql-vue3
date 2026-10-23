@@ -4,9 +4,8 @@
 在基线之上完成了:前端 **Vue2 → Vue3**、新增**锁屏解锁**、数据库**迁移到 PostgreSQL**、
 集成 **Flowable 6.8.0 流程引擎**、新增 **`web-mp` 移动端**。
 
-> **当前检出分支:`master-extend-flowable`**。
-> 它和 `master` 指向**同一个提交**,内容完全一致;这个分支名表示在若依基线之上做了
-> 「前端 Vue3 + 流程引擎 + 移动端 + PostgreSQL」这套扩展,详见[第二章](#二项目演进readme-描述的范围)。
+> **当前检出分支:`springboot2-extend-flowable`**(早期曾用名 `master-extend-flowable`,已统一改为带 `springboot2` 前缀,与 `springboot3-extend-flowable` / `springboot4-extend-flowable` 命名对齐)。
+> 它是 `master` 的下游分支,在若依基线之上做了「**Spring Boot 2.5.14(锁版本不升)+ Vue3 + 流程引擎 + 移动端 + PostgreSQL**」这套扩展,详见[第二章](#二项目演进readme-描述的范围)。
 > 同一仓库的其它分支用不同技术栈组合实现同样的功能(见[第五章](#五其他分支参考)),
 > 本文档**只描述当前分支**的内容,不描述其它分支。
 
@@ -177,11 +176,14 @@ ab58b0c  chore(web-mp): 移除无效的 .env 文件（无代码引用）
 
 | 分支 | 相对当前分支的区别 |
 |---|---|
-| `master` | 与 `master-extend-flowable` 指向同一提交(内容相同) |
+| `master` | 本分支的上游基线,内容为最小可用版本(无流程引擎),见其 README |
+| `springboot2-extend-flowable` 🟢 | **当前分支** = `master` + Flowable 6.8.0 + `extend-flowable` 子模块 + 10 张工作流业务表 + `workflow:*` 权限 |
 | `springboot2_TypeScript` | 后端同为 SB 2.5.14 / JDK 11,前端 `web-ui` 由 JS 改为 **TypeScript** |
 | `springboot3` | 后端 SB 2.5.14 → 3.5.16(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc 等 |
+| `springboot3-extend-flowable` | `springboot3` + 本分支的 Flowable 集成 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
 | `springboot4` | 后端 SB 3.5.16 → 4.1.1(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 等 |
+| `springboot4-extend-flowable` | `springboot4` + 本分支的 Flowable 集成 |
 | `springboot4_TypeScript` | `springboot4` + 前端 TS 化(技术栈最完整) |
 
 > **移动端与流程引擎不是这些分支的差异点**:`web-mp` 与 `extend-flowable` 在当前分支内维护,
