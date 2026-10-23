@@ -1,9 +1,11 @@
 # Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus)
 
-基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot3` 分支**唯一区别**:**后端从 Spring Boot 3.5.16 升级到 Spring Boot 4.1.1**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
+基于若依 RuoYi-Vue 3.9.2 改造,从 `springboot4` 继承并叠加**企业微信 / 公众号 / 小程序 / 支付宝**渠道集成脚手架(SDK 装配 + Redis token 持久化 + POC 联通性验证),**未实现任何业务功能**(通讯录同步 / 消息推送 / 回调 / 支付)。
 
-> 当前分支:`springboot4` ——「**springboot3 + 后端 SB 3.5.16 → 4.1.1 升级**」。
-> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot4**。
+> 当前分支:`springboot4-extend-channel` ——「`springboot4` + 渠道集成(POC 阶段)」。
+> 本分支基线是 `springboot4`(SB 4.1.1 / JDK 21 / Jackson 3 / Security 7)。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` / `springboot4-extend-flowable` 等分支,本分支**只描述 springboot4-extend-channel**。
+> 渠道集成架构设计见 `docs/渠道集成-架构方案.md`。
 
 ---
 
@@ -384,13 +386,15 @@ public <T> T getCacheObject(final String key) {
 | `springboot3-tianai-captcha` | `springboot3` + **tianai-captcha 1.5.2** 行为验证码 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
 | `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
-| `springboot4` 🟢 | **当前分支**:后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Spring Framework 7 + springdoc 3.1 + MP 3.5.17;前端 **JS 不动**、DB 34 表不动 |
+| `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Spring Framework 7 + springdoc 3.1 + MP 3.5.17;前端 **JS 不动**、DB 34 表不动 |
 | `springboot4_TypeScript` | `springboot4` + 前端 TS 化(**技术栈最完整**) |
 | `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |
+| `springboot4-extend-channel` 🟢 | **当前分支**:`springboot4` + 渠道集成 **POC**(`extend-wecom` 调 [WxJava 4.8.6.B](https://github.com/binarywang/WxJava) 全量封装企业微信 / 公众号 / 小程序 / 开放平台;`extend-alipay` 调 [alipay-sdk-java 4.40.1044.ALL](https://github.com/alipay/alipay-sdk-java-all) 全量封装支付宝 OpenAPI;access_token 走 Redis 持久化;提供 `/wecom/health/{agentId}` 与 `/alipay/health/{appId}` 两个联通性验证端点)。**未实现任何业务功能**;后续按 M1~M6 阶段推进,详见 `docs/渠道集成-架构方案.md` |
 
 > 命名约定:`springboot{N}` = 后端 SB 大版本基线;`_TypeScript` = 该基线 + 前端 TS 化;
-> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎。
-> 本分支 `springboot4` = `springboot3` + 后端 SB4 升级(**Jackson 3 是最大差异**),**不引入** Flowable / 行为验证码、**不做**前端 TS 化。
+> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎;
+> `-extend-channel` = 该基线 + 微信生态(企业微信/公众号/小程序)+ 支付宝渠道集成。
+> 本分支 `springboot4-extend-channel` = `springboot4` + 渠道对接层(POC),**不引入** Flowable / 行为验证码、**不做**前端 TS 化、**未实现**业务功能。
 
 ---
 
