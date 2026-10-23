@@ -4,7 +4,7 @@
 
 > 当前分支:`springboot4-extend-flowable`。
 > 与 `springboot4` 的**唯一区别**:多出 `extend-flowable` 模块 + 工作流前端页面/菜单 + 数据库 schema 换成 `basicdb_flowable8`;`springboot4` 自身的升级(Jackson 3 / Spring Security 7 / Jakarta 6 等)本分支**全部继承**,本文前半部分即这些内容。
-> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot3-extend-flowable` / `springboot4` / `springboot4_TypeScript` 等分支。
 
 ---
 
@@ -379,15 +379,21 @@ public <T> T getCacheObject(final String key) {
 
 | 分支 | 做什么 |
 |---|---|
-| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14,JDK 11,前端 JS,加 web-mp) |
-| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
-| `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
-| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc;前端保持 JS |
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14 / JDK 11,前端 JS,加 web-mp,**kaptcha 字符验证码**) |
+| `springboot2_TypeScript` | `master` + 前端两端 **全量 TypeScript 化**;后端保持 SB 2.5.14 |
+| `springboot2-tianai-captcha` | `master` + **tianai-captcha 1.5.0** 行为验证码(后端仍 SB 2.5.14) |
+| `springboot2-extend-flowable` | `master` + **Flowable 6.8.0 流程引擎**(新增 `extend-flowable`),schema `basicdb_flowable`(86 表 + 2 视图) |
+| `springboot3` | 后端 SB 2.5.14 → **3.5.16**(JDK 11 → 17),Jakarta EE + Security 6 + springdoc 2.9;前端 JS |
+| `springboot3-tianai-captcha` | `springboot3` + **tianai-captcha 1.5.2** 行为验证码 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
-| `springboot4_TypeScript` | `springboot4` + 前端 TS 化 |
-| `springboot4-extend-flowable` | **本分支**:`springboot4` + **Flowable 8.0.0** 流程引擎(新增 `extend-flowable` 子模块),含自定义表单(vform3)、bpmn-js 流程设计器、全链路工作流页面与菜单;数据库 schema `basicdb_flowable8` |
+| `springboot3-extend-flowable` | `springboot3` + Flowable 流程引擎(对应 6.8 系列的 SB3 移植) |
+| `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Framework 7 + springdoc 3.1;前端 JS |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(**技术栈最完整**) |
+| `springboot4-extend-flowable` 🟢 | **当前分支**:`springboot4` + **Flowable 8.0.0** 流程引擎(新增 `extend-flowable`,223 个 Java 文件 / 13 Controller / 19 ServiceImpl),schema **`basicdb_flowable8`**(90 表 + 2 视图);含自定义表单(vform3)+ bpmn-js 17 设计器 + 全链路工作流页面与菜单 |
 
-> 本分支 `springboot4` ≈ `springboot3` + 后端 SB 升级,可以视作"`springboot3` 的 SB 4 升级版"。
+> 命名约定:`springboot{N}` = 后端 SB 大版本基线;`_TypeScript` = 该基线 + 前端 TS 化;
+> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎。
+> 本分支 `springboot4-extend-flowable` = `springboot4` + Flowable 8.0.0,**继承 SB4 的 Jackson 3 / Security 7 / Jakarta 6 全部升级**。
 
 ---
 
@@ -622,7 +628,7 @@ spring:
 | `basicdb-vue3.sql` | **运行本项目只需要这一个**(含 `basicdb_flowable8` 全部 90 张表结构与初始化数据) |
 | `reset-admin-password.sql` | 把 `admin` 密码重置回 `admin123` 的小工具,按需手动跑 |
 
-> 与 `master-extend-flowable` / 早期分支不同,本分支已经把 `basic-sql-2023-03-02.sql` / `quartz.sql` /
+> 与 `springboot2-extend-flowable` / 早期分支不同,本分支已经把 `basic-sql-2023-03-02.sql` / `quartz.sql` /
 > `ry_20210908.sql` / `reset-all-passwords.sql` / `fix-sys-menu-component.sql` / `create-sys-notice-read.sql`
 > 等历史中间脚本删掉了(`sys_notice_read` 表已并入主脚本);`flowable8-*.sql` 系列补丁脚本也已合并进主脚本。
 
@@ -644,15 +650,15 @@ spring:
 | 引擎 | Flowable 8.0.0(`flowable-spring-boot-starter-process`),只用它的 `RepositoryService` / `RuntimeService` / `TaskService` / `HistoryService` |
 | 定制层 | `extend-flowable/`(223 个 Java 文件):模型/部署/流程/任务/表单/分类/表达式/边界事件/迁移/清盘 |
 | 前端 | `web-ui/src/views/basic-extend/workflow/**`(21 个 vue)+ `web-ui/src/plugins/package/**`(bpmn-js 设计器、属性面板) |
-| 数据库 | schema **`basicdb_flowable8`**,92 张表(`act_*` 39 + `flw_*` 7 + `wf_*` 9 + `tbl_flow_extend_procinst` 1 + `sys_*` 21 + `qrtz_*` 11 + `gen_*` 2 + `list_*` 2) |
+| 数据库 | schema **`basicdb_flowable8`**,**90 张表 + 2 视图**(`act_*` 39 + `flw_*` 7 + `wf_*` 9 + `tbl_flow_extend_procinst` 1 + `sys_*` 21 + `qrtz_*` 11 + `gen_*` 2;视图 `list_table` / `list_column`) |
 
-### 12.2 与 `master-extend-flowable`(Flowable 6.8.0)的差异
+### 12.2 与 `springboot2-extend-flowable`(Flowable 6.8.0)的差异
 
-| 维度 | `master-extend-flowable` | 本分支 |
+| 维度 | `springboot2-extend-flowable` | 本分支 |
 |---|---|---|
 | 引擎 | Flowable 6.8.0 | **Flowable 8.0.0** |
 | 平台 | Spring Boot 2.5.14 + JDK 11 | Spring Boot **4.1.1** + JDK **21** |
-| schema | `basicdb_flowable`(86 张表 + 2 视图) | **`basicdb_flowable8`**(92 张表) |
+| schema | `basicdb_flowable`(86 张表 + 2 视图) | **`basicdb_flowable8`**(90 张表 + 2 视图) |
 | 模型存储 | 设计器 **JSON**(`flowable-json-converter`) | Flowable 7 起移除该转换器,模型编辑器源改为 **BPMN XML**(`WfModelSaveXmlService` 写、`WfModelQueryXmlService` 读) |
 | 建模器表 | 有 `act_de_*` | **无 `act_de_*`**,模型只在 `act_re_model` + `act_ge_bytearray` |
 | 前端目录 | `views/workflow/**` | 按业务域重组为 **`views/basic-extend/workflow/**`** |
