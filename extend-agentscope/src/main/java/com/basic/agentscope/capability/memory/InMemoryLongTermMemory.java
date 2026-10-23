@@ -44,20 +44,27 @@ public class InMemoryLongTermMemory implements LongTermMemory {
 
     @Override
     public Mono<Void> record(List<Msg> msgs) {
-        return Mono.fromRunnable(() -> {
-            if (msgs == null || msgs.isEmpty()) {
-                return;
+        return Mono.fromRunnable(() -> recordSync(msgs));
+    }
+
+    /**
+     * 同步归档（供自定义 Hook 在响应式链里直接调用，避免 block() 带来的线程风险）。
+     *
+     * @param msgs 待归档的消息
+     */
+    public void recordSync(List<Msg> msgs) {
+        if (msgs == null || msgs.isEmpty()) {
+            return;
+        }
+        for (Msg msg : msgs) {
+            String text = extractText(msg);
+            if (text == null || text.isBlank()) {
+                continue;
             }
-            for (Msg msg : msgs) {
-                String text = extractText(msg);
-                if (text == null || text.isBlank()) {
-                    continue;
-                }
-                long no = seq.incrementAndGet();
-                String id = "ltm-" + no;
-                entries.put(id, new MemoryEntry(id, no, resolveRole(msg), text, LocalDateTime.now()));
-            }
-        });
+            long no = seq.incrementAndGet();
+            String id = "ltm-" + no;
+            entries.put(id, new MemoryEntry(id, no, resolveRole(msg), text, LocalDateTime.now()));
+        }
     }
 
     @Override

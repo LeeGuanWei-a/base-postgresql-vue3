@@ -35,8 +35,8 @@ public class SandboxService implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(SandboxService.class);
 
-    /** 禁止出现的 Shell 元字符 */
-    private static final char[] FORBIDDEN_CHARS = {';', '&', '|', '>', '<', '`', '$', '\n', '\r'};
+    /** 禁止出现的 Shell 元字符（含 Windows cmd 的转义符 ^ 与变量符 %） */
+    private static final char[] FORBIDDEN_CHARS = {';', '&', '|', '>', '<', '`', '$', '^', '%', '\n', '\r'};
 
     /** 可直接复制到 application.yml 的配置示例 */
     private static final String YAML_EXAMPLE = """

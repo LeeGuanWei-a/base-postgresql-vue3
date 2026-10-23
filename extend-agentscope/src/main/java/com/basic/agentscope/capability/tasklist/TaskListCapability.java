@@ -43,6 +43,14 @@ public class TaskListCapability implements CapabilityProvider {
     /** 默认会话 ID：detail 接口只能读到"默认会话"的状态，聊天时带上同名 sessionId 即可看到同一份清单 */
     private static final String DEFAULT_SESSION_ID = "task-list-default";
 
+    /**
+     * detail 接口读取状态时使用的 userId。
+     *
+     * <p>与通用能力控制器 {@code CapabilityController} 构造 {@code RuntimeContext} 时用的
+     * {@code userId} 保持一致，否则读不到聊天时写入的同一份状态。</p>
+     */
+    private static final String DETAIL_USER_ID = "demo-user";
+
     /** 该能力专属的 Agent（detail 里读取任务清单状态用） */
     private ReActAgent agent;
 
@@ -87,7 +95,9 @@ public class TaskListCapability implements CapabilityProvider {
                 "/agentscope/capability/task-list/detail",
                 List.of(
                         CapabilityInfo.ParamInfo.required("prompt", "要拆解的需求", "帮我把『用户中心重构』拆成任务清单"),
-                        CapabilityInfo.ParamInfo.text("sessionId", "会话 ID（可留空）", "")
+                        CapabilityInfo.ParamInfo.text("sessionId",
+                                "会话 ID（填 " + DEFAULT_SESSION_ID + " 可与详情接口共享同一份任务清单）",
+                                DEFAULT_SESSION_ID)
                 ));
     }
 
@@ -108,12 +118,12 @@ public class TaskListCapability implements CapabilityProvider {
         String note = null;
         try {
             // 注意：AgentScope 2.0.4 里无参的 getAgentState() 已废弃，
-            // 这里用它的等价写法 getAgentState(sessionId, userId) 读取默认会话的状态
+            // 这里用它的等价写法 getAgentState(userId, sessionId) 读取默认会话的状态
             String sessionId = (agent == null) ? null : agent.getDefaultSessionId();
             if (sessionId == null || sessionId.isBlank()) {
                 note = "Agent 没有设置 defaultSessionId，无法定位任务清单所在会话。";
             } else {
-                AgentState state = (agent == null) ? null : agent.getAgentState(sessionId, null);
+                AgentState state = (agent == null) ? null : agent.getAgentState(DETAIL_USER_ID, sessionId);
                 if (state == null) {
                     note = "当前 Agent 没有可用的 AgentState（getAgentState() 返回 null），任务清单暂不可读。";
                 } else {

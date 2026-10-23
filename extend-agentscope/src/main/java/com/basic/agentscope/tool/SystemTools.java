@@ -1,6 +1,7 @@
 package com.basic.agentscope.tool;
 
 import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -38,7 +39,9 @@ public class SystemTools {
     @Tool(name = "subtract_numbers",
             description = "当需要进行两个数字的减法计算时，调用本工具。参数 a 是被减数，b 是减数。",
             readOnly = true)
-    public Map<String, Object> subtractNumbers(double a, double b) {
+    public Map<String, Object> subtractNumbers(
+            @ToolParam(name = "a", description = "被减数", required = true) double a,
+            @ToolParam(name = "b", description = "减数", required = true) double b) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("a", a);
         result.put("b", b);
@@ -56,7 +59,8 @@ public class SystemTools {
             description = "当用户明确要求『回显』『重复这句话』时，调用本工具原样返回参数 text 的内容。"
                     + "本工具主要用于验证工具调用链路是否通畅。",
             readOnly = true)
-    public String echoText(String text) {
+    public String echoText(
+            @ToolParam(name = "text", description = "要原样回显的文本", required = true) String text) {
         return "ECHO: " + (text == null ? "" : text);
     }
 }

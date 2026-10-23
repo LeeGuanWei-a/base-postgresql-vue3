@@ -49,11 +49,14 @@ public class InterruptCapability implements CapabilityProvider {
     /** sessionId → 中断次数 */
     private final ConcurrentHashMap<String, AtomicInteger> interruptCounts = new ConcurrentHashMap<>();
 
-    /** sessionId → 最近一次运行结果（文本） */
-    private final ConcurrentHashMap<String, String> lastResults = new ConcurrentHashMap<>();
-
-    /** sessionId → 最近一次运行的错误信息 */
-    private final ConcurrentHashMap<String, String> lastErrors = new ConcurrentHashMap<>();
+    /**
+     * sessionId → 最近一次运行结果。
+     *
+     * <p>⚠️ {@code ConcurrentHashMap} 不允许 null 值，而"成功但文本为空"与"失败无文本"
+     * 都会产生 null，因此这里统一用 {@link RunOutcome} 包装 —— 元素本身永不为 null，
+     * 而"从未运行过"用 <b>没有这个 key</b> 来表达。</p>
+     */
+    private final ConcurrentHashMap<String, RunOutcome> lastOutcomes = new ConcurrentHashMap<>();
 
     /** 慢任务工具（可调耗时） */
     private InterruptTools interruptTools;
@@ -127,8 +130,8 @@ public class InterruptCapability implements CapabilityProvider {
             item.put("agentName", entry.getValue() == null ? "-" : entry.getValue().getName());
             item.put("running", isRunning(sessionId));
             item.put("interruptCount", count);
-            item.put("lastResult", lastResults.get(sessionId));
-            item.put("lastError", lastErrors.get(sessionId));
+            item.put("lastResult", lastResult(sessionId));
+            item.put("lastError", lastError(sessionId));
             sessions.add(item);
         }
         detail.put("sessionCount", sessions.size());
@@ -174,8 +177,7 @@ public class InterruptCapability implements CapabilityProvider {
         if (sessionId == null || sessionId.isBlank()) {
             return;
         }
-        lastResults.put(sessionId, text);
-        lastErrors.put(sessionId, error);
+        lastOutcomes.put(sessionId, new RunOutcome(text, error));
     }
 
     /**
@@ -187,17 +189,19 @@ public class InterruptCapability implements CapabilityProvider {
     }
 
     /**
-     * 某个会话最近一次运行的文本结果。
+     * 某个会话最近一次运行的文本结果（从未运行过时返回 null）。
      */
     public String lastResult(String sessionId) {
-        return lastResults.get(sessionId);
+        RunOutcome outcome = lastOutcomes.get(sessionId);
+        return outcome == null ? null : outcome.text();
     }
 
     /**
-     * 某个会话最近一次运行的错误信息。
+     * 某个会话最近一次运行的错误信息（从未运行过或成功时返回 null）。
      */
     public String lastError(String sessionId) {
-        return lastErrors.get(sessionId);
+        RunOutcome outcome = lastOutcomes.get(sessionId);
+        return outcome == null ? null : outcome.error();
     }
 
     /**
@@ -232,5 +236,14 @@ public class InterruptCapability implements CapabilityProvider {
      */
     public InterruptTools interruptTools() {
         return interruptTools;
+    }
+
+    /**
+     * 一次运行的结论：文本结果 + 错误信息。
+     *
+     * <p>两者允许为 null，但 <b>本对象本身永远不为 null</b>，因此可以安全地放进
+     * {@link ConcurrentHashMap}（它不接受 null 值 / null 键）。</p>
+     */
+    public record RunOutcome(String text, String error) {
     }
 }

@@ -100,10 +100,16 @@ public class MockChatModel implements Model {
         boolean toolResultAlreadyPresent = hasToolResult(msgs);
         if (!toolResultAlreadyPresent && tools != null && !tools.isEmpty()) {
             ToolSchema schema = selectTool(tools, userText);
+            Map<String, Object> args = generateArgs(schema, userText);
             ToolUseBlock use = ToolUseBlock.builder()
                     .id("mock-call-" + seq.incrementAndGet())
                     .name(schema.getName())
-                    .input(generateArgs(schema, userText))
+                    .input(args)
+                    // ⚠️ content 必须填：AgentScope 执行工具前用 ToolUseBlock.getContent()
+                    // （模型给的原始参数 JSON 文本）做 JSON Schema 校验。
+                    // 只填 input 会导致带 required 的工具（todo_write / 内置 SubAgentTool /
+                    // 内置 generate_response）被判"未找到必需的参数"。
+                    .content(toJson(args))
                     .build();
             return ChatResponse.builder()
                     .id("mock-resp-" + seq.get())
@@ -194,12 +200,17 @@ public class MockChatModel implements Model {
             String key = entry.getKey();
             JsonNode value = entry.getValue();
             String type = value.path("type").asText("string");
-            args.put(key, defaultValueFor(key, type, userText));
+            args.put(key, defaultValueFor(key, type, value, userText));
         }
         return args;
     }
 
-    private Object defaultValueFor(String key, String type, String userText) {
+    /**
+     * 按参数名 + 类型生成一个"像样"的默认值。
+     *
+     * @param schemaNode 该参数自己的 JSON Schema 节点（用于取 items 里的元素结构）
+     */
+    private Object defaultValueFor(String key, String type, JsonNode schemaNode, String userText) {
         String lower = key.toLowerCase();
         if ("integer".equals(type) || "number".equals(type)) {
             if (lower.contains("page") && lower.contains("size")) {
@@ -213,8 +224,33 @@ public class MockChatModel implements Model {
         if ("boolean".equals(type)) {
             return Boolean.FALSE;
         }
-        if ("array".equals(type) || "object".equals(type)) {
-            return null;
+        if ("array".equals(type)) {
+            // ⚠️ 数组参数不能给 null —— 框架会按 JSON Schema 校验，null 会判"类型不匹配"。
+            // 这里按 items 的结构造一个元素（对象数组 / 字符串数组各取一种）。
+            JsonNode items = schemaNode.path("items");
+            String itemType = items.path("type").asText("string");
+            if ("object".equals(itemType)) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                JsonNode itemProps = items.path("properties");
+                for (Map.Entry<String, JsonNode> e : itemProps.properties()) {
+                    item.put(e.getKey(), defaultValueFor(e.getKey(), e.getValue().path("type").asText("string"),
+                            e.getValue(), userText));
+                }
+                if (item.isEmpty()) {
+                    item.put("subject", "mock");
+                }
+                return List.of(item);
+            }
+            if ("integer".equals(itemType) || "number".equals(itemType)) {
+                return List.of(1);
+            }
+            if ("boolean".equals(itemType)) {
+                return List.of(Boolean.FALSE);
+            }
+            return List.of("mock");
+        }
+        if ("object".equals(type)) {
+            return new LinkedHashMap<String, Object>();
         }
         if (lower.contains("keyword") || lower.contains("username") || lower.contains("user_name")) {
             return "admin";
@@ -296,13 +332,24 @@ public class MockChatModel implements Model {
                     String key = entry.getKey();
                     JsonNode def = entry.getValue();
                     String type = def.path("type").asText("string");
-                    obj.put(key, defaultValueFor(key, type, userText));
+                    obj.put(key, defaultValueFor(key, type, def, userText));
                 }
             }
             return MAPPER.writeValueAsString(obj);
         } catch (Exception e) {
             log.debug("合成结构化输出失败: {}", e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * 把入参 Map 序列化成 JSON 文本（用于 {@code ToolUseBlock.content}）。
+     */
+    private static String toJson(Map<String, Object> args) {
+        try {
+            return MAPPER.writeValueAsString(args == null ? Map.of() : args);
+        } catch (Exception e) {
+            return "{}";
         }
     }
 

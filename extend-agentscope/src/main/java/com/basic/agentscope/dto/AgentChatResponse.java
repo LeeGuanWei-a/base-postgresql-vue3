@@ -30,8 +30,8 @@ public class AgentChatResponse {
     /** 耗时（毫秒） */
     private long elapsedMs;
 
-    /** 工具调用轨迹（能力涉及工具时有值） */
-    private List<Map<String, Object>> toolCalls;
+    /** 工具调用轨迹（能力涉及工具时有值；默认空列表，避免前端渲染 null） */
+    private List<Map<String, Object>> toolCalls = List.of();
 
     /** 结构化输出（能力涉及结构化输出时有值） */
     private Object structured;

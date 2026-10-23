@@ -50,6 +50,9 @@ public class InterruptCapabilityController {
     @Autowired
     private InterruptCapability interruptCapability;
 
+    @Autowired
+    private com.basic.agentscope.config.ModelResolver modelResolver;
+
     /**
      * 发起一次对话（运行期间可被 stop 打断）。
      */
@@ -82,6 +85,7 @@ public class InterruptCapabilityController {
         response.setSessionId(sessionId);
         response.setAgentName(agent.getName());
         response.setModelName(agent.getModel() == null ? "-" : agent.getModel().getModelName());
+        response.setMock(modelResolver.isMock());
 
         long start = System.currentTimeMillis();
         try {

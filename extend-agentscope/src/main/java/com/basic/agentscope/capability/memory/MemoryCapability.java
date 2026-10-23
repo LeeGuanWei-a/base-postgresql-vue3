@@ -65,6 +65,9 @@ public class MemoryCapability implements CapabilityProvider {
                 .toolkit(this.toolkit)
                 .longTermMemory(this.longTermMemory)
                 .longTermMemoryMode(MEMORY_MODE)
+                // 框架内置的归档 Hook 读的是"默认会话槽位"，归档不到实际调用的上下文，
+                // 这里补一个按调用归档的 Hook，保证每轮对话都会进长期记忆。
+                .hook(new MemoryArchiveHook(this.longTermMemory))
                 .maxIters(5)
                 .build();
     }

@@ -12,6 +12,7 @@ import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.TextBlock;
 import io.agentscope.core.message.ToolResultBlock;
 import io.agentscope.core.message.ToolUseBlock;
+import io.agentscope.core.state.AgentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +148,7 @@ public class CapabilityController {
             RuntimeContext ctx = buildRuntimeContext(sessionId);
             Msg reply = agent.call(request.getPrompt(), ctx).block(DEFAULT_TIMEOUT);
             response.setText(reply == null ? "" : reply.getTextContent());
-            response.setToolCalls(extractToolCalls(reply));
+            response.setToolCalls(extractToolCalls(agent, ctx, reply));
             response.setAgentName(agent.getName());
             response.setModelName(agent.getModel() == null ? "-" : agent.getModel().getModelName());
             response.setMock(modelResolver.isMock());
@@ -189,44 +190,74 @@ public class CapabilityController {
     }
 
     /**
-     * 从回复消息里抽取工具调用轨迹。
+     * 抽取工具调用轨迹。
+     *
+     * <p><b>关键点</b>：{@code ReActAgent.call()} 返回的最终 {@code Msg} 里<b>只有最终文本</b>，
+     * {@code ToolUseBlock} / {@code ToolResultBlock} 落在<em>中间消息</em>里。
+     * 因此这里不只看返回值，而是把 {@link ReActAgent#getAgentState(RuntimeContext)} 的
+     * {@code context} 全量消息 + 返回值一起扫描。</p>
      *
      * <p>把 {@code ToolUseBlock}（调用）与 {@code ToolResultBlock}（返回）按 id 合并成一条记录，
      * 前端表格可以直接展示 name / input / output 三列。</p>
      */
-    private List<Map<String, Object>> extractToolCalls(Msg reply) {
+    private List<Map<String, Object>> extractToolCalls(ReActAgent agent, RuntimeContext ctx, Msg reply) {
         List<Map<String, Object>> calls = new ArrayList<>();
-        if (reply == null) {
-            return calls;
-        }
-        Map<String, Map<String, Object>> byId = new LinkedHashMap<>();
-        for (ToolUseBlock use : reply.getContentBlocks(ToolUseBlock.class)) {
-            Map<String, Object> item = new LinkedHashMap<>();
-            item.put("tool", use.getName());
-            item.put("name", use.getName());
-            item.put("input", use.getInput());
-            item.put("output", null);
-            item.put("type", "call");
-            calls.add(item);
-            if (use.getId() != null) {
-                byId.put(use.getId(), item);
+        List<Msg> messages = new ArrayList<>();
+
+        // 1) 收集 Agent 状态里的全部上下文消息（工具调用轨迹的真正来源）
+        try {
+            AgentState state = agent.getAgentState(ctx);
+            if (state != null && state.getContext() != null) {
+                messages.addAll(state.getContext());
             }
+        } catch (Exception e) {
+            log.debug("读取 Agent 状态上下文失败: {}", e.getMessage());
         }
-        for (ToolResultBlock result : reply.getContentBlocks(ToolResultBlock.class)) {
-            String output = extractOutputText(result.getOutput());
-            Map<String, Object> merged = (result.getId() == null) ? null : byId.get(result.getId());
-            if (merged != null) {
-                merged.put("output", output);
-                merged.put("state", result.getState() == null ? null : result.getState().name());
-            } else {
+        // 2) 最终回复（可能自带工具块，例如一次调用就结束的场景）
+        if (reply != null) {
+            messages.add(reply);
+        }
+
+        Map<String, Map<String, Object>> byId = new LinkedHashMap<>();
+        for (Msg msg : messages) {
+            if (msg == null) {
+                continue;
+            }
+            for (ToolUseBlock use : msg.getContentBlocks(ToolUseBlock.class)) {
+                if (use == null) {
+                    continue;
+                }
                 Map<String, Object> item = new LinkedHashMap<>();
-                item.put("tool", result.getName());
-                item.put("name", result.getName());
-                item.put("input", null);
-                item.put("output", output);
-                item.put("type", "result");
-                item.put("state", result.getState() == null ? null : result.getState().name());
+                item.put("tool", use.getName());
+                item.put("name", use.getName());
+                item.put("input", use.getInput());
+                item.put("output", null);
+                item.put("type", "call");
+                item.put("state", null);
                 calls.add(item);
+                if (use.getId() != null) {
+                    byId.put(use.getId(), item);
+                }
+            }
+            for (ToolResultBlock result : msg.getContentBlocks(ToolResultBlock.class)) {
+                if (result == null) {
+                    continue;
+                }
+                String output = extractOutputText(result.getOutput());
+                Map<String, Object> merged = (result.getId() == null) ? null : byId.get(result.getId());
+                if (merged != null) {
+                    merged.put("output", output);
+                    merged.put("state", result.getState() == null ? null : result.getState().name());
+                } else {
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("tool", result.getName());
+                    item.put("name", result.getName());
+                    item.put("input", null);
+                    item.put("output", output);
+                    item.put("type", "result");
+                    item.put("state", result.getState() == null ? null : result.getState().name());
+                    calls.add(item);
+                }
             }
         }
         return calls;

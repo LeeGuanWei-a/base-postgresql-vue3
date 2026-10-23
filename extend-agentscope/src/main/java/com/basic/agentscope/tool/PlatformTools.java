@@ -1,6 +1,7 @@
 package com.basic.agentscope.tool;
 
 import io.agentscope.core.tool.Tool;
+import io.agentscope.core.tool.ToolParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,7 +48,9 @@ public class PlatformTools {
             description = "当用户询问『有哪些用户』『某个用户是谁』『按用户名查用户』时，调用本工具查询系统用户表。"
                     + "参数 keyword 是用户名或昵称的关键字，支持模糊匹配；传空字符串则返回前 10 个用户。",
             readOnly = true)
-    public List<Map<String, Object>> querySysUser(String keyword) {
+    public List<Map<String, Object>> querySysUser(
+            @ToolParam(name = "keyword", description = "用户名或昵称的关键字，支持模糊匹配；传空字符串表示返回前 10 个用户", required = false)
+            String keyword) {
         List<Map<String, Object>> rows = new ArrayList<>();
         try {
             String kw = (keyword == null || keyword.isBlank()) ? "" : keyword.trim();
@@ -76,7 +79,9 @@ public class PlatformTools {
             description = "当用户询问『状态都有哪些』『字典含义』『有哪些枚举值』时，调用本工具查询系统字典表。"
                     + "参数 dictType 是字典类型标识（如 sys_user_sex、sys_normal_disable）；为空则返回所有字典数据。",
             readOnly = true)
-    public List<Map<String, Object>> queryDictData(String dictType) {
+    public List<Map<String, Object>> queryDictData(
+            @ToolParam(name = "dictType", description = "字典类型标识，如 sys_user_sex、sys_normal_disable；为空则返回所有字典数据", required = false)
+            String dictType) {
         List<Map<String, Object>> rows = new ArrayList<>();
         try {
             String type = (dictType == null) ? "" : dictType.trim();
@@ -104,7 +109,9 @@ public class PlatformTools {
             description = "当用户询问『最近谁做了什么操作』『操作日志』『谁改过数据』时，调用本工具查询系统操作日志表。"
                     + "参数 limit 是返回条数，默认 10，最大 50。",
             readOnly = true)
-    public List<Map<String, Object>> queryOperLog(int limit) {
+    public List<Map<String, Object>> queryOperLog(
+            @ToolParam(name = "limit", description = "返回条数，默认 10，最大 50", required = false)
+            int limit) {
         List<Map<String, Object>> rows = new ArrayList<>();
         try {
             int n = Math.min(Math.max(limit <= 0 ? 10 : limit, 1), 50);
@@ -128,7 +135,9 @@ public class PlatformTools {
                     + "参数 tableName 是表名，可选值有：sys_user、sys_role、sys_dept、sys_post、sys_menu、"
                     + "sys_dict_type、sys_dict_data、sys_config、sys_notice、sys_oper_log、sys_logininfor、sys_job。",
             readOnly = true)
-    public Map<String, Object> countTableRows(String tableName) {
+    public Map<String, Object> countTableRows(
+            @ToolParam(name = "tableName", description = "要统计行数的表名，只允许：sys_user、sys_role、sys_dept、sys_post、sys_menu、sys_dict_type、sys_dict_data、sys_config、sys_notice、sys_oper_log、sys_logininfor、sys_job", required = true)
+            String tableName) {
         Map<String, Object> result = new LinkedHashMap<>();
         String name = (tableName == null) ? "" : tableName.trim().toLowerCase();
         result.put("table", name);
@@ -158,7 +167,9 @@ public class PlatformTools {
             description = "当用户询问『有哪些角色』『权限是怎么划分的』时，调用本工具查询系统角色表。"
                     + "参数 roleName 是角色名关键字，可为空表示全部。",
             readOnly = true)
-    public List<Map<String, Object>> querySysRole(String roleName) {
+    public List<Map<String, Object>> querySysRole(
+            @ToolParam(name = "roleName", description = "角色名关键字，支持模糊匹配；为空表示返回全部角色", required = false)
+            String roleName) {
         List<Map<String, Object>> rows = new ArrayList<>();
         try {
             String kw = (roleName == null) ? "" : roleName.trim();

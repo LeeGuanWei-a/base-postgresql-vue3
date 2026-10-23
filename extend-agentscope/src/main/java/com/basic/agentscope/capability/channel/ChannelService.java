@@ -366,7 +366,11 @@ public class ChannelService implements InitializingBean {
         if (base.endsWith("/")) {
             base = base.substring(0, base.length() - 1);
         }
-        String ctx = contextPath == null ? "" : contextPath;
+        // Spring 默认 contextPath 是 "/"，直接拼会产生 http://host//agentscope/...
+        String ctx = (contextPath == null || "/".equals(contextPath)) ? "" : contextPath;
+        if (ctx.endsWith("/")) {
+            ctx = ctx.substring(0, ctx.length() - 1);
+        }
         return base + ctx + "/agentscope/channel/webhook/" + channelType;
     }
 

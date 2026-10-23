@@ -9,8 +9,6 @@ import com.basic.agentscope.tool.SystemTools;
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.model.ToolSchema;
 import io.agentscope.core.tool.Toolkit;
-import io.agentscope.core.tool.subagent.SubAgentConfig;
-import io.agentscope.core.tool.subagent.SubAgentProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,14 +23,19 @@ import java.util.Map;
  * <p>演示"主 Agent 把活儿派给子 Agent"的编排方式：</p>
  * <ol>
  *   <li>先创建一个内部子 Agent（{@code report-sub-agent}，带平台数据查询工具），</li>
- *   <li>再通过 {@code Toolkit.registration().subAgent(SubAgentProvider)} 把它注册成一个<b>工具</b>
- *       （工具名 {@code delegate_report}，参数 {@code message} / {@code session_id}），</li>
- *   <li>主 Agent 只需要"调用工具"，框架内部就会真正驱动子 Agent 跑完它自己的 ReAct 循环，
- *       并把子 Agent 的回答作为工具结果回灌给主 Agent。</li>
+ *   <li>再把子 Agent 包装成一个工具 {@code delegate_report}（见 {@link SubAgentTools}）注册给主 Agent，</li>
+ *   <li>主 Agent 调用该工具时，框架内部会真正驱动子 Agent 跑完它自己的 ReAct 循环
+ *       （子 Agent 自己查 PostgreSQL 拿真实数据），并把子 Agent 的回答作为工具结果回灌给主 Agent。</li>
  * </ol>
  *
  * <p>⚠️ 子 Agent 只是普通对象，<b>不注册为 Spring Bean</b>：
  * 一来它不是独立能力，二来本模块已有多个 {@code ReActAgent} Bean，再加会加重注入歧义。</p>
+ *
+ * <p>📌 框架自带的 {@code Toolkit.registration().subAgent(SubAgentProvider)}
+ * 在 AgentScope 2.0.4 里会把子 Agent 包成内置 {@code SubAgentTool}（{@code AgentTool}），
+ * 其参数 Schema 带 {@code required}，而 Mock 模型构造工具调用时不填 {@code ToolUseBlock.content}，
+ * 会被框架的参数校验拦下（"未找到必需的参数：message"）——
+ * 所以这里采用 {@link SubAgentTools} 的降级实现，效果等价且 Mock / 真实模型都能跑通。</p>
  */
 @Configuration
 public class SubAgentCapability implements CapabilityProvider {
@@ -74,13 +77,7 @@ public class SubAgentCapability implements CapabilityProvider {
 
         // 2) 主 Agent：只暴露"把活儿派给子 Agent"这一个工具
         Toolkit toolkit = new Toolkit();
-        SubAgentProvider<ReActAgent> provider = () -> this.subAgent;
-        toolkit.registration()
-                .subAgent(provider, SubAgentConfig.builder()
-                        .toolName(SUB_AGENT_TOOL)
-                        .description("把数据报告类的任务委派给子 Agent 执行，参数 message 是要交给子 Agent 的任务描述。")
-                        .build())
-                .apply();
+        toolkit.registerTool(new SubAgentTools(this.subAgent));
 
         this.agent = ReActAgent.builder()
                 .name("sub-agent-master")
@@ -105,7 +102,7 @@ public class SubAgentCapability implements CapabilityProvider {
                 "子 Agent",
                 CapabilityCategory.CORE.getCode(),
                 CapabilityCategory.CORE.getLabel(),
-                "主 Agent 把数据类任务委派给子 Agent：子 Agent 被注册成工具 delegate_report，由框架驱动它跑完自己的 ReAct 循环",
+                "主 Agent 把数据类任务委派给子 Agent：子 Agent 被注册成工具 delegate_report，由框架驱动它跑完自己的 ReAct 循环并回传真实数据",
                 "Connection",
                 null,
                 true,

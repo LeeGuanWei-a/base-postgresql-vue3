@@ -1,7 +1,5 @@
 package com.basic.agentscope.capability.channel;
 
-import com.basic.common.core.domain.AjaxResult;
-
 /**
  * 渠道回调请求体（模拟 IM 平台推送过来的文本消息）。
  *
@@ -51,15 +49,5 @@ public class ChannelWebhookRequest {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
-    }
-
-    /**
-     * 校验并返回文本内容。
-     */
-    public AjaxResult validate() {
-        if (text == null || text.isBlank()) {
-            return AjaxResult.error("text 不能为空");
-        }
-        return null;
     }
 }
