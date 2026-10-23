@@ -3,7 +3,7 @@
 基于若依 RuoYi-Vue 3.8.2 改造,与 `master` 分支**唯一区别**:**前端从 JavaScript 改成 TypeScript**(包括 `web-ui` 和 `web-mp` 两端),**后端完全没动**(仍是 Spring Boot 2.5.14 + JDK 11 + Spring Security 5.5)。
 
 > 当前分支:`springboot2_TypeScript` ——「**master + 前端全量 TypeScript 化**」。
-> 仓库另有 `master` / `master-extend-flowable` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot2_TypeScript**。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot2_TypeScript**。
 
 ---
 
@@ -67,19 +67,16 @@
 > **把前端两端的代码从 JavaScript 全部改写成 TypeScript**(`web-ui/` 和 `web-mp/`),
 > 后端、后端依赖、数据库脚本、SQL 配置**完全不动**。
 
-具体而言:
+具体而言(经实际扫描核对):
 
-1. **`web-ui/src/api/**` 全量 `.js` → `.ts`**:login / menu / monitor.* / system.* / tool.* 共 18+ 个 API 文件
-2. **新增 `web-ui/src/types/` 目录**:全量 TypeScript 类型定义(API 参数 / 返回 / 通用 R / AjaxResult / TableDataInfo 等)
-3. **新增 `web-ui/src/utils/auth.ts`**:从原 `.js` 改写并加类型
-4. **`package.json` 新增 TS 工具链**:`typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1`
-5. **`web-mp` 也跟着 TS 化**:`tsconfig.json` 配好(`strict: false` 起步,`@/*` 路径别名),
-   `vite.config.js` 升级为 `vite.config.ts`,`package.json` 加 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19`,
-   并配 `typecheck` 脚本
-6. **环境/配置微调**:`.env.development` / `.env.staging` / `.gitignore` / `.npmrc` 等补充
-7. **数据库脚本**:`file-sql/basicdb-vue3.sql` 与 master 同步(34 张表 + 5 函数,`basicdb` schema)
+1. **`web-ui/src` 全量 `.js` → `.ts`**:`api/**`(19 个)/ `utils/**`(13 个)/ `store/**`(8 个)/ `plugins/**`(6 个)/ `directive/**`(4 个)/ `router/index` / `settings` / `permission` / `main` / `layout/components/index` / `components/{IconSelect,SvgIcon}`,合计 **79 个 `.ts`**;**仅 `src/utils/generator/*.js` 保留 6 个 `.js`**(代码生成器模板,参与字符串拼接,不参与类型检查,`tsconfig.json` 里 `exclude: ["src/**/*.js"]`)
+2. **新增 `web-ui/src/types/` 目录(23 个文件)**:`types/api/**` 全量 API 类型(common / login / menu / monitor.* / system.* / tool.gen)+ `types/components.d.ts` / `types/global.d.ts` / `types/index.ts`
+3. **`package.json` 新增 TS 工具链**:`typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1`;`vite.config.js` → `vite.config.ts`;根目录新增 `tsconfig.json` + `auto-imports.d.ts`
+4. **`web-mp` 也跟着 TS 化**:`src` 下 **19 个 `.ts`、0 个遗留 `.js`**;新增 `tsconfig.json`(`strict: false` 起步,`@/*` 路径别名);`vite.config.js` → `vite.config.ts`;`package.json` 加 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19`,并配 `typecheck` 脚本
+5. **环境/配置微调**:`.env.development` / `.env.staging` / `.gitignore` / `.npmrc` 等补充
+6. **数据库脚本**:`file-sql/basicdb-vue3.sql` 与 master 同步(34 张表 + 5 函数,`basicdb` schema)
 
-`springboot2_TypeScript` 与 `master` 的**唯一差异**就是上面 1–6 的前端 TS 化;后端代码、
+`springboot2_TypeScript` 与 `master` 的**唯一差异**就是上面 1–5 的前端 TS 化;后端代码、
 SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 ---
@@ -88,12 +85,14 @@ SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 | 改动 | 涉及文件 / 位置 |
 |---|---|
-| `web-ui` API 层 TS 化 | `web-ui/src/api/**` 下所有 `*.js` → `*.ts` |
-| `web-ui` 新增类型目录 | `web-ui/src/types/api/**.ts`(全量 API 类型)+ `types/components.d.ts` / `global.d.ts` / `index.ts` |
-| `web-ui/utils/auth` TS 化 | `web-ui/src/utils/auth.ts` |
-| `web-ui` TS 工具链 | `web-ui/package.json` 新增 `typescript` / `vue-tsc` / `@vue/tsconfig` |
-| `web-mp` TS 化 | `web-mp/tsconfig.json`(新增) + `web-mp/vite.config.ts`(`vite.config.js` 改名) |
-| `web-mp` TS 工具链 | `web-mp/package.json` 新增 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19` / `typecheck` 脚本 |
+| `web-ui` 全量 TS 化(79 个 `.ts`) | `src/api/**`(19)/ `utils/**`(13)/ `store/**`(8)/ `plugins/**`(6)/ `directive/**`(4)/ `router/index` / `settings` / `permission` / `main` / `layout/components/index` / `components/{IconSelect,SvgIcon}` |
+| `web-ui` 保留的 6 个 `.js` | `src/utils/generator/*.js`(代码生成器模板,`tsconfig.json` 里 `exclude: ["src/**/*.js"]`) |
+| `web-ui` 新增类型目录(23 个) | `src/types/api/**.ts`(全量 API 类型)+ `types/components.d.ts` / `global.d.ts` / `index.ts` |
+| `web-ui` TS 工程配置 | `tsconfig.json`(新增,`strict: true` + `@vue/tsconfig` 继承 + `@/*` 别名)/ `auto-imports.d.ts` / `vite.config.ts`(由 `.js` 改名) |
+| `web-ui` TS 工具链 | `package.json` 新增 `typescript@5.6.3` / `vue-tsc@2.1.10` / `@vue/tsconfig@0.5.1` |
+| `web-mp` 全量 TS 化(19 个 `.ts`,0 遗留 `.js`) | `src/api/**` / `src/store/**` / `src/utils/**` / `src/config` / `src/main` / `src/permission` / `src/directive/permission` / `src/types/global.d.ts` |
+| `web-mp` TS 工程配置 | `tsconfig.json`(新增,`strict: false` 起步 + `@/*` 别名)/ `vite.config.ts`(由 `.js` 改名) |
+| `web-mp` TS 工具链 | `package.json` 新增 `typescript: ^5.4.5` / `vue-tsc: ^2.0.19` / `typecheck` 脚本 |
 | `web-ui` 环境/工程配置 | `web-ui/.env.development` / `.env.staging` / `.gitignore` / `.npmrc` / `src/App.vue` 微调 / `assets/images/pay.png` 新增 |
 | 数据库脚本 | `file-sql/basicdb-vue3.sql`(与 master 同步,PostgreSQL) |
 
@@ -125,14 +124,20 @@ SQL 脚本、`pom.xml`、业务逻辑**完全相同**。
 
 | 分支 | 做什么 |
 |---|---|
-| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端零升级,前端 JS,加 web-mp) |
-| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
+| `master` | **当前基线**:`RuoYi-Vue 3.8.2 最小改造 + PostgreSQL + 锁屏 + web-mp`,后端 SB 2.5.14 / JDK 11,**前端 JavaScript**;`basicdb` schema / 34 张表 |
+| `springboot2_TypeScript` 🟢 | **当前分支**:`master` 的 TypeScript 版,后端**零修改**,只把 `web-ui` 和 `web-mp` 的 `.js` 全部改为 `.ts` 并配套 `tsconfig.json` / `types/` 类型目录 / `vue-tsc` 类型检查;`basicdb` schema / 34 张表(不变) |
+| `springboot2-tianai-captcha` | `master` + 把 kaptcha 替换为 **tianai-captcha 行为验证码**(滑动 / 旋转 / 文字点选 三种类型可切换);`basicdb` schema / 34 张表(不变) |
+| `springboot2-extend-flowable` | `master` + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
 | `springboot3` | 后端 SB 2.5.14 → 3.5.16(JDK 11 → 17),Jakarta EE + Spring Security 6 + springdoc + ... |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
+| `springboot3-tianai-captcha` | `springboot3` + tianai-captcha 行为验证码 |
+| `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
 | `springboot4` | 后端 SB 3.5.16 → 4.1.1(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
-| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(最完整栈) |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(技术栈最完整) |
+| `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |
 
-> 本分支 `springboot2_TypeScript` ≈ master + 前端 TS 化,可以视作"master 的 TS 版"。
+> 命名约定:`springboot{N}_<style>` 风格分支都基于 `springboot{N}` 后端基线 + 某种前端/业务风格叠加;
+> 本分支 `springboot2_TypeScript` 是 `master` 的纯前端升级版,**不引入 Flowable**、**不替换验证码**。
 
 ---
 
@@ -261,7 +266,7 @@ spring:
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
 > 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
-> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> (注:`springboot2-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
 > 本分支**仍保留**。)
 
 ---
@@ -387,7 +392,7 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展
 ├── extend-generator/                    # 代码生成扩展
-├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── extend-flowable/                     # (仅 springboot2-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
