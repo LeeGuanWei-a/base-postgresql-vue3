@@ -25,20 +25,15 @@
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="code" v-if="captchaEnabled">
-        <el-input
-          v-model="loginForm.code"
-          size="large"
-          auto-complete="off"
-          placeholder="验证码"
-          style="width: 63%"
-          @keyup.enter="handleLogin"
-        >
-          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
-        </el-input>
-        <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
-        </div>
+      <el-form-item v-if="captchaEnabled" prop="code">
+        <TianaiCaptcha
+          ref="captchaRef"
+          v-model:captchaId="loginForm.uuid"
+          v-model:captchaData="loginForm.captchaData"
+          :show-type-switch="true"
+          default-type="SLIDER"
+          @success="onCaptchaSuccess"
+        />
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
@@ -65,11 +60,12 @@
 </template>
 
 <script setup>
-import { getCodeImg } from "@/api/login"
 import Cookies from "js-cookie"
 import { encrypt, decrypt } from "@/utils/jsencrypt"
 import useUserStore from '@/store/modules/user'
 import defaultSettings from '@/settings'
+import { ElMessage } from "element-plus"
+import TianaiCaptcha from '@/components/TianaiCaptcha/index.vue'
 
 const title = import.meta.env.VITE_APP_TITLE
 const footerContent = defaultSettings.footerContent
@@ -82,19 +78,22 @@ const loginForm = ref({
   username: "admin",
   password: "admin123",
   rememberMe: false,
-  code: "",
-  uuid: ""
+  // 行为验证码:tianai-captcha 模式下 uuid 字段就是验证码 id
+  code: "1",
+  uuid: "",
+  // tianai-captcha 滑动轨迹(4 种类型都用)
+  captchaData: ""
 })
 
 const loginRules = {
   username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
   password: [{ required: true, trigger: "blur", message: "请输入您的密码" }],
-  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+  code: [{ required: true, trigger: "change", message: "请完成行为验证码" }]
 }
 
-const codeUrl = ref("")
+const captchaRef = ref(null)
 const loading = ref(false)
-// 验证码开关
+// 验证码开关(由 TianaiCaptcha 内部从后端 /captchaImage 读取;默认 true,关闭时整项隐藏)
 const captchaEnabled = ref(true)
 // 注册开关
 const register = ref(false)
@@ -104,7 +103,21 @@ watch(route, (newRoute) => {
     redirect.value = newRoute.query && newRoute.query.redirect
 }, { immediate: true })
 
+// 行为验证码成功回调:tianai-captcha 内部已通过 /captcha/check 校验
+function onCaptchaSuccess(payload) {
+  // payload: { id, type, data }
+  loginForm.value.uuid = payload.id
+  loginForm.value.captchaData = JSON.stringify(payload.data)
+  loginForm.value.code = '1'
+  ElMessage.success('行为验证码已通过')
+}
+
 function handleLogin() {
+  // 行为验证码未通过时,直接拒绝
+  if (captchaEnabled.value && (!loginForm.value.captchaData || !loginForm.value.uuid)) {
+    ElMessage.warning('请先完成行为验证码')
+    return
+  }
   proxy.$refs.loginRef.validate(valid => {
     if (valid) {
       loading.value = true
@@ -132,20 +145,12 @@ function handleLogin() {
       }).catch(() => {
         loading.value = false
         // 重新获取验证码
-        if (captchaEnabled.value) {
-          getCode()
+        if (captchaEnabled.value && captchaRef.value) {
+          captchaRef.value.refresh()
+          loginForm.value.captchaData = ''
+          loginForm.value.uuid = ''
         }
       })
-    }
-  })
-}
-
-function getCode() {
-  getCodeImg().then(res => {
-    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
-    if (captchaEnabled.value) {
-      codeUrl.value = "data:image/gif;base64," + res.img
-      loginForm.value.uuid = res.uuid
     }
   })
 }
@@ -161,7 +166,6 @@ function getCookie() {
   }
 }
 
-getCode()
 getCookie()
 </script>
 

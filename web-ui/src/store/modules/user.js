@@ -26,8 +26,10 @@ const useUserStore = defineStore(
         const password = userInfo.password
         const code = userInfo.code
         const uuid = userInfo.uuid
+        // tianai-captcha 行为验证码轨迹数据(4 种类型通用)
+        const captchaData = userInfo.captchaData || ''
         return new Promise((resolve, reject) => {
-          login(username, password, code, uuid).then(res => {
+          login(username, password, code, uuid, captchaData).then(res => {
             setToken(res.token)
             this.token = res.token
             useLockStore().unlockScreen()

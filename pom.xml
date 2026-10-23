@@ -26,6 +26,8 @@
         <druid.version>1.2.28</druid.version>
         <yauaa.version>8.2.0</yauaa.version>
         <kaptcha.version>2.3.3</kaptcha.version>
+        <!-- 行为验证码 (tianai 行为验证码, Spring Boot 3 / jakarta.servlet 兼容) -->
+        <tianai.version>1.5.2</tianai.version>
         <pagehelper.boot.version>2.1.1</pagehelper.boot.version>
         <oshi.version>7.4.4</oshi.version>
         <commons.io.version>2.22.0</commons.io.version>
@@ -150,6 +152,13 @@
                 <groupId>pro.fessional</groupId>
                 <artifactId>kaptcha</artifactId>
                 <version>${kaptcha.version}</version>
+            </dependency>
+
+            <!-- 行为验证码 (tianai-captcha starter) -->
+            <dependency>
+                <groupId>cloud.tianai.captcha</groupId>
+                <artifactId>tianai-captcha-springboot-starter</artifactId>
+                <version>${tianai.version}</version>
             </dependency>
 
             <!-- 定时任务 -->

@@ -12,8 +12,8 @@ basic:
   profile: D:/basic/uploadPath
   # 获取ip地址开关
   addressEnabled: false
-  # 验证码类型 math 数组计算 char 字符验证
-  captchaType: math
+  # 验证码类型(tianai 行为验证码,可选 SLIDER / ROTATE / WORD_IMAGE_CLICK)
+  captchaType: SLIDER
 
 # 数据源配置
 spring:
@@ -87,8 +87,8 @@ spring:
       host: 192.168.170.125
       # 端口，默认为6379
       port: 6379
-      # 数据库索引
-      database: 12
+      # 数据库索引 (12 已被 springboot2-tianai-captcha 占用, 切到 13)
+      database: 13
       # 密码
       password:
       # 连接超时时间

@@ -4,6 +4,7 @@
 
 > 当前分支:`springboot3` ——「**master + 后端 SB 2.5.14 → 3.5.16 升级**」。
 > 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3**。
+> **本次提交**:`springboot3-tianai-captcha` ——「**用 tianai-captcha 行为验证码替换 kaptcha**」(kaptcha 已删,行为验证码支持 SLIDER / ROTATE / WORD_IMAGE_CLICK)。
 
 ---
 
