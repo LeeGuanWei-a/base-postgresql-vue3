@@ -5,7 +5,7 @@
 -- Dumped from database version 15.1
 -- Dumped by pg_dump version 17.0
 
--- Started on 2026-10-16 17:08:19
+-- Started on 2026-10-24 00:37:21
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -129,7 +129,7 @@ DROP FUNCTION basicdb_agentscope.exec(sqlstring character varying);
 DROP FUNCTION basicdb_agentscope.date_format(indate anyelement, informate text);
 DROP SCHEMA basicdb_agentscope;
 --
--- TOC entry 8 (class 2615 OID 4483157)
+-- TOC entry 12 (class 2615 OID 4559773)
 -- Name: basicdb_agentscope; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
@@ -139,7 +139,7 @@ CREATE SCHEMA basicdb_agentscope;
 ALTER SCHEMA basicdb_agentscope OWNER TO postgres;
 
 --
--- TOC entry 387 (class 1255 OID 4483158)
+-- TOC entry 672 (class 1255 OID 4559782)
 -- Name: date_format(anyelement, text); Type: FUNCTION; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -199,7 +199,7 @@ $_$;
 ALTER FUNCTION basicdb_agentscope.date_format(indate anyelement, informate text) OWNER TO system;
 
 --
--- TOC entry 388 (class 1255 OID 4483159)
+-- TOC entry 673 (class 1255 OID 4559783)
 -- Name: exec(character varying); Type: FUNCTION; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -218,7 +218,7 @@ $$;
 ALTER FUNCTION basicdb_agentscope.exec(sqlstring character varying) OWNER TO system;
 
 --
--- TOC entry 389 (class 1255 OID 4483160)
+-- TOC entry 674 (class 1255 OID 4559784)
 -- Name: find_in_set(bigint, character varying); Type: FUNCTION; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -245,7 +245,7 @@ $_$;
 ALTER FUNCTION basicdb_agentscope.find_in_set(bigint, character varying) OWNER TO system;
 
 --
--- TOC entry 390 (class 1255 OID 4483161)
+-- TOC entry 675 (class 1255 OID 4559785)
 -- Name: ifnull(text, text); Type: FUNCTION; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -261,7 +261,7 @@ $_$;
 ALTER FUNCTION basicdb_agentscope.ifnull(param1 text, param2 text) OWNER TO system;
 
 --
--- TOC entry 391 (class 1255 OID 4483162)
+-- TOC entry 676 (class 1255 OID 4559786)
 -- Name: tabledef(oid); Type: FUNCTION; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -359,7 +359,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 218 (class 1259 OID 4483163)
+-- TOC entry 589 (class 1259 OID 4559787)
 -- Name: gen_table; Type: TABLE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -390,7 +390,7 @@ CREATE TABLE basicdb_agentscope.gen_table (
 ALTER TABLE basicdb_agentscope.gen_table OWNER TO system;
 
 --
--- TOC entry 219 (class 1259 OID 4483171)
+-- TOC entry 590 (class 1259 OID 4559795)
 -- Name: gen_table_column; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -423,7 +423,7 @@ CREATE TABLE basicdb_agentscope.gen_table_column (
 ALTER TABLE basicdb_agentscope.gen_table_column OWNER TO postgres;
 
 --
--- TOC entry 220 (class 1259 OID 4483177)
+-- TOC entry 591 (class 1259 OID 4559801)
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -438,8 +438,8 @@ CREATE SEQUENCE basicdb_agentscope.gen_table_column_column_id_seq
 ALTER SEQUENCE basicdb_agentscope.gen_table_column_column_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3972 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 4678 (class 0 OID 0)
+-- Dependencies: 591
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -447,7 +447,7 @@ ALTER SEQUENCE basicdb_agentscope.gen_table_column_column_id_seq OWNED BY basicd
 
 
 --
--- TOC entry 221 (class 1259 OID 4483178)
+-- TOC entry 592 (class 1259 OID 4559802)
 -- Name: gen_table_table_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -462,8 +462,8 @@ CREATE SEQUENCE basicdb_agentscope.gen_table_table_id_seq
 ALTER SEQUENCE basicdb_agentscope.gen_table_table_id_seq OWNER TO system;
 
 --
--- TOC entry 3974 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 4680 (class 0 OID 0)
+-- Dependencies: 592
 -- Name: gen_table_table_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -471,7 +471,7 @@ ALTER SEQUENCE basicdb_agentscope.gen_table_table_id_seq OWNED BY basicdb_agents
 
 
 --
--- TOC entry 222 (class 1259 OID 4483179)
+-- TOC entry 593 (class 1259 OID 4559803)
 -- Name: list_column; Type: VIEW; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -515,7 +515,7 @@ CREATE VIEW basicdb_agentscope.list_column AS
 ALTER VIEW basicdb_agentscope.list_column OWNER TO system;
 
 --
--- TOC entry 223 (class 1259 OID 4483184)
+-- TOC entry 594 (class 1259 OID 4559808)
 -- Name: list_table; Type: VIEW; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -532,7 +532,7 @@ CREATE VIEW basicdb_agentscope.list_table AS
 ALTER VIEW basicdb_agentscope.list_table OWNER TO system;
 
 --
--- TOC entry 224 (class 1259 OID 4483189)
+-- TOC entry 595 (class 1259 OID 4559813)
 -- Name: qrtz_blob_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -547,7 +547,7 @@ CREATE TABLE basicdb_agentscope.qrtz_blob_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_blob_triggers OWNER TO postgres;
 
 --
--- TOC entry 225 (class 1259 OID 4483194)
+-- TOC entry 596 (class 1259 OID 4559818)
 -- Name: qrtz_calendars; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -561,7 +561,7 @@ CREATE TABLE basicdb_agentscope.qrtz_calendars (
 ALTER TABLE basicdb_agentscope.qrtz_calendars OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 4483199)
+-- TOC entry 597 (class 1259 OID 4559823)
 -- Name: qrtz_cron_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -577,7 +577,7 @@ CREATE TABLE basicdb_agentscope.qrtz_cron_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_cron_triggers OWNER TO postgres;
 
 --
--- TOC entry 227 (class 1259 OID 4483204)
+-- TOC entry 598 (class 1259 OID 4559828)
 -- Name: qrtz_fired_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -601,7 +601,7 @@ CREATE TABLE basicdb_agentscope.qrtz_fired_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_fired_triggers OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 4483209)
+-- TOC entry 599 (class 1259 OID 4559833)
 -- Name: qrtz_job_details; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -622,7 +622,7 @@ CREATE TABLE basicdb_agentscope.qrtz_job_details (
 ALTER TABLE basicdb_agentscope.qrtz_job_details OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 4483214)
+-- TOC entry 600 (class 1259 OID 4559838)
 -- Name: qrtz_locks; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -635,7 +635,7 @@ CREATE TABLE basicdb_agentscope.qrtz_locks (
 ALTER TABLE basicdb_agentscope.qrtz_locks OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 4483217)
+-- TOC entry 601 (class 1259 OID 4559841)
 -- Name: qrtz_paused_trigger_grps; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -648,7 +648,7 @@ CREATE TABLE basicdb_agentscope.qrtz_paused_trigger_grps (
 ALTER TABLE basicdb_agentscope.qrtz_paused_trigger_grps OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 4483220)
+-- TOC entry 602 (class 1259 OID 4559844)
 -- Name: qrtz_scheduler_state; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -663,7 +663,7 @@ CREATE TABLE basicdb_agentscope.qrtz_scheduler_state (
 ALTER TABLE basicdb_agentscope.qrtz_scheduler_state OWNER TO postgres;
 
 --
--- TOC entry 232 (class 1259 OID 4483223)
+-- TOC entry 603 (class 1259 OID 4559847)
 -- Name: qrtz_simple_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -680,7 +680,7 @@ CREATE TABLE basicdb_agentscope.qrtz_simple_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_simple_triggers OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 4483228)
+-- TOC entry 604 (class 1259 OID 4559852)
 -- Name: qrtz_simprop_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -705,7 +705,7 @@ CREATE TABLE basicdb_agentscope.qrtz_simprop_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_simprop_triggers OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 4483233)
+-- TOC entry 605 (class 1259 OID 4559857)
 -- Name: qrtz_triggers; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -732,7 +732,7 @@ CREATE TABLE basicdb_agentscope.qrtz_triggers (
 ALTER TABLE basicdb_agentscope.qrtz_triggers OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 4483238)
+-- TOC entry 606 (class 1259 OID 4559862)
 -- Name: sys_config; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -753,7 +753,7 @@ CREATE TABLE basicdb_agentscope.sys_config (
 ALTER TABLE basicdb_agentscope.sys_config OWNER TO postgres;
 
 --
--- TOC entry 236 (class 1259 OID 4483244)
+-- TOC entry 607 (class 1259 OID 4559868)
 -- Name: sys_config_config_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -769,8 +769,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_config_config_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_config_config_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3990 (class 0 OID 0)
--- Dependencies: 236
+-- TOC entry 4696 (class 0 OID 0)
+-- Dependencies: 607
 -- Name: sys_config_config_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -778,7 +778,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_config_config_id_seq OWNED BY basicdb_agen
 
 
 --
--- TOC entry 237 (class 1259 OID 4483245)
+-- TOC entry 608 (class 1259 OID 4559869)
 -- Name: sys_demo; Type: TABLE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -801,7 +801,7 @@ CREATE TABLE basicdb_agentscope.sys_demo (
 ALTER TABLE basicdb_agentscope.sys_demo OWNER TO system;
 
 --
--- TOC entry 238 (class 1259 OID 4483248)
+-- TOC entry 609 (class 1259 OID 4559872)
 -- Name: sys_dept; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -829,7 +829,7 @@ CREATE TABLE basicdb_agentscope.sys_dept (
 ALTER TABLE basicdb_agentscope.sys_dept OWNER TO postgres;
 
 --
--- TOC entry 239 (class 1259 OID 4483257)
+-- TOC entry 610 (class 1259 OID 4559881)
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -844,8 +844,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_dept_dept_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_dept_dept_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3993 (class 0 OID 0)
--- Dependencies: 239
+-- TOC entry 4699 (class 0 OID 0)
+-- Dependencies: 610
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -853,7 +853,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_dept_dept_id_seq OWNED BY basicdb_agentsco
 
 
 --
--- TOC entry 240 (class 1259 OID 4483258)
+-- TOC entry 611 (class 1259 OID 4559882)
 -- Name: sys_dict_data; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -878,7 +878,7 @@ CREATE TABLE basicdb_agentscope.sys_dict_data (
 ALTER TABLE basicdb_agentscope.sys_dict_data OWNER TO postgres;
 
 --
--- TOC entry 241 (class 1259 OID 4483266)
+-- TOC entry 612 (class 1259 OID 4559890)
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -893,8 +893,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_dict_data_dict_code_seq
 ALTER SEQUENCE basicdb_agentscope.sys_dict_data_dict_code_seq OWNER TO postgres;
 
 --
--- TOC entry 3996 (class 0 OID 0)
--- Dependencies: 241
+-- TOC entry 4702 (class 0 OID 0)
+-- Dependencies: 612
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -902,7 +902,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_dict_data_dict_code_seq OWNED BY basicdb_a
 
 
 --
--- TOC entry 242 (class 1259 OID 4483267)
+-- TOC entry 613 (class 1259 OID 4559891)
 -- Name: sys_dict_type; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -922,7 +922,7 @@ CREATE TABLE basicdb_agentscope.sys_dict_type (
 ALTER TABLE basicdb_agentscope.sys_dict_type OWNER TO postgres;
 
 --
--- TOC entry 243 (class 1259 OID 4483273)
+-- TOC entry 614 (class 1259 OID 4559897)
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -937,8 +937,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_dict_type_dict_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_dict_type_dict_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3999 (class 0 OID 0)
--- Dependencies: 243
+-- TOC entry 4705 (class 0 OID 0)
+-- Dependencies: 614
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -946,7 +946,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_dict_type_dict_id_seq OWNED BY basicdb_age
 
 
 --
--- TOC entry 244 (class 1259 OID 4483274)
+-- TOC entry 615 (class 1259 OID 4559898)
 -- Name: sys_files; Type: TABLE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -971,7 +971,7 @@ CREATE TABLE basicdb_agentscope.sys_files (
 ALTER TABLE basicdb_agentscope.sys_files OWNER TO system;
 
 --
--- TOC entry 245 (class 1259 OID 4483279)
+-- TOC entry 616 (class 1259 OID 4559903)
 -- Name: sys_i18n; Type: TABLE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -985,8 +985,8 @@ CREATE TABLE basicdb_agentscope.sys_i18n (
 ALTER TABLE basicdb_agentscope.sys_i18n OWNER TO system;
 
 --
--- TOC entry 4001 (class 0 OID 0)
--- Dependencies: 245
+-- TOC entry 4707 (class 0 OID 0)
+-- Dependencies: 616
 -- Name: COLUMN sys_i18n.message_id; Type: COMMENT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -994,8 +994,8 @@ COMMENT ON COLUMN basicdb_agentscope.sys_i18n.message_id IS '标识';
 
 
 --
--- TOC entry 4002 (class 0 OID 0)
--- Dependencies: 245
+-- TOC entry 4708 (class 0 OID 0)
+-- Dependencies: 616
 -- Name: COLUMN sys_i18n.value; Type: COMMENT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1003,8 +1003,8 @@ COMMENT ON COLUMN basicdb_agentscope.sys_i18n.value IS '值';
 
 
 --
--- TOC entry 4003 (class 0 OID 0)
--- Dependencies: 245
+-- TOC entry 4709 (class 0 OID 0)
+-- Dependencies: 616
 -- Name: COLUMN sys_i18n.language; Type: COMMENT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1012,7 +1012,7 @@ COMMENT ON COLUMN basicdb_agentscope.sys_i18n.language IS '语言';
 
 
 --
--- TOC entry 246 (class 1259 OID 4483284)
+-- TOC entry 617 (class 1259 OID 4559908)
 -- Name: sys_job; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1036,7 +1036,7 @@ CREATE TABLE basicdb_agentscope.sys_job (
 ALTER TABLE basicdb_agentscope.sys_job OWNER TO postgres;
 
 --
--- TOC entry 247 (class 1259 OID 4483293)
+-- TOC entry 618 (class 1259 OID 4559917)
 -- Name: sys_job_job_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1051,8 +1051,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_job_job_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_job_job_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4005 (class 0 OID 0)
--- Dependencies: 247
+-- TOC entry 4711 (class 0 OID 0)
+-- Dependencies: 618
 -- Name: sys_job_job_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1060,7 +1060,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_job_job_id_seq OWNED BY basicdb_agentscope
 
 
 --
--- TOC entry 248 (class 1259 OID 4483294)
+-- TOC entry 619 (class 1259 OID 4559918)
 -- Name: sys_job_log; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1079,7 +1079,7 @@ CREATE TABLE basicdb_agentscope.sys_job_log (
 ALTER TABLE basicdb_agentscope.sys_job_log OWNER TO postgres;
 
 --
--- TOC entry 249 (class 1259 OID 4483300)
+-- TOC entry 620 (class 1259 OID 4559924)
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1094,8 +1094,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_job_log_job_log_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_job_log_job_log_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4008 (class 0 OID 0)
--- Dependencies: 249
+-- TOC entry 4714 (class 0 OID 0)
+-- Dependencies: 620
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1103,7 +1103,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_job_log_job_log_id_seq OWNED BY basicdb_ag
 
 
 --
--- TOC entry 250 (class 1259 OID 4483301)
+-- TOC entry 621 (class 1259 OID 4559925)
 -- Name: sys_logininfor; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1123,7 +1123,7 @@ CREATE TABLE basicdb_agentscope.sys_logininfor (
 ALTER TABLE basicdb_agentscope.sys_logininfor OWNER TO postgres;
 
 --
--- TOC entry 251 (class 1259 OID 4483307)
+-- TOC entry 622 (class 1259 OID 4559931)
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1138,8 +1138,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_logininfor_info_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_logininfor_info_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4011 (class 0 OID 0)
--- Dependencies: 251
+-- TOC entry 4717 (class 0 OID 0)
+-- Dependencies: 622
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1147,7 +1147,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_logininfor_info_id_seq OWNED BY basicdb_ag
 
 
 --
--- TOC entry 252 (class 1259 OID 4483308)
+-- TOC entry 623 (class 1259 OID 4559932)
 -- Name: sys_menu; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1181,8 +1181,8 @@ CREATE TABLE basicdb_agentscope.sys_menu (
 ALTER TABLE basicdb_agentscope.sys_menu OWNER TO postgres;
 
 --
--- TOC entry 4013 (class 0 OID 0)
--- Dependencies: 252
+-- TOC entry 4719 (class 0 OID 0)
+-- Dependencies: 623
 -- Name: COLUMN sys_menu.show_tags; Type: COMMENT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1190,7 +1190,7 @@ COMMENT ON COLUMN basicdb_agentscope.sys_menu.show_tags IS '自定义配置该�
 
 
 --
--- TOC entry 253 (class 1259 OID 4483320)
+-- TOC entry 624 (class 1259 OID 4559944)
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1205,8 +1205,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_menu_menu_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_menu_menu_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4015 (class 0 OID 0)
--- Dependencies: 253
+-- TOC entry 4721 (class 0 OID 0)
+-- Dependencies: 624
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1214,7 +1214,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_menu_menu_id_seq OWNED BY basicdb_agentsco
 
 
 --
--- TOC entry 254 (class 1259 OID 4483321)
+-- TOC entry 625 (class 1259 OID 4559945)
 -- Name: sys_notice; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1235,7 +1235,7 @@ CREATE TABLE basicdb_agentscope.sys_notice (
 ALTER TABLE basicdb_agentscope.sys_notice OWNER TO postgres;
 
 --
--- TOC entry 255 (class 1259 OID 4483327)
+-- TOC entry 626 (class 1259 OID 4559951)
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1251,8 +1251,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_notice_notice_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_notice_notice_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4018 (class 0 OID 0)
--- Dependencies: 255
+-- TOC entry 4724 (class 0 OID 0)
+-- Dependencies: 626
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1260,7 +1260,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_notice_notice_id_seq OWNED BY basicdb_agen
 
 
 --
--- TOC entry 374 (class 1259 OID 4487134)
+-- TOC entry 627 (class 1259 OID 4559952)
 -- Name: sys_notice_read; Type: TABLE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1275,7 +1275,7 @@ CREATE TABLE basicdb_agentscope.sys_notice_read (
 ALTER TABLE basicdb_agentscope.sys_notice_read OWNER TO system;
 
 --
--- TOC entry 375 (class 1259 OID 4487137)
+-- TOC entry 628 (class 1259 OID 4559955)
 -- Name: sys_notice_read_read_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1290,8 +1290,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_notice_read_read_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_notice_read_read_id_seq OWNER TO system;
 
 --
--- TOC entry 4020 (class 0 OID 0)
--- Dependencies: 375
+-- TOC entry 4726 (class 0 OID 0)
+-- Dependencies: 628
 -- Name: sys_notice_read_read_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1299,7 +1299,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_notice_read_read_id_seq OWNED BY basicdb_a
 
 
 --
--- TOC entry 256 (class 1259 OID 4483328)
+-- TOC entry 629 (class 1259 OID 4559956)
 -- Name: sys_oper_log; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1326,7 +1326,7 @@ CREATE TABLE basicdb_agentscope.sys_oper_log (
 ALTER TABLE basicdb_agentscope.sys_oper_log OWNER TO postgres;
 
 --
--- TOC entry 257 (class 1259 OID 4483336)
+-- TOC entry 630 (class 1259 OID 4559964)
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1341,8 +1341,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_oper_log_oper_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_oper_log_oper_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4022 (class 0 OID 0)
--- Dependencies: 257
+-- TOC entry 4728 (class 0 OID 0)
+-- Dependencies: 630
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1350,7 +1350,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_oper_log_oper_id_seq OWNED BY basicdb_agen
 
 
 --
--- TOC entry 258 (class 1259 OID 4483337)
+-- TOC entry 631 (class 1259 OID 4559965)
 -- Name: sys_post; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1371,7 +1371,7 @@ CREATE TABLE basicdb_agentscope.sys_post (
 ALTER TABLE basicdb_agentscope.sys_post OWNER TO postgres;
 
 --
--- TOC entry 259 (class 1259 OID 4483342)
+-- TOC entry 632 (class 1259 OID 4559970)
 -- Name: sys_post_post_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1386,8 +1386,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_post_post_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_post_post_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4025 (class 0 OID 0)
--- Dependencies: 259
+-- TOC entry 4731 (class 0 OID 0)
+-- Dependencies: 632
 -- Name: sys_post_post_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1395,7 +1395,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_post_post_id_seq OWNED BY basicdb_agentsco
 
 
 --
--- TOC entry 260 (class 1259 OID 4483343)
+-- TOC entry 633 (class 1259 OID 4559971)
 -- Name: sys_role; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1420,7 +1420,7 @@ CREATE TABLE basicdb_agentscope.sys_role (
 ALTER TABLE basicdb_agentscope.sys_role OWNER TO postgres;
 
 --
--- TOC entry 261 (class 1259 OID 4483352)
+-- TOC entry 634 (class 1259 OID 4559980)
 -- Name: sys_role_dept; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1433,7 +1433,7 @@ CREATE TABLE basicdb_agentscope.sys_role_dept (
 ALTER TABLE basicdb_agentscope.sys_role_dept OWNER TO postgres;
 
 --
--- TOC entry 262 (class 1259 OID 4483355)
+-- TOC entry 635 (class 1259 OID 4559983)
 -- Name: sys_role_menu; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1446,7 +1446,7 @@ CREATE TABLE basicdb_agentscope.sys_role_menu (
 ALTER TABLE basicdb_agentscope.sys_role_menu OWNER TO postgres;
 
 --
--- TOC entry 263 (class 1259 OID 4483358)
+-- TOC entry 636 (class 1259 OID 4559986)
 -- Name: sys_role_role_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1461,8 +1461,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_role_role_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_role_role_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4030 (class 0 OID 0)
--- Dependencies: 263
+-- TOC entry 4736 (class 0 OID 0)
+-- Dependencies: 636
 -- Name: sys_role_role_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1470,7 +1470,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_role_role_id_seq OWNED BY basicdb_agentsco
 
 
 --
--- TOC entry 264 (class 1259 OID 4483364)
+-- TOC entry 637 (class 1259 OID 4559987)
 -- Name: sys_user; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1501,7 +1501,7 @@ CREATE TABLE basicdb_agentscope.sys_user (
 ALTER TABLE basicdb_agentscope.sys_user OWNER TO postgres;
 
 --
--- TOC entry 265 (class 1259 OID 4483373)
+-- TOC entry 638 (class 1259 OID 4559996)
 -- Name: sys_user_post; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1514,7 +1514,7 @@ CREATE TABLE basicdb_agentscope.sys_user_post (
 ALTER TABLE basicdb_agentscope.sys_user_post OWNER TO postgres;
 
 --
--- TOC entry 266 (class 1259 OID 4483376)
+-- TOC entry 639 (class 1259 OID 4559999)
 -- Name: sys_user_role; Type: TABLE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1527,7 +1527,7 @@ CREATE TABLE basicdb_agentscope.sys_user_role (
 ALTER TABLE basicdb_agentscope.sys_user_role OWNER TO postgres;
 
 --
--- TOC entry 267 (class 1259 OID 4483379)
+-- TOC entry 640 (class 1259 OID 4560002)
 -- Name: sys_user_user_id_seq; Type: SEQUENCE; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1542,8 +1542,8 @@ CREATE SEQUENCE basicdb_agentscope.sys_user_user_id_seq
 ALTER SEQUENCE basicdb_agentscope.sys_user_user_id_seq OWNER TO postgres;
 
 --
--- TOC entry 4035 (class 0 OID 0)
--- Dependencies: 267
+-- TOC entry 4741 (class 0 OID 0)
+-- Dependencies: 640
 -- Name: sys_user_user_id_seq; Type: SEQUENCE OWNED BY; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1551,7 +1551,7 @@ ALTER SEQUENCE basicdb_agentscope.sys_user_user_id_seq OWNED BY basicdb_agentsco
 
 
 --
--- TOC entry 3647 (class 2604 OID 4483380)
+-- TOC entry 4347 (class 2604 OID 4560003)
 -- Name: gen_table table_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1559,7 +1559,7 @@ ALTER TABLE ONLY basicdb_agentscope.gen_table ALTER COLUMN table_id SET DEFAULT 
 
 
 --
--- TOC entry 3651 (class 2604 OID 4483381)
+-- TOC entry 4351 (class 2604 OID 4560004)
 -- Name: gen_table_column column_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1567,7 +1567,7 @@ ALTER TABLE ONLY basicdb_agentscope.gen_table_column ALTER COLUMN column_id SET 
 
 
 --
--- TOC entry 3653 (class 2604 OID 4483382)
+-- TOC entry 4353 (class 2604 OID 4560005)
 -- Name: sys_config config_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1575,7 +1575,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_config ALTER COLUMN config_id SET DEFAUL
 
 
 --
--- TOC entry 3655 (class 2604 OID 4483383)
+-- TOC entry 4355 (class 2604 OID 4560006)
 -- Name: sys_dept dept_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1583,7 +1583,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dept ALTER COLUMN dept_id SET DEFAULT ne
 
 
 --
--- TOC entry 3660 (class 2604 OID 4483384)
+-- TOC entry 4360 (class 2604 OID 4560007)
 -- Name: sys_dict_data dict_code; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1591,7 +1591,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dict_data ALTER COLUMN dict_code SET DEF
 
 
 --
--- TOC entry 3664 (class 2604 OID 4483385)
+-- TOC entry 4364 (class 2604 OID 4560008)
 -- Name: sys_dict_type dict_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1599,7 +1599,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dict_type ALTER COLUMN dict_id SET DEFAU
 
 
 --
--- TOC entry 3666 (class 2604 OID 4483386)
+-- TOC entry 4366 (class 2604 OID 4560009)
 -- Name: sys_job job_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1607,7 +1607,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_job ALTER COLUMN job_id SET DEFAULT next
 
 
 --
--- TOC entry 3671 (class 2604 OID 4483387)
+-- TOC entry 4371 (class 2604 OID 4560010)
 -- Name: sys_job_log job_log_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1615,7 +1615,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_job_log ALTER COLUMN job_log_id SET DEFA
 
 
 --
--- TOC entry 3673 (class 2604 OID 4483388)
+-- TOC entry 4373 (class 2604 OID 4560011)
 -- Name: sys_logininfor info_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1623,7 +1623,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_logininfor ALTER COLUMN info_id SET DEFA
 
 
 --
--- TOC entry 3675 (class 2604 OID 4483389)
+-- TOC entry 4375 (class 2604 OID 4560012)
 -- Name: sys_menu menu_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1631,7 +1631,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_menu ALTER COLUMN menu_id SET DEFAULT ne
 
 
 --
--- TOC entry 3683 (class 2604 OID 4483390)
+-- TOC entry 4383 (class 2604 OID 4560013)
 -- Name: sys_notice notice_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1639,7 +1639,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_notice ALTER COLUMN notice_id SET DEFAUL
 
 
 --
--- TOC entry 3685 (class 2604 OID 4483391)
+-- TOC entry 4385 (class 2604 OID 4560014)
 -- Name: sys_oper_log oper_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1647,7 +1647,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_oper_log ALTER COLUMN oper_id SET DEFAUL
 
 
 --
--- TOC entry 3689 (class 2604 OID 4483392)
+-- TOC entry 4389 (class 2604 OID 4560015)
 -- Name: sys_post post_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1655,7 +1655,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_post ALTER COLUMN post_id SET DEFAULT ne
 
 
 --
--- TOC entry 3690 (class 2604 OID 4483393)
+-- TOC entry 4390 (class 2604 OID 4560016)
 -- Name: sys_role role_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1663,7 +1663,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_role ALTER COLUMN role_id SET DEFAULT ne
 
 
 --
--- TOC entry 3695 (class 2604 OID 4483394)
+-- TOC entry 4395 (class 2604 OID 4560017)
 -- Name: sys_user user_id; Type: DEFAULT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1671,8 +1671,8 @@ ALTER TABLE ONLY basicdb_agentscope.sys_user ALTER COLUMN user_id SET DEFAULT ne
 
 
 --
--- TOC entry 3915 (class 0 OID 4483163)
--- Dependencies: 218
+-- TOC entry 4621 (class 0 OID 4559787)
+-- Dependencies: 589
 -- Data for Name: gen_table; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -1697,8 +1697,8 @@ INSERT INTO basicdb_agentscope.gen_table VALUES (18, 'sys_demo', NULL, NULL, NUL
 
 
 --
--- TOC entry 3916 (class 0 OID 4483171)
--- Dependencies: 219
+-- TOC entry 4622 (class 0 OID 4559795)
+-- Dependencies: 590
 -- Data for Name: gen_table_column; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1890,96 +1890,96 @@ INSERT INTO basicdb_agentscope.gen_table_column VALUES (185, '18', 'birth', NULL
 
 
 --
--- TOC entry 3919 (class 0 OID 4483189)
--- Dependencies: 224
+-- TOC entry 4625 (class 0 OID 4559813)
+-- Dependencies: 595
 -- Data for Name: qrtz_blob_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3920 (class 0 OID 4483194)
--- Dependencies: 225
+-- TOC entry 4626 (class 0 OID 4559818)
+-- Dependencies: 596
 -- Data for Name: qrtz_calendars; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3921 (class 0 OID 4483199)
--- Dependencies: 226
+-- TOC entry 4627 (class 0 OID 4559823)
+-- Dependencies: 597
 -- Data for Name: qrtz_cron_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3922 (class 0 OID 4483204)
--- Dependencies: 227
+-- TOC entry 4628 (class 0 OID 4559828)
+-- Dependencies: 598
 -- Data for Name: qrtz_fired_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3923 (class 0 OID 4483209)
--- Dependencies: 228
+-- TOC entry 4629 (class 0 OID 4559833)
+-- Dependencies: 599
 -- Data for Name: qrtz_job_details; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3924 (class 0 OID 4483214)
--- Dependencies: 229
+-- TOC entry 4630 (class 0 OID 4559838)
+-- Dependencies: 600
 -- Data for Name: qrtz_locks; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3925 (class 0 OID 4483217)
--- Dependencies: 230
+-- TOC entry 4631 (class 0 OID 4559841)
+-- Dependencies: 601
 -- Data for Name: qrtz_paused_trigger_grps; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3926 (class 0 OID 4483220)
--- Dependencies: 231
+-- TOC entry 4632 (class 0 OID 4559844)
+-- Dependencies: 602
 -- Data for Name: qrtz_scheduler_state; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3927 (class 0 OID 4483223)
--- Dependencies: 232
+-- TOC entry 4633 (class 0 OID 4559847)
+-- Dependencies: 603
 -- Data for Name: qrtz_simple_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3928 (class 0 OID 4483228)
--- Dependencies: 233
+-- TOC entry 4634 (class 0 OID 4559852)
+-- Dependencies: 604
 -- Data for Name: qrtz_simprop_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3929 (class 0 OID 4483233)
--- Dependencies: 234
+-- TOC entry 4635 (class 0 OID 4559857)
+-- Dependencies: 605
 -- Data for Name: qrtz_triggers; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3930 (class 0 OID 4483238)
--- Dependencies: 235
+-- TOC entry 4636 (class 0 OID 4559862)
+-- Dependencies: 606
 -- Data for Name: sys_config; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -1998,8 +1998,8 @@ INSERT INTO basicdb_agentscope.sys_config VALUES (13, '账号登录-账号锁定
 
 
 --
--- TOC entry 3932 (class 0 OID 4483245)
--- Dependencies: 237
+-- TOC entry 4638 (class 0 OID 4559869)
+-- Dependencies: 608
 -- Data for Name: sys_demo; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2007,8 +2007,8 @@ INSERT INTO basicdb_agentscope.sys_demo VALUES (1750711753414205442, '李四', '
 
 
 --
--- TOC entry 3933 (class 0 OID 4483248)
--- Dependencies: 238
+-- TOC entry 4639 (class 0 OID 4559872)
+-- Dependencies: 609
 -- Data for Name: sys_dept; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2026,8 +2026,8 @@ INSERT INTO basicdb_agentscope.sys_dept VALUES (111, 101, '0,100,101', '办公�
 
 
 --
--- TOC entry 3935 (class 0 OID 4483258)
--- Dependencies: 240
+-- TOC entry 4641 (class 0 OID 4559882)
+-- Dependencies: 611
 -- Data for Name: sys_dict_data; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2065,8 +2065,8 @@ INSERT INTO basicdb_agentscope.sys_dict_data VALUES (32, 2, '隐藏', '2', 'sys_
 
 
 --
--- TOC entry 3937 (class 0 OID 4483267)
--- Dependencies: 242
+-- TOC entry 4643 (class 0 OID 4559891)
+-- Dependencies: 613
 -- Data for Name: sys_dict_type; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2084,16 +2084,16 @@ INSERT INTO basicdb_agentscope.sys_dict_type VALUES (12, '选项卡状态', 'sys
 
 
 --
--- TOC entry 3939 (class 0 OID 4483274)
--- Dependencies: 244
+-- TOC entry 4645 (class 0 OID 4559898)
+-- Dependencies: 615
 -- Data for Name: sys_files; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: system
 --
 
 
 
 --
--- TOC entry 3940 (class 0 OID 4483279)
--- Dependencies: 245
+-- TOC entry 4646 (class 0 OID 4559903)
+-- Dependencies: 616
 -- Data for Name: sys_i18n; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2106,8 +2106,8 @@ INSERT INTO basicdb_agentscope.sys_i18n VALUES ('Assembly.idFormStyle', '請給�
 
 
 --
--- TOC entry 3941 (class 0 OID 4483284)
--- Dependencies: 246
+-- TOC entry 4647 (class 0 OID 4559908)
+-- Dependencies: 617
 -- Data for Name: sys_job; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2117,24 +2117,27 @@ INSERT INTO basicdb_agentscope.sys_job VALUES (3, '系统默认（多参）', 'D
 
 
 --
--- TOC entry 3943 (class 0 OID 4483294)
--- Dependencies: 248
+-- TOC entry 4649 (class 0 OID 4559918)
+-- Dependencies: 619
 -- Data for Name: sys_job_log; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3945 (class 0 OID 4483301)
--- Dependencies: 250
+-- TOC entry 4651 (class 0 OID 4559925)
+-- Dependencies: 621
 -- Data for Name: sys_logininfor; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
+INSERT INTO basicdb_agentscope.sys_logininfor VALUES (725, 'admin', '127.0.0.1', '内网IP', 'WindowsPowerShell', 'Windows NT', '0', '登录成功', '2026-10-24 00:28:41');
+INSERT INTO basicdb_agentscope.sys_logininfor VALUES (726, 'admin', '127.0.0.1', '内网IP', 'WindowsPowerShell', 'Windows NT', '0', '登录成功', '2026-10-24 00:33:07');
+INSERT INTO basicdb_agentscope.sys_logininfor VALUES (727, 'admin', '127.0.0.1', '内网IP', 'Chrome', 'Windows NT', '0', '登录成功', '2026-10-24 00:34:49');
 
 
 --
--- TOC entry 3947 (class 0 OID 4483308)
--- Dependencies: 252
+-- TOC entry 4653 (class 0 OID 4559932)
+-- Dependencies: 623
 -- Data for Name: sys_menu; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2220,27 +2223,29 @@ INSERT INTO basicdb_agentscope.sys_menu VALUES (110, '定时任务', 3, 6, 'job'
 INSERT INTO basicdb_agentscope.sys_menu VALUES (114, '表单构建', 3, 1, 'build', 'basic-admin/tool/build/index', '', '1', '0', 'C', '0', '0', 'tool:build:list', 'build', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:36', '表单构建菜单', NULL, '0', 'Form construction', '表單構建');
 INSERT INTO basicdb_agentscope.sys_menu VALUES (115, '代码生成', 3, 2, 'gen', 'basic-admin/tool/gen/index', '', '1', '0', 'C', '0', '0', 'tool:gen:list', 'code', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:44', '代码生成菜单', NULL, '0', 'code generation', '代碼生成');
 INSERT INTO basicdb_agentscope.sys_menu VALUES (116, '系统接口', 3, 3, 'swagger', 'basic-admin/tool/swagger/index', '', '1', '0', 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', '2023-02-28 17:09:30', 'admin', '2025-08-14 10:40:54', '系统接口菜单', NULL, '0', 'system interface', '系統接口');
+INSERT INTO basicdb_agentscope.sys_menu VALUES (1067, '扩展功能', 0, 4, 'basic-extend', NULL, '', '1', '0', 'M', '0', '0', '', 'component', 'admin', '2026-10-24 00:34:07', NULL, NULL, '扩展功能目录：流程、AgentScope 等', NULL, NULL, NULL, NULL);
+INSERT INTO basicdb_agentscope.sys_menu VALUES (1068, 'AgentScope 能力展厅', 1067, 1, 'agent', 'basic-extend/agent/index', '', '1', '0', 'C', '0', '0', 'agentscope:capability:list', 'cpu', 'admin', '2026-10-24 00:34:07', NULL, NULL, 'AgentScope Java 2.x 全部能力集成演示', NULL, NULL, NULL, NULL);
 
 
 --
--- TOC entry 3949 (class 0 OID 4483321)
--- Dependencies: 254
+-- TOC entry 4655 (class 0 OID 4559945)
+-- Dependencies: 625
 -- Data for Name: sys_notice; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
 
 
 --
--- TOC entry 3963 (class 0 OID 4487134)
--- Dependencies: 374
+-- TOC entry 4657 (class 0 OID 4559952)
+-- Dependencies: 627
 -- Data for Name: sys_notice_read; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: system
 --
 
 
 
 --
--- TOC entry 3951 (class 0 OID 4483328)
--- Dependencies: 256
+-- TOC entry 4659 (class 0 OID 4559956)
+-- Dependencies: 629
 -- Data for Name: sys_oper_log; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2262,8 +2267,8 @@ INSERT INTO basicdb_agentscope.sys_oper_log VALUES (393, '菜单管理', 3, 'com
 
 
 --
--- TOC entry 3953 (class 0 OID 4483337)
--- Dependencies: 258
+-- TOC entry 4661 (class 0 OID 4559965)
+-- Dependencies: 631
 -- Data for Name: sys_post; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2271,8 +2276,8 @@ INSERT INTO basicdb_agentscope.sys_post VALUES (1, 'ceo', '董事长', 1, '0', '
 
 
 --
--- TOC entry 3955 (class 0 OID 4483343)
--- Dependencies: 260
+-- TOC entry 4663 (class 0 OID 4559971)
+-- Dependencies: 633
 -- Data for Name: sys_role; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2283,8 +2288,8 @@ INSERT INTO basicdb_agentscope.sys_role VALUES (5, '用户1', 'usss', 3, '1', 1,
 
 
 --
--- TOC entry 3956 (class 0 OID 4483352)
--- Dependencies: 261
+-- TOC entry 4664 (class 0 OID 4559980)
+-- Dependencies: 634
 -- Data for Name: sys_role_dept; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2294,8 +2299,8 @@ INSERT INTO basicdb_agentscope.sys_role_dept VALUES (2, 105);
 
 
 --
--- TOC entry 3957 (class 0 OID 4483355)
--- Dependencies: 262
+-- TOC entry 4665 (class 0 OID 4559983)
+-- Dependencies: 635
 -- Data for Name: sys_role_menu; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2350,8 +2355,8 @@ INSERT INTO basicdb_agentscope.sys_role_menu VALUES (2, 116);
 
 
 --
--- TOC entry 3959 (class 0 OID 4483364)
--- Dependencies: 264
+-- TOC entry 4667 (class 0 OID 4559987)
+-- Dependencies: 637
 -- Data for Name: sys_user; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2362,12 +2367,12 @@ INSERT INTO basicdb_agentscope.sys_user VALUES (5, 100, 'xiaoxi', '系统管理�
 INSERT INTO basicdb_agentscope.sys_user VALUES (7, NULL, '用户1', 'user1', '00', NULL, NULL, '0', NULL, '$2a$10$wfJ4zAYQ0kaZyp2XRyLO7.5bnloK3/M0HiOatf3kRWt//u2KMUNdu', '0', '2', NULL, NULL, 'admin', '2024-02-06 16:51:53', NULL, NULL, NULL, '2024-02-21 11:49:28');
 INSERT INTO basicdb_agentscope.sys_user VALUES (2, 105, 'xiaoshen', '审计管理员', '00', 'xiaoshen@qq.com', '17777777777', '1', '/profile/avatar/2024/02/06/blob_20240206154427A003.jpeg', '$2a$10$MpBkNRsOzwiy54C/Vx8JoOjk6NV3Zz.jws030m1DMvguCcPP4OLJ6', '0', '0', '192.168.170.21', '2024-02-07 08:21:20', 'admin', '2023-02-28 17:09:30', 'admin', '2024-02-07 08:21:19', '审计管理员', '2024-02-21 11:49:28');
 INSERT INTO basicdb_agentscope.sys_user VALUES (8, NULL, 'test001', '测试', '00', NULL, NULL, '0', NULL, '$2a$10$RAs8Dzmmt.UUD4JZvLX4Wes1Eblh0Z/OpQceqseQk78zhNvI62XvK', '0', '0', '127.0.0.1', '2025-08-14 10:43:36', 'admin', '2024-02-21 17:09:51', 'admin', '2025-08-14 10:43:36', NULL, '2025-08-14 10:43:21');
-INSERT INTO basicdb_agentscope.sys_user VALUES (1, 100, 'admin', '超*管', '00', 'xiaochao@163.com', '18888888888', '1', '/profile/avatar/2024/02/06/blob_20240206154306A002.jpeg', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-10-14 14:10:31', 'admin', '2023-02-28 17:09:30', '', '2026-10-14 14:10:31', '管理员', '2024-02-21 11:49:28');
+INSERT INTO basicdb_agentscope.sys_user VALUES (1, 100, 'admin', '超*管', '00', 'xiaochao@163.com', '18888888888', '1', '/profile/avatar/2024/02/06/blob_20240206154306A002.jpeg', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-10-24 00:34:49', 'admin', '2023-02-28 17:09:30', '', '2026-10-24 00:34:49', '管理员', '2024-02-21 11:49:28');
 
 
 --
--- TOC entry 3960 (class 0 OID 4483373)
--- Dependencies: 265
+-- TOC entry 4668 (class 0 OID 4559996)
+-- Dependencies: 638
 -- Data for Name: sys_user_post; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2375,8 +2380,8 @@ INSERT INTO basicdb_agentscope.sys_user_post VALUES (1, 1);
 
 
 --
--- TOC entry 3961 (class 0 OID 4483376)
--- Dependencies: 266
+-- TOC entry 4669 (class 0 OID 4559999)
+-- Dependencies: 639
 -- Data for Name: sys_user_role; Type: TABLE DATA; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2389,8 +2394,8 @@ INSERT INTO basicdb_agentscope.sys_user_role VALUES (9, 2);
 
 
 --
--- TOC entry 4037 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 4743 (class 0 OID 0)
+-- Dependencies: 591
 -- Name: gen_table_column_column_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2398,8 +2403,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.gen_table_column_column_id_seq', 18
 
 
 --
--- TOC entry 4038 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 4744 (class 0 OID 0)
+-- Dependencies: 592
 -- Name: gen_table_table_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2407,8 +2412,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.gen_table_table_id_seq', 18, true);
 
 
 --
--- TOC entry 4039 (class 0 OID 0)
--- Dependencies: 236
+-- TOC entry 4745 (class 0 OID 0)
+-- Dependencies: 607
 -- Name: sys_config_config_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2416,8 +2421,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_config_config_id_seq', 13, true
 
 
 --
--- TOC entry 4040 (class 0 OID 0)
--- Dependencies: 239
+-- TOC entry 4746 (class 0 OID 0)
+-- Dependencies: 610
 -- Name: sys_dept_dept_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2425,8 +2430,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_dept_dept_id_seq', 111, true);
 
 
 --
--- TOC entry 4041 (class 0 OID 0)
--- Dependencies: 241
+-- TOC entry 4747 (class 0 OID 0)
+-- Dependencies: 612
 -- Name: sys_dict_data_dict_code_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2434,8 +2439,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_dict_data_dict_code_seq', 32, t
 
 
 --
--- TOC entry 4042 (class 0 OID 0)
--- Dependencies: 243
+-- TOC entry 4748 (class 0 OID 0)
+-- Dependencies: 614
 -- Name: sys_dict_type_dict_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2443,8 +2448,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_dict_type_dict_id_seq', 12, tru
 
 
 --
--- TOC entry 4043 (class 0 OID 0)
--- Dependencies: 247
+-- TOC entry 4749 (class 0 OID 0)
+-- Dependencies: 618
 -- Name: sys_job_job_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2452,8 +2457,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_job_job_id_seq', 4, true);
 
 
 --
--- TOC entry 4044 (class 0 OID 0)
--- Dependencies: 249
+-- TOC entry 4750 (class 0 OID 0)
+-- Dependencies: 620
 -- Name: sys_job_log_job_log_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2461,17 +2466,17 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_job_log_job_log_id_seq', 1, fal
 
 
 --
--- TOC entry 4045 (class 0 OID 0)
--- Dependencies: 251
+-- TOC entry 4751 (class 0 OID 0)
+-- Dependencies: 622
 -- Name: sys_logininfor_info_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
-SELECT pg_catalog.setval('basicdb_agentscope.sys_logininfor_info_id_seq', 724, true);
+SELECT pg_catalog.setval('basicdb_agentscope.sys_logininfor_info_id_seq', 727, true);
 
 
 --
--- TOC entry 4046 (class 0 OID 0)
--- Dependencies: 253
+-- TOC entry 4752 (class 0 OID 0)
+-- Dependencies: 624
 -- Name: sys_menu_menu_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2479,8 +2484,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_menu_menu_id_seq', 1066, true);
 
 
 --
--- TOC entry 4047 (class 0 OID 0)
--- Dependencies: 255
+-- TOC entry 4753 (class 0 OID 0)
+-- Dependencies: 626
 -- Name: sys_notice_notice_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2488,8 +2493,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_notice_notice_id_seq', 3, true)
 
 
 --
--- TOC entry 4048 (class 0 OID 0)
--- Dependencies: 375
+-- TOC entry 4754 (class 0 OID 0)
+-- Dependencies: 628
 -- Name: sys_notice_read_read_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2497,8 +2502,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_notice_read_read_id_seq', 1, fa
 
 
 --
--- TOC entry 4049 (class 0 OID 0)
--- Dependencies: 257
+-- TOC entry 4755 (class 0 OID 0)
+-- Dependencies: 630
 -- Name: sys_oper_log_oper_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2506,8 +2511,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_oper_log_oper_id_seq', 393, tru
 
 
 --
--- TOC entry 4050 (class 0 OID 0)
--- Dependencies: 259
+-- TOC entry 4756 (class 0 OID 0)
+-- Dependencies: 632
 -- Name: sys_post_post_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2515,8 +2520,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_post_post_id_seq', 5, true);
 
 
 --
--- TOC entry 4051 (class 0 OID 0)
--- Dependencies: 263
+-- TOC entry 4757 (class 0 OID 0)
+-- Dependencies: 636
 -- Name: sys_role_role_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2524,8 +2529,8 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_role_role_id_seq', 5, true);
 
 
 --
--- TOC entry 4052 (class 0 OID 0)
--- Dependencies: 267
+-- TOC entry 4758 (class 0 OID 0)
+-- Dependencies: 640
 -- Name: sys_user_user_id_seq; Type: SEQUENCE SET; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2533,7 +2538,7 @@ SELECT pg_catalog.setval('basicdb_agentscope.sys_user_user_id_seq', 9, true);
 
 
 --
--- TOC entry 3701 (class 2606 OID 4483396)
+-- TOC entry 4401 (class 2606 OID 4560019)
 -- Name: gen_table PRIMARY; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2542,7 +2547,7 @@ ALTER TABLE ONLY basicdb_agentscope.gen_table
 
 
 --
--- TOC entry 3703 (class 2606 OID 4483398)
+-- TOC entry 4403 (class 2606 OID 4560021)
 -- Name: gen_table_column PRIMARY00000; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2551,7 +2556,7 @@ ALTER TABLE ONLY basicdb_agentscope.gen_table_column
 
 
 --
--- TOC entry 3705 (class 2606 OID 4483400)
+-- TOC entry 4405 (class 2606 OID 4560023)
 -- Name: qrtz_blob_triggers PRIMARY00001; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2560,7 +2565,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_blob_triggers
 
 
 --
--- TOC entry 3707 (class 2606 OID 4483402)
+-- TOC entry 4407 (class 2606 OID 4560025)
 -- Name: qrtz_calendars PRIMARY00002; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2569,7 +2574,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_calendars
 
 
 --
--- TOC entry 3709 (class 2606 OID 4483404)
+-- TOC entry 4409 (class 2606 OID 4560027)
 -- Name: qrtz_cron_triggers PRIMARY00003; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2578,7 +2583,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_cron_triggers
 
 
 --
--- TOC entry 3711 (class 2606 OID 4483406)
+-- TOC entry 4411 (class 2606 OID 4560029)
 -- Name: qrtz_fired_triggers PRIMARY00004; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2587,7 +2592,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_fired_triggers
 
 
 --
--- TOC entry 3713 (class 2606 OID 4483408)
+-- TOC entry 4413 (class 2606 OID 4560031)
 -- Name: qrtz_job_details PRIMARY00005; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2596,7 +2601,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_job_details
 
 
 --
--- TOC entry 3715 (class 2606 OID 4483410)
+-- TOC entry 4415 (class 2606 OID 4560033)
 -- Name: qrtz_locks PRIMARY00006; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2605,7 +2610,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_locks
 
 
 --
--- TOC entry 3717 (class 2606 OID 4483412)
+-- TOC entry 4417 (class 2606 OID 4560035)
 -- Name: qrtz_paused_trigger_grps PRIMARY00007; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2614,7 +2619,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_paused_trigger_grps
 
 
 --
--- TOC entry 3719 (class 2606 OID 4483414)
+-- TOC entry 4419 (class 2606 OID 4560037)
 -- Name: qrtz_scheduler_state PRIMARY00008; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2623,7 +2628,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_scheduler_state
 
 
 --
--- TOC entry 3721 (class 2606 OID 4483416)
+-- TOC entry 4421 (class 2606 OID 4560039)
 -- Name: qrtz_simple_triggers PRIMARY00009; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2632,7 +2637,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_simple_triggers
 
 
 --
--- TOC entry 3723 (class 2606 OID 4483418)
+-- TOC entry 4423 (class 2606 OID 4560041)
 -- Name: qrtz_simprop_triggers PRIMARY00010; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2641,7 +2646,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_simprop_triggers
 
 
 --
--- TOC entry 3725 (class 2606 OID 4483420)
+-- TOC entry 4425 (class 2606 OID 4560043)
 -- Name: qrtz_triggers PRIMARY00011; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2650,7 +2655,7 @@ ALTER TABLE ONLY basicdb_agentscope.qrtz_triggers
 
 
 --
--- TOC entry 3728 (class 2606 OID 4483422)
+-- TOC entry 4428 (class 2606 OID 4560045)
 -- Name: sys_config PRIMARY00012; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2659,7 +2664,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_config
 
 
 --
--- TOC entry 3732 (class 2606 OID 4483424)
+-- TOC entry 4432 (class 2606 OID 4560047)
 -- Name: sys_dept PRIMARY00013; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2668,7 +2673,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dept
 
 
 --
--- TOC entry 3734 (class 2606 OID 4483426)
+-- TOC entry 4434 (class 2606 OID 4560049)
 -- Name: sys_dict_data PRIMARY00014; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2677,7 +2682,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dict_data
 
 
 --
--- TOC entry 3736 (class 2606 OID 4483428)
+-- TOC entry 4436 (class 2606 OID 4560051)
 -- Name: sys_dict_type PRIMARY00015; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2686,7 +2691,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_dict_type
 
 
 --
--- TOC entry 3741 (class 2606 OID 4483430)
+-- TOC entry 4441 (class 2606 OID 4560053)
 -- Name: sys_job PRIMARY00016; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2695,7 +2700,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_job
 
 
 --
--- TOC entry 3743 (class 2606 OID 4483432)
+-- TOC entry 4443 (class 2606 OID 4560055)
 -- Name: sys_job_log PRIMARY00017; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2704,7 +2709,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_job_log
 
 
 --
--- TOC entry 3745 (class 2606 OID 4483434)
+-- TOC entry 4445 (class 2606 OID 4560057)
 -- Name: sys_logininfor PRIMARY00018; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2713,7 +2718,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_logininfor
 
 
 --
--- TOC entry 3747 (class 2606 OID 4483436)
+-- TOC entry 4447 (class 2606 OID 4560059)
 -- Name: sys_menu PRIMARY00019; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2722,7 +2727,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_menu
 
 
 --
--- TOC entry 3749 (class 2606 OID 4483438)
+-- TOC entry 4449 (class 2606 OID 4560061)
 -- Name: sys_notice PRIMARY00020; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2731,7 +2736,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_notice
 
 
 --
--- TOC entry 3751 (class 2606 OID 4483440)
+-- TOC entry 4454 (class 2606 OID 4560063)
 -- Name: sys_oper_log PRIMARY00021; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2740,7 +2745,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_oper_log
 
 
 --
--- TOC entry 3753 (class 2606 OID 4483442)
+-- TOC entry 4456 (class 2606 OID 4560065)
 -- Name: sys_post PRIMARY00022; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2749,7 +2754,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_post
 
 
 --
--- TOC entry 3755 (class 2606 OID 4483444)
+-- TOC entry 4458 (class 2606 OID 4560067)
 -- Name: sys_role PRIMARY00023; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2758,7 +2763,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_role
 
 
 --
--- TOC entry 3757 (class 2606 OID 4483446)
+-- TOC entry 4460 (class 2606 OID 4560069)
 -- Name: sys_role_dept PRIMARY00024; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2767,7 +2772,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_role_dept
 
 
 --
--- TOC entry 3759 (class 2606 OID 4483448)
+-- TOC entry 4462 (class 2606 OID 4560071)
 -- Name: sys_role_menu PRIMARY00025; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2776,7 +2781,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_role_menu
 
 
 --
--- TOC entry 3761 (class 2606 OID 4483450)
+-- TOC entry 4464 (class 2606 OID 4560073)
 -- Name: sys_user PRIMARY00026; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2785,7 +2790,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_user
 
 
 --
--- TOC entry 3763 (class 2606 OID 4483452)
+-- TOC entry 4466 (class 2606 OID 4560075)
 -- Name: sys_user_post PRIMARY00027; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2794,7 +2799,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_user_post
 
 
 --
--- TOC entry 3765 (class 2606 OID 4483454)
+-- TOC entry 4468 (class 2606 OID 4560077)
 -- Name: sys_user_role PRIMARY00028; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2803,7 +2808,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_user_role
 
 
 --
--- TOC entry 3730 (class 2606 OID 4483458)
+-- TOC entry 4430 (class 2606 OID 4560079)
 -- Name: sys_demo sys_demo_pkey; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2812,7 +2817,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_demo
 
 
 --
--- TOC entry 3739 (class 2606 OID 4483460)
+-- TOC entry 4439 (class 2606 OID 4560081)
 -- Name: sys_files sys_files_pkey; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2821,7 +2826,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_files
 
 
 --
--- TOC entry 3767 (class 2606 OID 4487139)
+-- TOC entry 4451 (class 2606 OID 4560083)
 -- Name: sys_notice_read sys_notice_read_pkey; Type: CONSTRAINT; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2830,7 +2835,7 @@ ALTER TABLE ONLY basicdb_agentscope.sys_notice_read
 
 
 --
--- TOC entry 3737 (class 1259 OID 4483461)
+-- TOC entry 4437 (class 1259 OID 4560084)
 -- Name: dict_type; Type: INDEX; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2838,7 +2843,7 @@ CREATE UNIQUE INDEX dict_type ON basicdb_agentscope.sys_dict_type USING btree (d
 
 
 --
--- TOC entry 3726 (class 1259 OID 4483462)
+-- TOC entry 4426 (class 1259 OID 4560085)
 -- Name: sched_name; Type: INDEX; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2846,7 +2851,7 @@ CREATE INDEX sched_name ON basicdb_agentscope.qrtz_triggers USING btree (sched_n
 
 
 --
--- TOC entry 3768 (class 1259 OID 4487140)
+-- TOC entry 4452 (class 1259 OID 4560086)
 -- Name: uk_sys_notice_read_notice_user; Type: INDEX; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2854,8 +2859,8 @@ CREATE UNIQUE INDEX uk_sys_notice_read_notice_user ON basicdb_agentscope.sys_not
 
 
 --
--- TOC entry 3970 (class 0 OID 0)
--- Dependencies: 218
+-- TOC entry 4676 (class 0 OID 0)
+-- Dependencies: 589
 -- Name: TABLE gen_table; Type: ACL; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2863,8 +2868,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3971 (class 0 OID 0)
--- Dependencies: 219
+-- TOC entry 4677 (class 0 OID 0)
+-- Dependencies: 590
 -- Name: TABLE gen_table_column; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2872,8 +2877,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3973 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 4679 (class 0 OID 0)
+-- Dependencies: 591
 -- Name: SEQUENCE gen_table_column_column_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2881,8 +2886,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.gen_table_column_column_id_seq TO PUBLI
 
 
 --
--- TOC entry 3975 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 4681 (class 0 OID 0)
+-- Dependencies: 592
 -- Name: SEQUENCE gen_table_table_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2890,8 +2895,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.gen_table_table_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3976 (class 0 OID 0)
--- Dependencies: 222
+-- TOC entry 4682 (class 0 OID 0)
+-- Dependencies: 593
 -- Name: TABLE list_column; Type: ACL; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2899,8 +2904,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3977 (class 0 OID 0)
--- Dependencies: 223
+-- TOC entry 4683 (class 0 OID 0)
+-- Dependencies: 594
 -- Name: TABLE list_table; Type: ACL; Schema: basicdb_agentscope; Owner: system
 --
 
@@ -2908,8 +2913,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3978 (class 0 OID 0)
--- Dependencies: 224
+-- TOC entry 4684 (class 0 OID 0)
+-- Dependencies: 595
 -- Name: TABLE qrtz_blob_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2917,8 +2922,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3979 (class 0 OID 0)
--- Dependencies: 225
+-- TOC entry 4685 (class 0 OID 0)
+-- Dependencies: 596
 -- Name: TABLE qrtz_calendars; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2926,8 +2931,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3980 (class 0 OID 0)
--- Dependencies: 226
+-- TOC entry 4686 (class 0 OID 0)
+-- Dependencies: 597
 -- Name: TABLE qrtz_cron_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2935,8 +2940,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3981 (class 0 OID 0)
--- Dependencies: 227
+-- TOC entry 4687 (class 0 OID 0)
+-- Dependencies: 598
 -- Name: TABLE qrtz_fired_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2944,8 +2949,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3982 (class 0 OID 0)
--- Dependencies: 228
+-- TOC entry 4688 (class 0 OID 0)
+-- Dependencies: 599
 -- Name: TABLE qrtz_job_details; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2953,8 +2958,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3983 (class 0 OID 0)
--- Dependencies: 229
+-- TOC entry 4689 (class 0 OID 0)
+-- Dependencies: 600
 -- Name: TABLE qrtz_locks; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2962,8 +2967,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3984 (class 0 OID 0)
--- Dependencies: 230
+-- TOC entry 4690 (class 0 OID 0)
+-- Dependencies: 601
 -- Name: TABLE qrtz_paused_trigger_grps; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2971,8 +2976,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3985 (class 0 OID 0)
--- Dependencies: 231
+-- TOC entry 4691 (class 0 OID 0)
+-- Dependencies: 602
 -- Name: TABLE qrtz_scheduler_state; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2980,8 +2985,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3986 (class 0 OID 0)
--- Dependencies: 232
+-- TOC entry 4692 (class 0 OID 0)
+-- Dependencies: 603
 -- Name: TABLE qrtz_simple_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2989,8 +2994,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3987 (class 0 OID 0)
--- Dependencies: 233
+-- TOC entry 4693 (class 0 OID 0)
+-- Dependencies: 604
 -- Name: TABLE qrtz_simprop_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -2998,8 +3003,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3988 (class 0 OID 0)
--- Dependencies: 234
+-- TOC entry 4694 (class 0 OID 0)
+-- Dependencies: 605
 -- Name: TABLE qrtz_triggers; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3007,8 +3012,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3989 (class 0 OID 0)
--- Dependencies: 235
+-- TOC entry 4695 (class 0 OID 0)
+-- Dependencies: 606
 -- Name: TABLE sys_config; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3016,8 +3021,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3991 (class 0 OID 0)
--- Dependencies: 236
+-- TOC entry 4697 (class 0 OID 0)
+-- Dependencies: 607
 -- Name: SEQUENCE sys_config_config_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3025,8 +3030,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_config_config_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3992 (class 0 OID 0)
--- Dependencies: 238
+-- TOC entry 4698 (class 0 OID 0)
+-- Dependencies: 609
 -- Name: TABLE sys_dept; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3034,8 +3039,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3994 (class 0 OID 0)
--- Dependencies: 239
+-- TOC entry 4700 (class 0 OID 0)
+-- Dependencies: 610
 -- Name: SEQUENCE sys_dept_dept_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3043,8 +3048,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_dept_dept_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 3995 (class 0 OID 0)
--- Dependencies: 240
+-- TOC entry 4701 (class 0 OID 0)
+-- Dependencies: 611
 -- Name: TABLE sys_dict_data; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3052,8 +3057,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 3997 (class 0 OID 0)
--- Dependencies: 241
+-- TOC entry 4703 (class 0 OID 0)
+-- Dependencies: 612
 -- Name: SEQUENCE sys_dict_data_dict_code_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3061,8 +3066,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_dict_data_dict_code_seq TO PUBLIC;
 
 
 --
--- TOC entry 3998 (class 0 OID 0)
--- Dependencies: 242
+-- TOC entry 4704 (class 0 OID 0)
+-- Dependencies: 613
 -- Name: TABLE sys_dict_type; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3070,8 +3075,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4000 (class 0 OID 0)
--- Dependencies: 243
+-- TOC entry 4706 (class 0 OID 0)
+-- Dependencies: 614
 -- Name: SEQUENCE sys_dict_type_dict_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3079,8 +3084,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_dict_type_dict_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4004 (class 0 OID 0)
--- Dependencies: 246
+-- TOC entry 4710 (class 0 OID 0)
+-- Dependencies: 617
 -- Name: TABLE sys_job; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3088,8 +3093,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4006 (class 0 OID 0)
--- Dependencies: 247
+-- TOC entry 4712 (class 0 OID 0)
+-- Dependencies: 618
 -- Name: SEQUENCE sys_job_job_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3097,8 +3102,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_job_job_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4007 (class 0 OID 0)
--- Dependencies: 248
+-- TOC entry 4713 (class 0 OID 0)
+-- Dependencies: 619
 -- Name: TABLE sys_job_log; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3106,8 +3111,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4009 (class 0 OID 0)
--- Dependencies: 249
+-- TOC entry 4715 (class 0 OID 0)
+-- Dependencies: 620
 -- Name: SEQUENCE sys_job_log_job_log_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3115,8 +3120,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_job_log_job_log_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4010 (class 0 OID 0)
--- Dependencies: 250
+-- TOC entry 4716 (class 0 OID 0)
+-- Dependencies: 621
 -- Name: TABLE sys_logininfor; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3124,8 +3129,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4012 (class 0 OID 0)
--- Dependencies: 251
+-- TOC entry 4718 (class 0 OID 0)
+-- Dependencies: 622
 -- Name: SEQUENCE sys_logininfor_info_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3133,8 +3138,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_logininfor_info_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4014 (class 0 OID 0)
--- Dependencies: 252
+-- TOC entry 4720 (class 0 OID 0)
+-- Dependencies: 623
 -- Name: TABLE sys_menu; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3142,8 +3147,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4016 (class 0 OID 0)
--- Dependencies: 253
+-- TOC entry 4722 (class 0 OID 0)
+-- Dependencies: 624
 -- Name: SEQUENCE sys_menu_menu_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3151,8 +3156,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_menu_menu_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4017 (class 0 OID 0)
--- Dependencies: 254
+-- TOC entry 4723 (class 0 OID 0)
+-- Dependencies: 625
 -- Name: TABLE sys_notice; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3160,8 +3165,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4019 (class 0 OID 0)
--- Dependencies: 255
+-- TOC entry 4725 (class 0 OID 0)
+-- Dependencies: 626
 -- Name: SEQUENCE sys_notice_notice_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3169,8 +3174,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_notice_notice_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4021 (class 0 OID 0)
--- Dependencies: 256
+-- TOC entry 4727 (class 0 OID 0)
+-- Dependencies: 629
 -- Name: TABLE sys_oper_log; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3178,8 +3183,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4023 (class 0 OID 0)
--- Dependencies: 257
+-- TOC entry 4729 (class 0 OID 0)
+-- Dependencies: 630
 -- Name: SEQUENCE sys_oper_log_oper_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3187,8 +3192,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_oper_log_oper_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4024 (class 0 OID 0)
--- Dependencies: 258
+-- TOC entry 4730 (class 0 OID 0)
+-- Dependencies: 631
 -- Name: TABLE sys_post; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3196,8 +3201,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4026 (class 0 OID 0)
--- Dependencies: 259
+-- TOC entry 4732 (class 0 OID 0)
+-- Dependencies: 632
 -- Name: SEQUENCE sys_post_post_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3205,8 +3210,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_post_post_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4027 (class 0 OID 0)
--- Dependencies: 260
+-- TOC entry 4733 (class 0 OID 0)
+-- Dependencies: 633
 -- Name: TABLE sys_role; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3214,8 +3219,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4028 (class 0 OID 0)
--- Dependencies: 261
+-- TOC entry 4734 (class 0 OID 0)
+-- Dependencies: 634
 -- Name: TABLE sys_role_dept; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3223,8 +3228,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4029 (class 0 OID 0)
--- Dependencies: 262
+-- TOC entry 4735 (class 0 OID 0)
+-- Dependencies: 635
 -- Name: TABLE sys_role_menu; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3232,8 +3237,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4031 (class 0 OID 0)
--- Dependencies: 263
+-- TOC entry 4737 (class 0 OID 0)
+-- Dependencies: 636
 -- Name: SEQUENCE sys_role_role_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3241,8 +3246,8 @@ GRANT ALL ON SEQUENCE basicdb_agentscope.sys_role_role_id_seq TO PUBLIC;
 
 
 --
--- TOC entry 4032 (class 0 OID 0)
--- Dependencies: 264
+-- TOC entry 4738 (class 0 OID 0)
+-- Dependencies: 637
 -- Name: TABLE sys_user; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3250,8 +3255,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4033 (class 0 OID 0)
--- Dependencies: 265
+-- TOC entry 4739 (class 0 OID 0)
+-- Dependencies: 638
 -- Name: TABLE sys_user_post; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3259,8 +3264,8 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4034 (class 0 OID 0)
--- Dependencies: 266
+-- TOC entry 4740 (class 0 OID 0)
+-- Dependencies: 639
 -- Name: TABLE sys_user_role; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
@@ -3268,15 +3273,15 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE basicdb_a
 
 
 --
--- TOC entry 4036 (class 0 OID 0)
--- Dependencies: 267
+-- TOC entry 4742 (class 0 OID 0)
+-- Dependencies: 640
 -- Name: SEQUENCE sys_user_user_id_seq; Type: ACL; Schema: basicdb_agentscope; Owner: postgres
 --
 
 GRANT ALL ON SEQUENCE basicdb_agentscope.sys_user_user_id_seq TO PUBLIC;
 
 
--- Completed on 2026-10-16 17:08:20
+-- Completed on 2026-10-24 00:37:22
 
 --
 -- PostgreSQL database dump complete
