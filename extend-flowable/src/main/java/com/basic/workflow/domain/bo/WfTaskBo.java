@@ -1,0 +1,193 @@
+package com.basic.workflow.domain.bo;
+
+import java.util.List;
+import java.util.Map;
+import lombok.Data;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+/**
+ * @description 流程任务业务对象，承载任务办理、转办、加签、驳回等操作所需的参数
+ * @author yanbin
+ * @date 2024/1/16 10:37
+ */
+@Data
+@Schema(description = "流程任务业务对象")
+public class WfTaskBo {
+    /**
+     * 任务Id
+     */
+    @Schema(description = "任务Id")
+    private String taskId;
+    /**
+     * 任务名称
+     */
+    @Schema(description = "任务名称")
+    private String taskName;
+    /**
+     * 用户Id
+     */
+    @Schema(description = "当前处理人currentUserId", requiredMode = Schema.RequiredMode.REQUIRED)
+    // 当前处理人userId
+    private String currentUserId;
+    /**
+     * 当前处理人的角色id
+     */
+    @Schema(description = "当前处理人的角色id", requiredMode = Schema.RequiredMode.REQUIRED)
+    // 当前处理人的角色id
+    private List<String> currentGroupId;
+
+    /**
+     * 用户昵称
+     */
+    // 当前处理人昵称
+    @Schema(description = "当前处理人昵称", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String currentUserName;
+    /**
+     * 审批人
+     */
+    // 转办,委派审批人
+    @Schema(description = "审批人id")
+    private String assignee;
+    /**
+     * 审批人昵称
+     */
+    // 转办,委派审批人昵称
+    @Schema(description = "审批人昵称")
+    private String assigneeName;
+    /**
+     * 任务意见
+     */
+    @Schema(description = "任务意见")
+    private String comment;
+    /**
+     * 流程实例Id
+     */
+    @Schema(description = "流程实例Id", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String procInsId;
+    /**
+     * 节点
+     */
+    @Schema(description = "节点")
+    private String targetKey;
+    /**
+     * 流程变量信息
+     */
+    @Schema(description = "流程变量信息")
+    private Map<String, Object> variables;
+    /**
+     * 审批表单数据
+     */
+    @Schema(description = "审批表单数据")
+    private String formData;
+    /**
+     * 候选人
+     */
+    @Schema(description = "候选人")
+    private List<String> candidateUsers;
+    /**
+     * 审批组
+     */
+    @Schema(description = "审批组")
+    private List<String> candidateGroups;
+    /**
+     * 抄送用户Id
+     */
+    @Schema(description = "抄送用户Id")
+    private String copyUserIds;
+    /**
+     * 下一节点审批人
+     */
+    @Schema(description = "下一节点审批人id字符串")
+    private String nextUserIds;
+    /**
+     * 加签人员
+     */
+    @Schema(description = "加签人员id字符串")
+    private String userList;
+    /**
+     * 附件信息
+     */
+    @Schema(description = "附件信息")
+    private List<Map<String, Object>> fileList;
+    /**
+     * 流程定义id
+     **/
+    @Schema(description = "流程定义id")
+    private String procDefId;
+
+    /**
+     * 多实例类型
+     * 或签ParallelMultiInstance
+     * 会签SequentialMultiInstance
+     */
+    @Schema(description = "多实例类型")
+    private String multiInstance;
+
+    /**
+     * 替换追加审批人
+     * addition追加
+     * replace替换
+     */
+    @Schema(description = "替换追加审批人 addition追加 replace替换")
+    private String pattern;
+    /**
+     * 串行并行
+     * false 并行
+     * true 串行
+     **/
+    @Schema(description = "串行并行 false并行 true串行")
+    private String isSequential;
+    /**
+     * 固定值，身份存储
+     */
+    @Schema(description = "固定值0   身份存储1 ")
+    private String dataType;
+
+    /**
+     * 节点类型
+     **/
+    @Schema(description = "节点类型 ")
+    private String nodeType;
+    /**
+     * 实例id集合
+     */
+    @Schema(description = "实例id集合")
+    private List<String> procInsIdList;
+    /**
+     * 流程状态/任务状态
+     */
+    @Schema(description = "流程状态/任务状态")
+    private String processStatus;
+    /**
+     * 选中的跳转节点
+     */
+    @Schema(description = "选中的跳转节点")
+    private String skipActivityId;
+
+    @Schema(description = "审核意见类型")
+    private String commentType;
+
+    /**
+     * @description 创建空的流程任务业务对象
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    public WfTaskBo() {
+        super();
+    }
+
+    /**
+     * @description 用流程实例ID、抄送人与当前处理人构造流程任务业务对象
+     * @params [procInsId, copyUserIds, currentUserId, currentUserName] 流程实例ID；抄送用户ID；当前处理人ID；当前处理人昵称
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    public WfTaskBo(String procInsId, String copyUserIds, String currentUserId, String currentUserName) {
+        this.procInsId = procInsId;
+        this.copyUserIds = copyUserIds;
+        this.currentUserId = currentUserId;
+        this.currentUserName = currentUserName;
+    }
+}

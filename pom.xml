@@ -194,6 +194,13 @@
                 <version>${basic.version}</version>
             </dependency>
 
+            <!-- 流程引擎模块（Flowable 7.2.0） -->
+            <dependency>
+                <groupId>com.basic</groupId>
+                <artifactId>extend-flowable</artifactId>
+                <version>${basic.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -204,6 +211,7 @@
         <module>basic-common</module>
         <module>extend-quartz</module>
         <module>extend-generator</module>
+        <module>extend-flowable</module>
         <module>business-core</module>
     </modules>
     <packaging>pom</packaging>

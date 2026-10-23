@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfFlowableProcessMapper">
+  <!--  根据历史任务id，更新执行实例id-->
+  <update id="updateHisTaskByIdToExecutionId">
+    update act_hi_taskinst
+    set execution_id_ =#{executionId}
+    where id_ = #{id}
+  </update>
+  <update id="updateHisActByIdToExecutionId">
+    update act_hi_actinst
+    set execution_id_ =#{executionId}
+    where id_ = #{id}
+  </update>
+  <!--  根据任务id+节点id删除节点-->
+  <delete id="deleteHisActivityInstance">
+    delete
+    from act_hi_actinst
+    where task_id_ = #{taskId}
+      and act_id_ = #{activityId}
+  </delete>
+
+  <!--根据业务传的用户id获取当前用户所有参与过的流程-->
+  <select id="selectProcInsList" resultType="java.util.Map">
+    select t1.*from act_hi_procinst t1
+    left join act_re_procdef t2 on t2.id_ = t1.proc_def_id_
+    left join act_re_deployment t3 on t3.id_= t2.deployment_id_
+    left join tbl_flow_extend_procinst t4 on t4.proc_ins_id = t1.proc_inst_id_
+    left join wf_category t5 on t5.code = t3.category_
+    left join act_hi_taskinst t6 on t6.proc_inst_id_ = t1.id_
+    left join act_hi_identitylink t7 on t7.task_id_ = t6.id_
+    left join sys_user t8 on t8.user_id ::varchar = t7.user_id_
+    <where>
+      <if test="params.userId != null and params.userId!=''">
+        and (
+        t3.category_ = #{params.category}
+        and (
+        t7.user_id_ ::varchar = #{params.userId}
+        or t1.start_user_id_ = #{params.userId}
+        OR t7.group_id_ in (
+        select
+        r.role_id ::varchar
+        from
+        sys_user_role r
+        where r.user_id ::varchar = #{params.userId})
+        ))
+      </if>
+    </where>
+    group by t1.id_
+    order by t1.start_time_
+  </select>
+  <!--查询待审核的任务-->
+  <select id="selectProcessAllRuTask" resultType="com.basic.workflow.domain.vo.WfTaskVo">
+    SELECT DISTINCT t1.id_ AS taskId,
+    t2.id_ AS procInsId,
+    t4.id_ AS procDefId,
+    t1.task_def_key_ AS activityId,
+    'running' AS processStatus,
+    t2.start_user_id_ AS startUserId,
+    t1.name_ AS taskName,
+    t1.create_time_ AS createTime,
+    t4.deployment_id_ AS deployId,
+    t5.code AS category,
+    t5.category_name AS categoryName,
+    t5.url as url,
+    t3.tenant_id as appSn,
+    t3.current_name as startUserName,
+    t1.assignee_ as assigneeId,
+    t6.nick_name as assigneeName,
+    t2.start_act_id_ as startActivityId,
+    t4.name_ as procDefName
+    FROM act_ru_task t1
+    LEFT JOIN act_hi_procinst t2 ON t1.proc_inst_id_ = t2.id_
+    LEFT JOIN tbl_flow_extend_procinst t3 ON t3.proc_ins_id = t2.id_
+    LEFT JOIN act_re_procdef t4 ON t3.proc_def_id = t4.id_
+    LEFT JOIN wf_category t5 ON t5.code = t4.category_
+    left join sys_user t6 on t6.user_id ::varchar = t1.assignee_
+    left join act_re_deployment t7 on t7.id_ = t4.deployment_id_
+    <where>
+      <if test="procInsId !=null and procInsId != ''">and t2.id_ = #{procInsId}</if>
+      <if test="category!=null and category !=''">and t5.code =#{category}</if>
+      <if test="candidateUser!=null and candidateUser !=''">
+        and t1.assignee_ like '%' || #{candidateUser} || '%'
+      </if>
+      <if test="params.beginTime  != null and params.beginTime  != ''"><!-- 开始时间检索 -->
+        and to_char(t1.create_time_,'%Y-%m') &gt;=
+        to_char(to_date(#{params.beginTime },'yyyy-mm'),'%Y-%m')
+      </if>
+      <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+        and to_char(t1.create_time_,'%Y-%m') &lt;=
+        to_char(to_date(#{params.endTime},'yyyy-mm'),'%Y-%m')
+      </if>
+      <if test="processName!=null and processName!=''">
+        and t4.name_ like '%' || #{processName} || '%'
+      </if>
+      <if test="processKey!=null and processKey!=''">and t4.key_ =#{processKey}</if>
+    </where>
+    order by t1.create_time_ desc
+  </select>
+  <!--获取代办任务（基于 Flowable 原生表重写，去除 process 业务定制视图）-->
+  <select id="selectTodoTaskList" resultType="com.basic.workflow.domain.vo.WfTaskVo">
+    SELECT DISTINCT
+        t.id_ AS taskId,
+        t.name_ AS taskName,
+        t.task_def_key_ AS activityId,
+        t.assignee_ AS assigneeId,
+        t.proc_inst_id_ AS procInsId,
+        t.proc_def_id_ AS procDefId,
+        t.create_time_ AS "createTime",
+        pd.name_ AS procDefName,
+        pd.key_ AS procDefKey,
+        pd.category_ AS category,
+        e.start_user_id_ AS startUserId,
+        ext.current_name AS startUserName,
+        'todo' AS noticeType
+    FROM act_ru_task t
+    LEFT JOIN act_re_procdef pd ON pd.id_ = t.proc_def_id_
+    LEFT JOIN act_ru_execution e ON e.id_ = t.proc_inst_id_
+    LEFT JOIN act_ru_identitylink il ON il.task_id_ = t.id_
+    LEFT JOIN basicdb_flowable.tbl_flow_extend_procinst ext ON ext.proc_ins_id = t.proc_inst_id_
+    <where>
+      <if test="category != null and category != ''">
+        AND pd.category_ = #{category}
+      </if>
+      <if test="params.beginTime != null and params.beginTime != ''">
+        AND t.create_time_ &gt;= #{params.beginTime}
+      </if>
+      <if test="params.endTime != null and params.endTime != ''">
+        AND t.create_time_ &lt;= #{params.endTime}
+      </if>
+      <if test="userId != null and userId != ''">
+        AND ( t.assignee_ = #{userId}
+              OR ( ( t.assignee_ IS NULL OR t.assignee_ = '' )
+                   AND ( il.user_id_ = #{userId}
+                         OR il.group_id_ IN (SELECT sur.role_id::varchar
+                                             FROM basicdb_flowable.sys_user_role sur
+                                             LEFT JOIN basicdb_flowable.sys_user su ON su.user_id = sur.user_id
+                                             WHERE su.user_id::varchar = #{userId}) ) ) )
+      </if>
+    </where>
+    ORDER BY t.create_time_ DESC
+  </select>
+  <!--查询已完结的任务-->
+  <select id="selectProcessAllHiTask" resultType="com.basic.workflow.domain.vo.WfTaskVo">
+    SELECT DISTINCT t1.id_ AS taskId,
+    t2.id_ AS procInsId,
+    t4.id_ AS procDefId,
+    t1.task_def_key_ AS activityId,
+    'completed' AS processStatus,
+    t2.start_user_id_ AS startUserId,
+    t1.name_ AS taskName,
+    t1.start_time_ AS createTime,
+    t1.end_time_ AS finishTime,
+    t4.deployment_id_ AS deployId,
+    t5.code AS category,
+    t5.category_name AS categoryName,
+    t5.url as url,
+    t3.tenant_id as appSn,
+    t3.current_name as startUserName,
+    t1.assignee_ as assigneeId,
+    t6.nick_name as assigneeName,
+    t2.start_act_id_ as startActivityId,
+    t4.name_ as procDefName
+    FROM act_hi_taskinst t1
+    LEFT JOIN act_hi_procinst t2 ON t1.proc_inst_id_ = t2.id_
+    LEFT JOIN tbl_flow_extend_procinst t3 ON t3.proc_ins_id = t2.id_
+    LEFT JOIN act_re_procdef t4 ON t3.proc_def_id = t4.id_
+    LEFT JOIN wf_category t5 ON t5.code = t4.category_
+    left join sys_user t6 on t6.user_id ::varchar = t1.assignee_
+    left join act_re_deployment t7 on t7.id_ = t4.deployment_id_
+    <where>
+      t1.end_time_ is not null
+      <if test="procInsId !=null and procInsId != ''">and t2.id_ = #{procInsId}</if>
+      <if test="category!=null and category !=''">and t5.code =#{category}</if>
+      <if test="candidateUser!=null and candidateUser !=''">and (t1.assignee_ like '%' ||
+        #{candidateUser} || '%') or t2.start_user_id_ like '%' || #{candidateUser} || '%'
+      </if>
+      <if test="params.beginTime  != null and params.beginTime  != ''"><!-- 开始时间检索 -->
+        and to_char(t1.start_time_,'%Y-%m') =
+        to_char(to_date(#{params.beginTime },'yyyy-mm'),'%Y-%m')
+      </if>
+      <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+        and to_char(t1.end_time_,'%Y-%m')=
+        to_char(to_date(#{params.endTime},'yyyy-mm'),'%Y-%m')
+      </if>
+      <if test="processName!=null and processName!=''">and t4.name_ like '%' || #{processName}
+        || '%'
+      </if>
+      <if test="processKey!=null and processKey!=''">and t4.key_ =#{processKey}</if>
+    </where>
+    order by t1.end_time_ desc
+  </select>
+  <!--查询已办任务（基于 act_hi_taskinst 重写）-->
+  <select id="selectFinishTaskList" resultType="com.basic.workflow.domain.vo.WfTaskVo">
+    SELECT
+        t.id_ AS taskId,
+        t.name_ AS taskName,
+        t.task_def_key_ AS activityId,
+        t.assignee_ AS assigneeId,
+        t.proc_inst_id_ AS procInsId,
+        t.proc_def_id_ AS procDefId,
+        t.start_time_ AS "createTime",
+        t.end_time_ AS finishTime,
+        pd.name_ AS procDefName,
+        pd.key_ AS procDefKey,
+        pd.category_ AS category,
+        pi.start_user_id_ AS startUserId
+    FROM act_hi_taskinst t
+    LEFT JOIN act_re_procdef pd ON pd.id_ = t.proc_def_id_
+    LEFT JOIN act_hi_procinst pi ON pi.id_ = t.proc_inst_id_
+    <where>
+      t.end_time_ IS NOT NULL
+      <if test="processKey !=null and processKey!=''">
+        and pd.key_ like '%' || #{processKey} || '%'
+      </if>
+      <if test="processName!=null and processName!=''">
+        and pd.name_ like '%' || #{processName} || '%'
+      </if>
+      <if test="procInsId!=null and procInsId!=''">
+        and t.proc_inst_id_ = #{procInsId}
+      </if>
+      <if test="userId!=null and userId!=''">
+        and t.assignee_ = #{userId}
+      </if>
+      <if test="startUserId!=null and startUserId!=''">
+        and pi.start_user_id_ = #{startUserId}
+      </if>
+      <if test="params.beginTime != null and params.beginTime != ''">
+        and to_char(t.start_time_,'yyyy-mm') =
+        to_char(to_date(#{params.beginTime},'yyyy-mm'),'yyyy-mm')
+      </if>
+      <if test="params.endTime != null and params.endTime != ''">
+        and to_char(t.end_time_,'yyyy-mm') =
+        to_char(to_date(#{params.endTime},'yyyy-mm'),'yyyy-mm')
+      </if>
+      <if test="category!=null and category!=''">
+        and pd.category_ = #{category}
+      </if>
+    </where>
+    order by t.end_time_ desc
+  </select>
+  <!--查询我的流程 已发（基于 act_hi_procinst 重写）-->
+  <select id="selectOwnProcessList" resultType="com.basic.workflow.domain.vo.WfTaskVo">
+    SELECT
+        pi.id_ AS procInsId,
+        pi.proc_def_id_ AS procDefId,
+        pi.start_user_id_ AS startUserId,
+        pi.start_time_ AS "createTime",
+        pi.end_time_ AS finishTime,
+        pd.name_ AS procDefName,
+        pd.key_ AS procDefKey,
+        pd.category_ AS category,
+        CASE WHEN pi.end_time_ IS NULL THEN 'running' ELSE 'completed' END AS processStatus
+    FROM act_hi_procinst pi
+    LEFT JOIN act_re_procdef pd ON pd.id_ = pi.proc_def_id_
+    <where>
+      <if test="processKey!=null and processKey!=''">
+        and pd.key_ = #{processKey}
+      </if>
+      <if test="processName!=null and processName!=''">
+        and pd.name_ like '%' || #{processName} || '%'
+      </if>
+      <if test="processStatus!=null and processStatus !=''">
+        <choose>
+          <when test="processStatus == 'running'">and pi.end_time_ IS NULL</when>
+          <when test="processStatus == 'completed'">and pi.end_time_ IS NOT NULL</when>
+        </choose>
+      </if>
+      <if test="category!=null and category !=''">
+        and pd.category_ = #{category}
+      </if>
+      <if test="startUserId!=null and startUserId !=''">
+        and pi.start_user_id_ = #{startUserId}
+      </if>
+      <if test="procInsId!=null and procInsId !=''">
+        and pi.id_ = #{procInsId}
+      </if>
+      <if test="params.beginTime != null and params.beginTime != ''">
+        and to_char(pi.start_time_,'yyyy-mm') =
+        to_char(to_date(#{params.beginTime},'yyyy-mm'),'yyyy-mm')
+      </if>
+      <if test="params.endTime != null and params.endTime != ''">
+        and to_char(coalesce(pi.end_time_, pi.start_time_),'yyyy-mm') =
+        to_char(to_date(#{params.endTime},'yyyy-mm'),'yyyy-mm')
+      </if>
+    </where>
+    order by pi.start_time_ desc
+  </select>
+  <!--    查询待办任务数（基于 act_ru_task 重写）-->
+  <select id="selectTodoTaskCount" resultType="java.lang.Integer">
+    select count(distinct t.id_)
+    from act_ru_task t
+    left join act_re_procdef pd on pd.id_ = t.proc_def_id_
+    left join act_ru_execution e on e.id_ = t.proc_inst_id_
+    left join act_ru_identitylink il on il.task_id_ = t.id_
+    <where>
+      <if test="category != null and category != ''">
+        AND pd.category_ = #{category}
+      </if>
+      <if test="params.beginTime != null and params.beginTime != ''">
+        AND t.create_time_ &gt;= #{params.beginTime}
+      </if>
+      <if test="params.endTime != null and params.endTime != ''">
+        AND t.create_time_ &lt;= #{params.endTime}
+      </if>
+      <if test="userId != null and userId != ''">
+        and ( t.assignee_ = #{userId}
+              or ( ( t.assignee_ IS NULL OR t.assignee_ = '' )
+                   and ( il.user_id_ = #{userId}
+                         or il.group_id_ in (
+                            select sur.role_id::varchar from basicdb_flowable.sys_user_role sur
+                            left join basicdb_flowable.sys_user su on su.user_id = sur.user_id
+                            where su.user_id::varchar = #{userId}
+                         ) ) ) )
+      </if>
+    </where>
+  </select>
+  <!--  根据执行实例id和key查询历史变量-->
+  <select id="selectActHiVariableById" resultType="java.lang.Object">
+    select text_
+    from act_hi_varinst
+    where execution_id_ = #{executionId}
+      and name_ = #{key}
+  </select>
+  <select id="selectProcInsIdRunningByCategory" resultType="java.lang.String">
+    select t1.id_
+    from act_hi_procinst t1
+    left join act_re_procdef t2 on t1.proc_def_id_ = t2.id_
+    where t1.end_time_ is null
+    <if test="category != null and category.length > 0">
+      and t2.category_ in
+      <foreach item="item" collection="category" separator="," open="(" close=")" index="">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+  <update id="updateTimeJob">
+    update act_ru_timer_job
+    set duedate_ = #{dueDate}::timestamp
+    where id_ = #{id}
+  </update>
+
+</mapper>

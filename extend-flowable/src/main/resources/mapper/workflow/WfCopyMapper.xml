@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfCopyMapper">
+
+    <resultMap type="com.basic.workflow.domain.WfCopy" id="WfCopyResult">
+        <result property="copyId" column="copy_id"/>
+        <result property="title" column="title"/>
+        <result property="processId" column="process_id"/>
+        <result property="processName" column="process_name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="taskId" column="taskId"/>
+        <result property="userId" column="user_id"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+    <!--    查询流程抄送列表（按流程实例去重）-->
+    <select id="selectPageList" resultType="java.util.Map" parameterType="com.basic.workflow.domain.WfCopy">
+        select w.copy_id, w.title, w.process_id, w.process_name, w.category_id,
+               w.task_id, w.user_id, w.originator_id, w.originator_name,
+               w.create_by, w.create_time, w.update_by, w.update_time, w.status
+        from wf_copy w
+        inner join act_hi_procinst e on w.instance_id = e.PROC_INST_ID_
+        <where>
+            <if test="processName!=null and processName!=''">and w.process_name = #{processName}</if>
+            <if test="originatorName !=null and originatorName!=''">and w.originator_name =#{originatorName}</if>
+            <if test="status !=null and status !=''">and w.status =#{status}</if>
+            and w.user_id =#{userId}
+        </where>
+        order by w.create_time desc
+    </select>
+    <!--查询流程抄送列表（status=0 未读 或 1 已读）-->
+    <select id="selectCopyList" resultType="com.basic.workflow.domain.vo.WfCopyVo">
+        select wc.copy_id AS copyId, wc.title, wc.process_id AS processId,
+               wc.process_name AS processName, wc.category_id AS categoryId,
+               wc.deployment_id AS deploymentId, wc.instance_id AS instanceId,
+               wc.task_id AS taskId, wc.user_id AS userId,
+               wc.originator_id AS originatorId, wc.originator_name AS originatorName,
+               wc.create_time AS createTime, wc.status,
+               wy.url, 'copy' AS noticeType,
+               concat_ws('', wc.originator_name, '于',
+                         to_char(wc.create_time, 'yyyy-MM-dd HH24:MI:ss'),
+                         '抄送了', wc.title) AS content
+        from wf_copy wc
+        left join wf_category wy on wy.code = wc.category_id
+        <where>
+            <if test="params.category != null and params.category != ''">
+                AND wy.code = #{params.category}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND wc.create_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND wc.create_time &lt;= #{params.endTime}
+            </if>
+            <if test="userId !=null and userId !=''">and wc.user_id = #{userId}</if>
+            <if test="params.keyWord !=null and params.keyWord !=''">
+                and (
+                    wc.originator_name like '%' || #{params.keyWord} || '%'
+                    or wc.title like '%' || #{params.keyWord} || '%'
+                )
+            </if>
+        </where>
+        order by wc.create_time desc
+    </select>
+
+</mapper>

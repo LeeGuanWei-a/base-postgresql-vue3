@@ -7,6 +7,10 @@ import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import locale from 'element-plus/es/locale/lang/zh-cn'
 
+// vform3 表单设计器/渲染器（全局注册 v-form-designer / v-form-render）
+import VForm3 from 'vform3-builds'
+import 'vform3-builds/dist/designer.style.css'
+
 import '@/assets/styles/index.scss' // global css
 
 import App from './App'
@@ -80,5 +84,8 @@ app.use(ElementPlus, {
   // 支持 large、default、small
   size: Cookies.get('size') || 'default'
 })
+
+// 全局注册 vform3 表单设计器与渲染器（v-form-designer / v-form-render）
+app.use(VForm3)
 
 app.mount('#app')

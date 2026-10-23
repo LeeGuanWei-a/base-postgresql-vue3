@@ -72,6 +72,12 @@
             <artifactId>business-core</artifactId>
         </dependency>
 
+        <!-- 流程引擎模块（Flowable 7.2.0） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>extend-flowable</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

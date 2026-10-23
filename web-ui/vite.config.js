@@ -25,6 +25,9 @@ export default defineConfig(({ mode, command }) => {
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
+    optimizeDeps: {
+      include: ['min-dash', 'min-dom', 'bpmn-js', 'bpmn-js/lib/Modeler', 'bpmn-js-properties-panel', 'camunda-bpmn-moddle', 'diagram-js', 'vform3-builds']
+    },
     // 打包配置
     build: {
       // https://vite.dev/config/build-options.html
@@ -34,6 +37,11 @@ export default defineConfig(({ mode, command }) => {
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
+          // 把体积较大的表单设计器单独分包：避免它把主 chunk 撑大，
+          // 浏览器可与主 chunk 并行下载，且该文件可长期缓存
+          manualChunks: {
+            vform3: ['vform3-builds']
+          },
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]'

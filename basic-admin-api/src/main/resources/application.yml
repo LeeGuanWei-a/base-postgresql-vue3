@@ -47,6 +47,33 @@ spring:
     # 设置全局时区
     time-zone: GMT+8
 
+# ============================================================
+# Flowable 7.2 流程引擎配置
+# 说明：Flowable 7.2 的可用配置键以 flowable-spring-boot-autoconfigure 7.2.0 的
+#      spring-configuration-metadata.json 为准，写错的键会被 Spring 静默忽略。
+# 联调环境用 database-schema-update: true 自动建表；生产请改为 false 并用
+#      file-sql/basicdb-vue3-flowable7.sql 初始化。
+# ============================================================
+flowable:
+  # 启动时检查/同步表结构：true=自动建表/增量更新；false=不检查
+  database-schema-update: true
+  # 历史级别（audit：流程实例 + 变量 + 表单属性）
+  history-level: audit
+  # 关闭"自动部署 resources/processes 下的 BPMN"——本仓库没有该目录
+  check-process-definitions: false
+  # 锁定 Flowable 表归属的 schema，与 JDBC URL 的 currentSchema 保持一致
+  database-schema: basicdb_flowable7
+  # 关闭 Flowable 自带的 IDM（用户/角色/权限表）。
+  # 注意：Flowable 7 的正确键是 flowable.idm.enabled；
+  #      历史写法 flowable.common.app.idm-enabled 是无效键（会被静默忽略，仍会建 ACT_ID_* 表）。
+  #      已建出来的 ACT_ID_* 表不影响运行，可保留，也可手工删除。
+  idm:
+    enabled: false
+  # 关闭 Form Service 的字段强校验（业务侧 wf_form 走自定义 JSON 校验）
+  form-field-validation-enabled: false
+  # 说明：Flowable 7 的 REST 端点由独立的 flowable-spring-boot-starter-rest-api 提供，
+  #      本项目不引入该 starter，因此无需（也没有）*-rest-api-enabled 这类开关。
+
 # token配置
 token:
     # 令牌自定义标识

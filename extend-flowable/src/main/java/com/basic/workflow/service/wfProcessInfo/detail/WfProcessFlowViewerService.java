@@ -1,0 +1,88 @@
+package com.basic.workflow.service.wfProcessInfo.detail;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.basic.flowable.flow.FlowableUtils;
+import com.basic.flowable.utils.ModelUtils;
+import com.basic.workflow.domain.vo.WfViewerVo;
+import com.basic.workflow.service.wfProcessInfo.base.WfProcessInfoBase;
+import org.flowable.bpmn.constants.BpmnXMLConstants;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.history.HistoricActivityInstanceQuery;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * @description 流程执行过程查询服务，按流程实例收集已完成、待办与未通过的节点及连线，供流程图高亮展示
+ * @author yanbin
+ * @date 2024/03/04
+ */
+@Service
+public class WfProcessFlowViewerService extends WfProcessInfoBase {
+    /**
+     * @return WfViewerVo 流程图高亮数据，含已完成、进行中、已跳过的节点与连线以及活动坐标
+     * @description 按流程实例 id 汇总历史活动与连线，算出流程图需高亮的状态数据
+     * @params [procInsId] 流程实例 id
+     * @author liguanwei
+     * @date 2026/10/17 20:52
+     * @remark (改代码时写明修改时间修改人修改原因)
+     */
+    public WfViewerVo getFlowViewer(String procInsId) {
+        // 获取流程实例
+        HistoricProcessInstance historicProcIns =
+                historyService
+                        .createHistoricProcessInstanceQuery()
+                        .processInstanceId(procInsId)
+                        .includeProcessVariables()
+                        .singleResult();
+        // 获取Bpmn模型信息
+        InputStream inputStream =
+                repositoryService.getProcessModel(historicProcIns.getProcessDefinitionId());
+        String bpmnXmlStr = StrUtil.utf8Str(IoUtil.readBytes(inputStream, false));
+        BpmnModel bpmnModel = ModelUtils.getBpmnModel(bpmnXmlStr);
+        // 构建查询条件
+        HistoricActivityInstanceQuery query =
+                historyService.createHistoricActivityInstanceQuery().processInstanceId(procInsId);
+        List<HistoricActivityInstance> allActivityInstanceList = query.list();
+        if (CollUtil.isEmpty(allActivityInstanceList)) {
+            return new WfViewerVo();
+        }
+        // 查询所有已完成的元素
+        List<HistoricActivityInstance> finishedElementList =
+                allActivityInstanceList.stream()
+                        .filter(item -> ObjectUtil.isNotNull(item.getEndTime()))
+                        .collect(Collectors.toList());
+        // 所有已完成的连线
+        Set<String> finishedSequenceFlowSet = new HashSet<>();
+        // 所有已完成的任务节点
+        Set<String> finishedTaskSet = new HashSet<>();
+        finishedElementList.forEach(
+                item -> {
+                    if (BpmnXMLConstants.ELEMENT_SEQUENCE_FLOW.equals(item.getActivityType())) {
+                        finishedSequenceFlowSet.add(item.getActivityId());
+                    } else {
+                        finishedTaskSet.add(item.getActivityId());
+                    }
+                });
+        // 查询所有未结束的节点
+        Set<String> unfinishedTaskSet =
+                allActivityInstanceList.stream()
+                        .filter(item -> ObjectUtil.isNull(item.getEndTime()))
+                        .map(HistoricActivityInstance::getActivityId)
+                        .collect(Collectors.toSet());
+        // DFS 查询未通过的元素集合
+        Set<String> rejectedSet =
+                FlowableUtils.dfsFindRejects(
+                        bpmnModel, unfinishedTaskSet, finishedSequenceFlowSet, finishedTaskSet);
+        return new WfViewerVo(finishedTaskSet, finishedSequenceFlowSet, unfinishedTaskSet, rejectedSet);
+    }
+}

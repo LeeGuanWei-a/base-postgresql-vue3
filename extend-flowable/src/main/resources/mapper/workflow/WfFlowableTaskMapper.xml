@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.basic.workflow.mapper.WfFlowableTaskMapper">
+  <resultMap id="TaskVoMap" type="com.basic.workflow.domain.vo.TaskVo">
+    <id column="ID_" property="taskId" jdbcType="VARCHAR"/>
+    <result column="NAME_" property="name" jdbcType="VARCHAR"/>
+    <result column="ASSIGNEE_" property="assignee" jdbcType="VARCHAR"/>
+    <result column="PROC_INST_ID_" property="processInstanceId" jdbcType="VARCHAR"/>
+    <result column="PARENT_ID_" property="parentId" jdbcType="VARCHAR"/>
+    <result column="model_key" property="processDefinitionKey" jdbcType="VARCHAR"/>
+    <result column="proc_inst_name" property="formName" jdbcType="VARCHAR"/>
+    <result column="CATEGORY_" property="taskType" jdbcType="VARCHAR"/>
+    <result column="END_TIME_" property="finishedTime" jdbcType="TIMESTAMP"/>
+    <result column="START_TIME_" property="startTime" jdbcType="TIMESTAMP"/>
+    <result column="CREATE_TIME_" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="TASK_END_TIME_" property="endTime" jdbcType="TIMESTAMP"/>
+    <result column="start_person" property="startPersonName" jdbcType="VARCHAR"/>
+    <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+    <result column="form_type" property="formType" jdbcType="INTEGER"/>
+    <result column="PROC_DEF_ID_" property="processDefinitionId" jdbcType="VARCHAR"/>
+    <result column="start_person_code" property="startPersonCode" jdbcType="VARCHAR"/>
+    <result column="applied_range" property="processDefinitionType" jdbcType="INTEGER"/>
+    <result column="process_status" property="processStatus" jdbcType="VARCHAR"/>
+    <result column="form_name" property="formName" jdbcType="VARCHAR"/>
+    <result column="TASK_DEF_KEY_" property="taskDefKey" jdbcType="VARCHAR"/>
+  </resultMap>
+  <!--    添加新的处理人信息-->
+  <insert id="inserHistorcIdentityLink">
+    insert into act_hi_identityLink(
+    <if test="id!=null">id_,</if>
+    <if test="taskId!=null">task_id_,</if>
+    <if test="type!=null">type_,</if>
+    <if test="userId!=null">user_id_,</if>
+    create_time_
+    )values(
+    <if test="id!=null">#{id},</if>
+    <if test="taskId!=null">#{taskId},</if>
+    <if test="type!=null">#{type},</if>
+    <if test="userId!=null">#{userId},</if>
+    current_timestamp
+    )
+  </insert>
+  <!--    根据taskID修改任务的处理人变更-->
+  <update id="updateHistorcTask">
+    update act_hi_taskinst
+    set assignee_ = #{userId}
+    where id_ = #{taskId}
+  </update>
+  <!--    根据实例procInsId和指定字段名修改正常运行的参数表的数据-->
+  <update id="updateRuVariable">
+    update act_ru_variable
+    set long_=long_::integer - 1,
+            text_=text_::integer - 1
+    where proc_inst_id_ = #{procInsId}
+      and name_ = #{name}
+  </update>
+  <!--    根据实例procInsId和指定字段名修改历史运行的参数表的数据-->
+  <update id="updateHisVariable">
+    update act_hi_varinst
+    set long_=long_::integer - 1,
+            text_=text_::integer - 1
+    where proc_inst_id_ = #{procInsId}
+      and name_ = #{name}
+  </update>
+
+  <!-- 更新任务的描述-->
+  <update id="updateTaskDescription">
+    UPDATE act_ru_task
+    SET description_ = #{description}
+    WHERE id_ = #{taskId}
+  </update>
+  <!--    更新流程定义的流程分类和部署id-->
+  <update id="updateReProcDefCategoryByProcDefId">
+    update act_re_procdef
+    set category_ = #{category} and deployment_id_ = #{deploymentId}
+    where id_ = #{procDefId}
+  </update>
+  <!--    更新实例信息的流程定义-->
+  <update id="updateHiProcInstByProcInsId">
+    update act_hi_procinst
+    set proc_def_id_ = #{procDefId}
+    where id_ = #{procInsId}
+  </update>
+  <!--    修改act_hi_varinst的text和long_字段-->
+  <update id="updateHisVariableTextByKeyAndValue">
+    update act_hi_varinst
+    set long_=#{newCompleted} ::integer,
+            text_=#{newCompleted}:: integer
+    where proc_inst_id_ = #{procInsId}
+      and name_ = #{key}
+  </update>
+  <!--    修改act_ru_variable的text_和long_字段-->
+  <update id="updateRuVariableTextByKeyAndValue">
+    update act_ru_variable
+    set long_=#{newCompleted} ::integer,
+            text_=#{newCompleted}:: integer
+    where proc_inst_id_ = #{procInsId}
+      and name_ = #{key}
+  </update>
+  <!--  跟新执行实例的parentId-->
+  <update id="updateExecutionParentId">
+    update act_ru_execution
+    set parent_id_=#{parentId}
+    where id_ = #{id}
+  </update>
+  <!--  根据执行实例id更新变量数据 历史 仅支持更新long和text-->
+  <update id="updateHisVariableByExecutionIdToLongText">
+    update act_hi_varinst
+    set long_=#{value} ::integer,text_=#{value}
+    where execution_id_=#{executionId}
+      and name_=#{key}
+  </update>
+  <!--  根据执行实例id更新变量数据 仅支持更新long和text-->
+  <update id="updateRuVariableByExecutionIdToLongText">
+    update act_ru_variable
+    set long_=#{value} ::integer,text_=#{value}
+    where execution_id_=#{executionId}
+      and name_=#{key}
+  </update>
+  <!--    根据taskID删除历史处理人信息-->
+  <delete id="deleteHistorcIdentityLink">
+    delete
+    from act_hi_identityLink
+    where task_id_ = #{taskId}
+  </delete>
+  <!--    根据taskID删除Flowable表的意见信息-->
+  <delete id="deleteHistorcComment">
+    delete
+    from act_hi_comment
+    where task_id_ = #{taskId}
+      and action_ = 'AddComment'
+  </delete>
+  <!--    根据taskId删除运行中的任务act_ru_task-->
+  <delete id="deleteTaskForTaskId">
+    delete
+    from act_ru_task
+    where id_ = #{taskId}
+  </delete>
+  <!--    根据执行实例executionId删除运行中的执行实例act_ru_execution-->
+  <delete id="deleteExecutionForExecutionId">
+    delete
+    from act_ru_execution
+    where id_ = #{executionId}
+  </delete>
+  <!--    根据taskId删除运行中的act_ru_identitylink-->
+  <delete id="deleteRuIdentityLinkForTaskId">
+    delete
+    from act_ru_identitylink
+    where task_id_ = #{taskId}
+  </delete>
+  <!--    根据taskId删除历史的任务act_hi_taskinst-->
+  <delete id="deleteHisTaskForTaskId">
+    delete
+    from act_hi_taskinst
+    where id_ = #{taskId}
+  </delete>
+  <!--    根据执行实例executionId删除与当前任务执行有关的参数act_ru_variable-->
+  <delete id="deleteRuVariableForExecutionId">
+    delete
+    from act_ru_variable
+    where execution_id_ = #{executionId}
+  </delete>
+  <!--    根据执行实例executionId删除与当前历史任务执行有关的参数act_hi_varinst-->
+  <delete id="deleteHiVariableForExecutionId">
+    delete
+    from act_hi_varinst
+    where execution_id_ = #{executionId}
+  </delete>
+  <!--    根据taskId删除历史表中act_hi_identitylink数据-->
+  <delete id="deleteHiIdentityLinkForTaskId">
+    delete
+    from act_hi_identitylink
+    where task_id_ = #{taskId}
+  </delete>
+  <!--    根据执行实例executionId和指定字段名删除记录act_ru_variable-->
+  <delete id="deleteRuVariableForExecutionIdAndName">
+    delete
+    from act_ru_variable
+    where execution_id_ = #{executionId}
+      and name_ = #{name}
+  </delete>
+  <!--    根据执行实例executionId和指定字段名删除记录act_hi_varinst-->
+  <delete id="deleteHisVariableForExecutionIdAndName">
+    delete
+    from act_hi_varinst
+    where execution_id_ = #{executionId}
+      and name_ = #{name}
+  </delete>
+  <!--    查询代办-->
+  <select id="selectTaskModel" resultType="java.util.Map">
+    SELECT
+    t1.ID_,t1.NAME_,t1.CREATE_TIME_,t1.ASSIGNEE_,t1.DESCRIPTION_,
+    t1.TASK_DEF_KEY_,t1.CATEGORY_,t2.BUSINESS_KEY_,t2.PROC_INST_ID_,
+    t2.PARENT_ID_,t2.PROC_DEF_ID_,t2.NAME_ AS form_name,
+    t2.START_TIME_,t2.START_USER_ID_ AS start_person_code,
+    t3.process_status,t5.USER_ID_ as user_id
+    FROM act_ru_task t1
+    INNER JOIN act_ru_execution t2 ON t1.PROC_INST_ID_ = t2.PROC_INST_ID_
+    INNER JOIN tbl_flow_extend_procinst t3 ON t2.PROC_INST_ID_ = t3.proc_ins_id
+    LEFT JOIN act_ru_identitylink t5 ON t5.TASK_ID_ = t1.ID_
+    LEFT JOIN sys_user t6 ON t6.user_id ::varchar = t2.START_USER_ID_
+    <!--  LEFT JOIN act_re_model t7 ON t3.model_key = t7.KEY_+'.bpmn' -->
+    <!-- 流程与业务解耦后引擎 BUSINESS_KEY_ 恒为空，原先的 t2.BUSINESS_KEY_ is not null 会让待办查询恒为空，故移除 -->
+    where 1 = 1
+    <if test="params.userCode != null and params.userCode!=''">
+      AND (
+      t1.ASSIGNEE_ = #{params.userCode}
+      OR (
+      (
+      t1.ASSIGNEE_ IS NULL
+      OR t1.ASSIGNEE_ = ''
+      )
+      AND (
+      t5.USER_ID_ = #{params.userCode}
+      OR t5.GROUP_ID_ IN (
+      select
+      r.role_id ::varchar
+      FROM
+      sys_user_role r
+      WHERE r.user_id ::varchar = #{params.userCode}))))
+    </if>
+    ORDER BY t1.CREATE_TIME_ ASC
+  </select>
+</mapper>

@@ -2,8 +2,8 @@
 
 基于若依 RuoYi-Vue 3.8.2 改造,与 `master` 分支**唯一区别**:**后端从 Spring Boot 2.5.14 升级到 Spring Boot 3.5.16**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
 
-> 当前分支:`springboot3` ——「**master + 后端 SB 2.5.14 → 3.5.16 升级**」。
-> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3**。
+> 当前分支:`springboot3-extend-flowable` ——「`springboot3` + **Flowable 7.2.0 流程引擎**」。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot3-tianai-captcha` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3-extend-flowable**。
 
 ---
 
@@ -253,10 +253,10 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 | `springboot2_TypeScript` | `master` + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
 | `springboot2-tianai-captcha` | `master` + 把 kaptcha 替换为 **tianai-captcha 行为验证码**(滑动 / 旋转 / 文字点选) |
 | `springboot2-extend-flowable` | `master` + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),schema 改 `basicdb_flowable`(86 张表 + 2 视图);增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
-| `springboot3` 🟢 | **当前分支**:`master` + **后端 SB 2.5.14 → 3.5.16 / JDK 11 → 17**(Jakarta EE + Spring Security 6 + springdoc + starter 改名);前端 **JS 不动**、DB 34 表不动 |
+| `springboot3` | `master` + **后端 SB 2.5.14 → 3.5.16 / JDK 11 → 17**(Jakarta EE + Spring Security 6 + springdoc + starter 改名);前端 **JS 不动**、DB 34 表不动 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
 | `springboot3-tianai-captcha` | `springboot3` + tianai-captcha 行为验证码 |
-| `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
+| `springboot3-extend-flowable` 🟢 | `springboot3` + **Flowable 7.2.0 流程引擎**集成(新增 `extend-flowable` 子模块,193 个 Java 源文件,13 个 `Wf*Controller`);**与 `springboot2-extend-flowable` 的 6.8.0 同步升级为 7.x**:MyBatis-Plus 旧包路径(`com.baomidou.mybatisplus.spring.service`)→ 新路径(`extension.service`);`@Resource` 字段加 `@Lazy` 打破 `Wf*ServiceBase` 之间的循环依赖(**不依赖** `spring.main.allow-circular-references` 全局开关);`Wf*Service` 之间的横向依赖由父类 + 注入点位的拆分实现;<br>**后端架构**:5.x 把 startform 表单引擎替换为 vform3 + wf_form/wf_form_template/wf_deploy_form/wf_task_form 业务表(共 10 张业务表 + Flowable 80+ 张 ACT_/FLW_ 表);13 个 controller URL 全部继承 sb2 命名(`/workflow/{process,task,model,form,category,...}`);<br>**前端 90 个文件**(13 个 `src/api/workflow/*` API + 22 个 `src/views/basic-extend/workflow/*` 视图 + 4 个流程公共组件 + bpmn-js 17.11.1 流程建模器 + vform3-builds 3.0.10 自定义表单设计器 + 9 个 boundary / 8 个 task panel);`web-ui/src/router/index.js` 末尾 hardcode 6 个 workflow hidden 路由(form/design / model/design / process/start / process/detail / migrate / category/dataForm)绕过 dynamicRoutes permission 过滤;<br>**数据库**:`file-sql/basicdb-vue3.sql`(363KB 完整 dump,已含 2000-2099 流程菜单 38 条 + wf_process_permission 字典 9 项 + 全部业务表 + Flowable 表,统一在 `basicdb_flowable7` schema,与 sb2 的"独立 schema"模式一致);`super_admin`(role_id=1)绑 2000-2099 全部权限;JDBC `currentSchema=basicdb_flowable7`<br>**dev/运行依赖**:vform3 需在 `main.js` 全局注册 `app.use(VForm3)`;vform3 需在 `vite.config.js` 的 `optimizeDeps.include` 加 `vform3-builds`;`BasicApplication.main` 加 `System.setProperty("spring.devtools.restart.enabled", "false")` 避免 devtools stale-cache<br>**详细文档**:`docs/springboot3-extend-flowable-{需求文档,架构方案,概要设计,详细设计,数据库设计}.md` |
 | `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
 | `springboot4_TypeScript` | `springboot4` + 前端 TS 化(技术栈最完整) |
 | `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |

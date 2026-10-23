@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.basic.workflow.mapper.WfTaskFormMapper">
+  <!--
+    说明：一行 wf_task_form = 一次表单提交。
+    form_content 存本次提交的完整 JSON；field/field_value 是历史 EAV 列（新数据不再写入）。
+  -->
+  <sql id="baseColumns">
+        id              AS "id",
+        form_id         AS "formId",
+        proc_ins_id     AS "procInsId",
+        task_id         AS "taskId",
+        activity_id     AS "activityId",
+        user_id         AS "userId",
+        form_content    AS "formContent",
+        field           AS "field",
+        field_value     AS "fieldValue",
+        create_by       AS "createBy",
+        create_time     AS "createTime",
+        update_by       AS "updateBy",
+        update_time     AS "updateTime"
+  </sql>
+
+  <!-- 根据任务 taskId 和节点 actId 获取表单内容 -->
+  <select id="selectFormJsonDataByTaskIdAndActIdToList"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select <include refid="baseColumns"/>
+    from wf_task_form
+    where task_id = #{taskId}
+      and activity_id = #{activityId}
+    order by create_time
+  </select>
+
+  <!-- 根据实例 procInsId 和节点 actId 获取表单内容 -->
+  <select id="selectFormJsonDataByProcInsIdAndActIdToList"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select <include refid="baseColumns"/>
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+      and activity_id = #{activityId}
+    order by create_time
+  </select>
+
+  <!-- 根据实例 id 查询流程审批表单 data -->
+  <select id="selectFormDataByProcInsIdToList" resultType="com.basic.workflow.domain.WfTaskForm">
+    select <include refid="baseColumns"/>
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+    order by create_time
+  </select>
+
+  <!-- 根据实例 id 和节点 actId 获取表单 JSON（取最新一条） -->
+  <select id="selectFormJsonByProcInsIdAndActId"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select <include refid="baseColumns"/>
+    from wf_task_form
+    where proc_ins_id = #{procInsId}
+      and activity_id = #{activityId}
+    order by create_time desc
+    limit 1
+  </select>
+
+  <!--
+    根据字段名 + 字段值 + 节点集合反查流程实例。
+    字段值从 form_content 的 JSON 中提取（PostgreSQL jsonb 运算符），
+    不再依赖 field/field_value 这两列历史数据。
+  -->
+  <select id="selectFormDataByFieldAndFieldValueAndActId"
+    resultType="com.basic.workflow.domain.WfTaskForm">
+    select <include refid="baseColumns"/>
+    from wf_task_form
+    where form_content is not null
+      and form_content::jsonb ->> #{field} = #{fieldValue}
+      and activity_id in
+      <foreach collection="activityIdList" item="actId" separator="," open="(" close=")">
+          #{actId}
+      </foreach>
+    limit 1
+  </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>basic</artifactId>
+        <groupId>com.basic</groupId>
+        <version>3.9.2</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>extend-flowable</artifactId>
+
+    <description>
+        流程引擎模块（基于 Flowable 7.2.0，对接 Spring Boot 3.5.x + Java 17 + Jackson 2）。
+        包含引擎集成、自定义表单（wf_form / wf_deploy_form / wf_task_form）、
+        流程定义/启动/任务主链路，以及回退/动态注入/边界事件等扩展能力。
+    </description>
+
+    <properties>
+        <flowable.version>7.2.0</flowable.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- 核心模块（提供 BaseController / AjaxResult / PageQuery 等） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-admin-core</artifactId>
+        </dependency>
+
+        <!-- 通用工具 -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-common</artifactId>
+        </dependency>
+
+        <!-- Flowable 7.2 流程引擎 starter：自动建表 + 装配 ProcessEngine/TaskService/RepositoryService 等。
+             7.x 起 Flowable 已迁移到 jakarta.* 命名空间，与 Spring Boot 3.x 兼容。
+             7.x 没有独立的 flowable-spring-boot-starter-task（task engine 由 process engine 自动包含）。 -->
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-process</artifactId>
+            <version>${flowable.version}</version>
+        </dependency>
+
+        <!-- 说明：Flowable 7 起官方移除了 BPMN JSON 转换器（flowable-json-converter 最后版本 6.8.1）。
+             本模块的流程模型统一以 BPMN 2.0 XML 存储/部署（前端用 bpmn-js 产 XML），
+             不再依赖任何 JSON↔BPMN 转换器。 -->
+
+        <!-- 自定义表单业务表（wf_form / wf_deploy_form / wf_task_form）走 MyBatis-Plus，
+             复用平台已经接入的 starter，避免重复声明 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
+
+        <!-- 表达式引擎（FindNextNodeUtil 里做条件表达式求值） -->
+        <dependency>
+            <groupId>com.googlecode.aviator</groupId>
+            <artifactId>aviator</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <!-- XML 解析（BPMN 自定义属性 / 扩展元素解析，WfModelSaveXmlService 使用） -->
+        <dependency>
+            <groupId>org.dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!-- Hutool 工具集（流程工具类会用） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+        </dependency>
+
+        <!-- OpenAPI 3 注解（io.swagger.v3.oas.annotations.*，Spring Boot 3 走 springdoc）。
+             显式声明，避免 springdoc 传递依赖版本漂移。 -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.22</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

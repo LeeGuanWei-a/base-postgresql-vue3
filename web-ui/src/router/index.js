@@ -89,6 +89,72 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  // ==================== 工作流 hidden 路由（操作型页面，不在侧边栏显示）====================
+  {
+    path: '/workflow/category/dataForm',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/category/dataForm'),
+        name: 'WfCategoryForm',
+        meta: { title: '流程分类表单', activeMenu: '/workflow/category' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/model/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/model/design'),
+        name: 'WfModelDesign',
+        meta: { title: '流程设计器', activeMenu: '/workflow/model' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/migrate',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/migrate/index'),
+        name: 'WfProcessMigrate',
+        meta: { title: '流程迁移', activeMenu: '/workflow' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/process/detail',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/process/detail'),
+        name: 'WfProcessDetail',
+        meta: { title: '流程详情', activeMenu: '/workflow/task/todo' }
+      }
+    ]
+  },
+  {
+    path: '/workflow/form/design',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/basic-extend/workflow/form/design'),
+        name: 'WfFormDesign',
+        meta: { title: '表单设计器', activeMenu: '/workflow/form' }
+      }
+    ]
   }
 ]
 

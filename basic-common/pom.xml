@@ -53,7 +53,7 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- JSON工具类 -->
+        <!-- JSON工具类（Spring Boot 3 默认 Jackson 2，包名 com.fasterxml.jackson） -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -123,6 +123,12 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
+        </dependency>
+
+        <!-- Lombok (PageQuery / AddGroup 等胶水类用到) -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
 
     </dependencies>
