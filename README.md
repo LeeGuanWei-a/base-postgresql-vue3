@@ -1,10 +1,10 @@
 # Basic Admin (Spring Boot 3.5.16 + Vue 3 + Element Plus)
 
-基于若依 RuoYi-Vue 3.8.2 改造,与 `master` 分支**唯一区别**:**后端从 Spring Boot 2.5.14 升级到 Spring Boot 3.5.16**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
+基于若依 RuoYi-Vue 3.8.2 改造,与 `master` 分支的差异有两点:**① 后端从 Spring Boot 2.5.14 升级到 Spring Boot 3.5.16(JDK 11 → 17)**;**② 把 kaptcha 字符验证码整体替换为 tianai-captcha 行为验证码**。前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**。
 
-> 当前分支:`springboot3` ——「**master + 后端 SB 2.5.14 → 3.5.16 升级**」。
-> 仓库另有 `master` / `master-extend-flowable` / `springboot2_TypeScript` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3**。
-> **本次提交**:`springboot3-tianai-captcha` ——「**用 tianai-captcha 行为验证码替换 kaptcha**」(kaptcha 已删,行为验证码支持 SLIDER / ROTATE / WORD_IMAGE_CLICK)。
+> 当前分支:`springboot3-tianai-captcha` ——「**master + 后端 SB 3.5.16 升级 + tianai-captcha 行为验证码**」。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot3-tianai-captcha**。
+> 行为验证码支持 **SLIDER(滑动)/ ROTATE(旋转)/ WORD_IMAGE_CLICK(文字点选)** 三种类型,PC 与移动端可切换;kaptcha 已从源码中删除(仅 javadoc 里保留兼容说明)。
 
 ---
 
@@ -36,7 +36,7 @@
 
 ## 一、当前后端状态(基于 `git show HEAD:pom.xml`)
 
-> 本分支**后端升级到 SB 3.5.16**;前端、SQL 脚本、业务逻辑与 master 保持一致。
+> 本分支有**两处**与 `master` 不同:**① 后端升级到 SB 3.5.16 / JDK 17**;**② kaptcha 字符验证码 → tianai-captcha 1.5.2 行为验证码**。前端两端、SQL 脚本(34 表)、业务逻辑与 master 保持一致。
 
 | 组件 | 版本 | 备注 |
 |---|---|---|
@@ -52,7 +52,8 @@
 | Hutool | **hutool-core 5.8.27** | 由 boms 模式改为单 artifact |
 | yauaa(User-Agent 解析) | **8.2.0** | ★ 替代 bitwalker 1.21 |
 | Lombok | **1.18.46** | 新增 |
-| kaptcha | 2.3.3 | |
+| **行为验证码** | **tianai-captcha 1.5.2** | ★ `tianai-captcha-springboot-starter`,Spring Boot 3 / **jakarta.servlet** 兼容;前端自实现组件(SDK 1.5.6);**取代 kaptcha 字符验证码** |
+| ~~kaptcha~~ | ~~2.3.3~~ | **已下线**(源码中无引用,`pom.xml` 保留属性仅为回滚方便) |
 | poi | **5.5.1** | |
 | commons-io | **2.22.0** | |
 | oshi | **7.4.4** | |
@@ -194,7 +195,54 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 
 ### 3.6 删除文件
 
-- (本次升级**没删任何**配置文件,只是改了内容)
+- `KaptchaTextCreator.java` —— 字符验证码文本生成器(kaptcha 下线)
+- `CaptchaConfig.java` —— kaptcha `Producer`/`ServletRegistrationBean` 配置(kaptcha 下线)
+- (SB 3 升级本身**没删任何**配置文件,只是改了内容)
+
+### 3.7 行为验证码改造(tianai-captcha 1.5.2)
+
+> 相对 `springboot3` 分支的增量改动。**SB 3 / jakarta.servlet 兼容版本**。
+
+**后端(5 个文件)**
+
+| 文件 | 改动 |
+|---|---|
+| `basic-framework/.../config/TianaiCaptchaConfig.java` | **新增**:`@Order(0)` `@Primary ResourceStore`;加载模板 + 6 张背景图 + **字体(1.5.2 通过 `type="font"` 资源注入,`FontCache` 监听)** |
+| `basic-framework/.../config/TypeAwareImageCaptchaValidator.java` | **新增**:ROTATE 容差放宽到 **0.10(±36°)**,其余类型保持默认 0.02 |
+| `basic-admin-api/.../common/CaptchaController.java` | **重写**:`GET /captchaImage?type=...`;返回 `{captchaOnOff, uuid, type, data}`;`CONCAT` 自动回退 `SLIDER`;扁平化 `viewData`,绝不下发 `expand` |
+| `basic-admin-api/.../common/CaptchaCheckController.java` | **新增**:`POST /captcha/check` 旁路校验;`matching()` 通过后写 Redis 凭证 `captcha:verified:<id>`(120s) |
+| `basic-common/.../model/LoginBody.java` | **新增字段** `captchaData`(ImageCaptchaTrack JSON);`uuid` 语义改为「验证码 id」 |
+
+> `SysLoginService` 改造:`login(...)` 增加 `captchaData` 参数;新增 `validateTianaiCaptcha(...)`,**优先读 Redis 凭证,未命中走 `matching()`**,Redis 异常降级到 `matching()`。
+
+**前端(2 端 + 2 个 api)**
+
+| 文件 | 改动 |
+|---|---|
+| `web-ui/src/components/TianaiCaptcha/index.vue` | **新增**(27.5 KB):自实现 3 类型组件,**不依赖官方 web-sdk**;轨迹按 tianai 反机器人规则构造(首条补原点 / y 微抖动 / 末段减速);坐标用百分比定位 |
+| `web-mp/src/components/tianai-captcha/tianai-captcha.vue` | **新增**:同上核心,适配 uni-app + uview-plus |
+| `web-ui/src/api/login.js` / `web-mp/src/api/login.js` | **修改**:`/login` 携带 `captchaData` |
+| `web-ui/src/views/login.vue` / `web-mp/src/pages/login/index.vue` | **修改**:接入组件,支持类型切换 |
+
+**资源(6 张背景图 + 3 套模板)**
+
+```
+basic-framework/src/main/resources/META-INF/cut-image/
+├── resource/   1.jpg  pic1.jpg  pic2.jpg  pic3.jpg  pic4.jpg  pic5.jpg  推荐格式.txt
+└── template/   slider_1/{active,fixed}.png  slider_2/{active,fixed}.png  rotate_1/{active,fixed}.png
+```
+
+**运行时凭证(Redis,不落库)**
+
+| Key | TTL | 说明 |
+|---|---|---|
+| `captcha:verified:<id>` | 120s | `/captcha/check` 校验通过后写入;`/login` 命中则跳过 `matching()` |
+
+**关键点**
+
+- `matching()` **会消费** tianai 内部缓存:同一 `id` 只能匹配 1 次
+- `pom.xml` 里 `kaptcha.version` / `kaptcha` 依赖**保留但不引用**(便于回滚);源码中 kaptcha 仅存在于 2 处 javadoc 说明,`grep -r "kaptcha" basic-*/src` 应为 0 命中
+- 数据库**零变更**(`sys_config.sys.account.captchaEnabled` 仍是总开关 KV)
 
 ---
 
@@ -240,7 +288,7 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 - [ ] Spring Framework 6 → 7(`springboot4` 分支做了)
 - [ ] 各种 deprecation 警告清理
 - [ ] 前端 TypeScript 化(已经在 `springboot3_TypeScript` 分支做了)
-- [ ] 集成 Flowable 流程引擎(已经在 `master-extend-flowable` 分支做了)
+- [ ] 集成 Flowable 流程引擎(已经在 `springboot2-extend-flowable` 分支做了)
 
 ---
 
@@ -250,14 +298,21 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 
 | 分支 | 做什么 |
 |---|---|
-| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14,JDK 11,前端 JS,加 web-mp) |
-| `master-extend-flowable` | master + **Flowable 6.8.0 流程引擎**集成(新增 `extend-flowable` 子模块),数据库从 MySQL 迁到 PostgreSQL(schema `basicdb_flowable`,86 张表 + 2 视图);并增加流程建模/部署/发起/审批/退回/转办/委派/加签/抄送等业务 |
-| `springboot2_TypeScript` | master + 前端两端(`web-ui` / `web-mp`)**全量 TypeScript 化**;后端保持 SB 2.5.14 |
-| `springboot3_TypeScript` | **`springboot3` + 前端 TS 化**(本分支 + TS 版) |
+| `master` | RuoYi-Vue 3.8.2 **最小改造基线**(后端 SB 2.5.14 / JDK 11,前端 JS,加 web-mp,**kaptcha 字符验证码**) |
+| `springboot2_TypeScript` | `master` + 前端两端 **全量 TypeScript 化**;后端保持 SB 2.5.14 |
+| `springboot2-tianai-captcha` | `master` + **tianai-captcha 1.5.0** 行为验证码(后端仍 SB 2.5.14) |
+| `springboot2-extend-flowable` | `master` + **Flowable 6.8.0 流程引擎**(新增 `extend-flowable` 子模块),schema 改 `basicdb_flowable`(86 表 + 2 视图) |
+| `springboot3` | `master` + **后端 SB 2.5.14 → 3.5.16 / JDK 11 → 17**(Jakarta EE + Security 6 + springdoc);**仍是 kaptcha** |
+| `springboot3-tianai-captcha` 🟢 | **当前分支**:`springboot3` + **tianai-captcha 1.5.2** 行为验证码(取代 kaptcha);前端 JS、DB 34 表均不动 |
+| `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
+| `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
 | `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → 21),Jackson 3 + Spring Security 7 + Spring Framework 7 + ... |
-| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(最完整栈) |
+| `springboot4_TypeScript` | `springboot4` + 前端 TS 化(技术栈最完整) |
+| `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |
 
-> 本分支 `springboot3` ≈ master + 后端 SB 升级,可以视作"master 的 SB 3 升级版"。
+> 命名约定:`springboot{N}` = 后端 SB 大版本基线;`_TypeScript` = 该基线 + 前端 TS 化;
+> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎。
+> 本分支 `springboot3-tianai-captcha` = `springboot3` + 行为验证码,**不引入** Flowable、**不做**前端 TS 化。
 
 ---
 
@@ -386,7 +441,7 @@ spring:
 | `create-sys-notice-read.sql` | 补建 `sys_notice_read`(用户已读记录)表,按需手动跑 |
 
 > 一句话:**运行本项目,只跑 `basicdb-vue3.sql` 这一个文件就够了**。
-> (注:`master-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
+> (注:`springboot2-extend-flowable` 分支已经把上述 7 个历史脚本里的部分文件删掉了,
 > 本分支**仍保留**。)
 
 ---
@@ -504,7 +559,7 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展
 ├── extend-generator/                    # 代码生成扩展
-├── extend-flowable/                     # (仅 master-extend-flowable 分支)
+├── extend-flowable/                     # (仅 springboot2-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
