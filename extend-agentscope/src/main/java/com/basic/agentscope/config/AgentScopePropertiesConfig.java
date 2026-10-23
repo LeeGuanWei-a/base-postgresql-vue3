@@ -227,6 +227,9 @@ public class AgentScopePropertiesConfig {
         /** 渠道默认会话 ID（未显式指定 sessionId 时使用） */
         private String defaultSessionId = "channel-default";
 
+        /** 对外可访问的基础地址（用于拼接 webhook 地址）；为空时用 http://127.0.0.1:{server.port} */
+        private String baseUrl = "";
+
         /** 单次消息调用 Agent 的超时（秒） */
         private int timeoutSeconds = 120;
 
@@ -247,6 +250,14 @@ public class AgentScopePropertiesConfig {
 
         public void setDefaultSessionId(String defaultSessionId) {
             this.defaultSessionId = defaultSessionId;
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
         }
 
         public int getTimeoutSeconds() {

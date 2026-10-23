@@ -190,12 +190,12 @@ public class MockChatModel implements Model {
             return args;
         }
         JsonNode properties = params.get("properties");
-        properties.fields().forEachRemaining(entry -> {
+        for (Map.Entry<String, JsonNode> entry : properties.properties()) {
             String key = entry.getKey();
             JsonNode value = entry.getValue();
             String type = value.path("type").asText("string");
             args.put(key, defaultValueFor(key, type, userText));
-        });
+        }
         return args;
     }
 
@@ -292,12 +292,12 @@ public class MockChatModel implements Model {
             JsonNode props = schema.path("properties");
             Map<String, Object> obj = new LinkedHashMap<>();
             if (props.isObject()) {
-                props.fields().forEachRemaining(entry -> {
+                for (Map.Entry<String, JsonNode> entry : props.properties()) {
                     String key = entry.getKey();
                     JsonNode def = entry.getValue();
                     String type = def.path("type").asText("string");
                     obj.put(key, defaultValueFor(key, type, userText));
-                });
+                }
             }
             return MAPPER.writeValueAsString(obj);
         } catch (Exception e) {

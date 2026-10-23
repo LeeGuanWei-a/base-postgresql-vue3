@@ -156,3 +156,19 @@ agentscope:
   # 配好真实 OPENAI_API_KEY 后置为 false 即可切到真实模型。
   mock:
     enabled: ${AGENTSCOPE_MOCK_ENABLED:true}
+  # ---- 以下为外部依赖型 / 演示型能力的开关，默认关闭 ----
+  mcp:
+    enabled: false        # 需要可用的 MCP Server 地址
+  channel:
+    enabled: false        # 需要引入 agentscope-extensions-channel-* 并配置 IM 凭证
+  sandbox:
+    enabled: false        # 需要容器运行时(Docker / K8s)做真正隔离
+  scheduler:
+    enabled: false        # 需要与项目既有 Quartz 打通(本分支为进程内实现)
+  # ---- 演示型开关 ----
+  # 状态持久化目录（AgentState 落盘为 {dir}/{userId}/{sessionId}/agent_state.json）
+  state-store:
+    dir: ${AGENTSCOPE_STATE_DIR:${user.home}/.agentscope/rouyi-state}
+  # 故障转移演示：Mock 模型永不失败，置 true 注入主模型故障以展示"主模型挂→切备用→备用也挂"
+  failover:
+    simulate-primary-failure: true
