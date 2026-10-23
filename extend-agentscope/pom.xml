@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>basic</artifactId>
+        <groupId>com.basic</groupId>
+        <version>4.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>extend-agentscope</artifactId>
+
+    <description>
+        AgentScope Java 2.x 集成（多 Agent / ReAct / Tools / Memory / RAG），
+        基于 springboot4 分支 + Java 21 + Spring Boot 4.1.1
+    </description>
+
+    <dependencies>
+
+        <!-- Spring Boot 4 Web（提供 @RestController 端点能力） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 校验/通用工具（与 extend-quartz / extend-flowable 对齐） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-common</artifactId>
+        </dependency>
+
+        <!-- =========================================================== -->
+        <!-- AgentScope Java 2.0.4 核心栈（与 springboot4 spring-boot 4.x 对齐） -->
+        <!-- =========================================================== -->
+
+        <!-- Starter：自动装配 agentscope-core + 配置元数据（spring-boot-4.0.1 兼容） -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- OpenAI 兼容模型：支持 OpenAI、DeepSeek、Kimi、智谱、Azure OpenAI 等所有兼容协议
+             （agentscope-extensions-model-openai 已在 agentscope-bom 中锁定版本，无需再写 version） -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-extensions-model-openai</artifactId>
+        </dependency>
+
+        <!-- 可选：把 OpenAI 模型绑到 Spring Boot 的 auto-configuration（yml 配 agentscope.openai.*） -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-openai-spring-boot-starter</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

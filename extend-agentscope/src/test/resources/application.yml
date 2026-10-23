@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  main:
+    web-application-type: servlet
+    banner-mode: off
+
+agentscope:
+  agent:
+    enabled: true
+    name: smoke-assistant
+    sys-prompt: 冒烟测试智能助手
+  model:
+    provider: openai
+  openai:
+    enabled: true
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${OPENAI_API_KEY:sk-placeholder-for-boot-only}
+    model-name: ${OPENAI_MODEL:gpt-4o-mini}
+    stream: true
+
+logging:
+  level:
+    io.agentscope: INFO
+    org.springframework: WARN
+    com.basic: INFO
