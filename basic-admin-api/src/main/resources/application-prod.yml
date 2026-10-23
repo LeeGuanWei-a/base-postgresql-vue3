@@ -15,6 +15,44 @@ basic:
   # 验证码类型 math 数组计算 char 字符验证
   captchaType: math
 
+  # ============================================================
+  # 第三方渠道集成（extend-wecom / extend-alipay）
+  # ============================================================
+  # 生产环境：所有密钥必须通过环境变量注入，不允许在 yml 中写真实 secret
+  wecom:
+    # 企业 corp_id（从企业微信管理后台"我的企业 > 企业信息"复制）
+    corp-id: ${WECOM_CORP_ID}
+    # 通讯录同步专用 secret（可选）
+    contacts-secret: ${WECOM_CONTACTS_SECRET:}
+    # 自建应用列表
+    apps:
+      - agent-id: ${WECOM_APP1_AGENT_ID:1000001}
+        name: 公告推送
+        secret: ${WECOM_APP1_SECRET}
+      # 多应用场景，按需添加
+      # - agent-id: ${WECOM_APP2_AGENT_ID}
+      #   name: 审批回调
+      #   secret: ${WECOM_APP2_SECRET}
+
+  # 支付宝生产：必须用证书模式 + HTTPS 回调地址
+  alipay:
+    gateway: https://openapi.alipay.com/gateway.do
+    sign-type: RSA2
+    charset: UTF-8
+    apps:
+      - app-id: ${ALIPAY_APP_ID}
+        name: 主站
+        # PKCS#8 私钥，建议通过环境变量或 K8s Secret 注入
+        private-key: ${ALIPAY_PRIVATE_KEY}
+        # 公钥模式必填；证书模式留空
+        alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+        # 证书模式三个文件路径（推荐生产用证书模式）
+        app-cert-path: ${ALIPAY_APP_CERT:}
+        alipay-cert-path: ${ALIPAY_CERT:}
+        alipay-root-cert-path: ${ALIPAY_ROOT_CERT:}
+        notify-url: ${ALIPAY_NOTIFY_URL}
+        return-url: ${ALIPAY_RETURN_URL}
+
 # 日志配置
 logging:
   file:

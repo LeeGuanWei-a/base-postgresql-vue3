@@ -34,6 +34,10 @@
         <jwt.version>0.9.1</jwt.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <springdoc.version>3.1.1</springdoc.version>
+        <!-- 第三方渠道集成 SDK 版本 -->
+        <wx-java.version>4.8.6.B</wx-java.version>
+        <alipay-sdk.version>4.40.1044.ALL</alipay-sdk.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
     </properties>
 
     <!-- 依赖声明（dependencyManagement 与 base-agent-platform-keycloak 3.9.2 对齐） -->
@@ -210,6 +214,99 @@
                 <version>${basic.version}</version>
             </dependency>
 
+            <!-- WxJava：企业微信 / 公众号 / 小程序 SDK（核心包，不引 starter，规避 SB 4 starter 缺失） -->
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-common</artifactId>
+                <version>${wx-java.version}</version>
+                <exclusions>
+                    <!-- SB 4 自带 spring-data-redis 4.x；WxJava 写死 2.3.3，会冲突 -->
+                    <exclusion>
+                        <groupId>org.springframework.data</groupId>
+                        <artifactId>spring-data-redis</artifactId>
+                    </exclusion>
+                    <!-- WxJava 把 jedis/redisson 标 provided，但仍会通过 transitive 拉进来；排除以免与项目自己的 Redis 冲突 -->
+                    <exclusion>
+                        <groupId>redis.clients</groupId>
+                        <artifactId>jedis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.redisson</groupId>
+                        <artifactId>redisson</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.jedis-lock</groupId>
+                        <artifactId>jedis-lock</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-cp</artifactId>
+                <version>${wx-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-mp</artifactId>
+                <version>${wx-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-miniapp</artifactId>
+                <version>${wx-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-open</artifactId>
+                <version>${wx-java.version}</version>
+            </dependency>
+
+            <!-- 支付宝官方 SDK：全量 OpenAPI，按需 exclude -->
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>${alipay-sdk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
+                    <!-- 老版本 Bouncy Castle（2019），与 WxJava 的 jdk18on 冲突，统一用 jdk18on -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- 统一 Bouncy Castle 版本（与 JDK 21 兼容） -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <!-- 渠道集成模块 -->
+            <dependency>
+                <groupId>com.basic</groupId>
+                <artifactId>extend-wecom</artifactId>
+                <version>${basic.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.basic</groupId>
+                <artifactId>extend-alipay</artifactId>
+                <version>${basic.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -220,6 +317,8 @@
         <module>basic-common</module>
         <module>extend-quartz</module>
         <module>extend-generator</module>
+        <module>extend-wecom</module>
+        <module>extend-alipay</module>
         <module>business-core</module>
     </modules>
     <packaging>pom</packaging>

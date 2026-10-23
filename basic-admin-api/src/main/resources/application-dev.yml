@@ -15,6 +15,47 @@ basic:
   # 验证码类型 math 数组计算 char 字符验证
   captchaType: math
 
+  # ============================================================
+  # 第三方渠道集成（extend-wecom / extend-alipay）
+  # ============================================================
+  # 企微：不配也能启动（apps 为空 map 注入），调用时会 404 提示
+  wecom:
+    # 企业 corp_id（从企业微信管理后台"我的企业 > 企业信息"复制）
+    corp-id: ${WECOM_CORP_ID:ww-dev-placeholder}
+    # 通讯录同步专用 secret（可选；通讯录类 API 必须用这个 secret 而非自建应用 secret）
+    contacts-secret: ${WECOM_CONTACTS_SECRET:}
+    # 自建应用列表：每个应用是一对 (agentId, secret)
+    # agentId/secret 从"应用管理 > 自建应用 > 详情"获取
+    apps:
+      - agent-id: 1000001
+        name: 公告推送
+        secret: ${WECOM_APP1_SECRET:dev-placeholder-secret-1}
+      # 第二个应用示例，需要时放开
+      # - agent-id: 1000002
+      #   name: 审批回调
+      #   secret: ${WECOM_APP2_SECRET}
+
+  # 支付宝：必须配置；私钥/公钥缺失会导致签名失败
+  alipay:
+    # 网关：生产 https://openapi.alipay.com/gateway.do
+    # 沙箱 https://openapi.alipaydev.com/gateway.do
+    gateway: https://openapi.alipaydev.com/gateway.do
+    sign-type: RSA2
+    charset: UTF-8
+    apps:
+      - app-id: 2021000000000000
+        name: 沙箱应用
+        # PKCS#8 私钥，\n 保留换行
+        private-key: ${ALIPAY_PRIVATE_KEY:}
+        # 公钥模式必填；证书模式留空
+        alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+        # 证书模式三个文件路径（三者全填才进入证书模式，否则按公钥模式走）
+        app-cert-path: ${ALIPAY_APP_CERT:}
+        alipay-cert-path: ${ALIPAY_CERT:}
+        alipay-root-cert-path: ${ALIPAY_ROOT_CERT:}
+        notify-url: http://localhost:8080/alipay/notify
+        return-url: http://localhost:8080/alipay/return
+
 # 数据源配置
 spring:
   # 服务模块

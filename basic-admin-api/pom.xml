@@ -66,6 +66,18 @@
             <artifactId>extend-generator</artifactId>
         </dependency>
 
+        <!-- 企业微信 / 公众号 / 小程序 渠道 -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>extend-wecom</artifactId>
+        </dependency>
+
+        <!-- 支付宝渠道 -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>extend-alipay</artifactId>
+        </dependency>
+
         <!-- 业务模块 -->
         <dependency>
             <groupId>com.basic</groupId>

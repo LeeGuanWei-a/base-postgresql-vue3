@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>basic</artifactId>
+        <groupId>com.basic</groupId>
+        <version>4.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>extend-alipay</artifactId>
+
+    <description>
+        支付宝渠道集成（基于 alipay-sdk-java 4.40.1044.ALL 官方全量 SDK）
+    </description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>basic-common</artifactId>
+        </dependency>
+
+        <!-- 支付宝官方全量 SDK（已在父 pom exclude commons-logging/dom4j/老 BC） -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+        </dependency>
+
+        <!-- 统一 Bouncy Castle（与 extend-wecom 保持一致） -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>
