@@ -72,6 +72,12 @@
             <artifactId>business-core</artifactId>
         </dependency>
 
+        <!-- AgentScope Java 集成（多 Agent / ReAct / Tools / Memory） -->
+        <dependency>
+            <groupId>com.basic</groupId>
+            <artifactId>extend-agentscope</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

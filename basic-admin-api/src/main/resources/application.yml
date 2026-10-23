@@ -129,3 +129,30 @@ management:
       exposure:
         include: "shutdown"
       base-path: /monito
+
+# ============================================================
+# AgentScope Java 2.x 集成配置
+# （属性名由 io.agentscope.spring.boot.properties.*Properties 定义）
+# ============================================================
+agentscope:
+  # 总开关：true 时装配 agentscopeReActAgent / Memory / Toolkit Bean
+  agent:
+    enabled: true
+    name: basic-assistant
+    sys-prompt: 你是一个企业级 Java 基础平台的智能助手，请简洁准确地回答用户问题。
+    # 单次请求的最大 ReAct 迭代轮次（思考→调工具→回灌 的循环上限）
+    max-iters: 10
+  # 模型侧：OpenAI 兼容协议（DeepSeek / Kimi / 智谱 / Azure OpenAI 都用它）
+  model:
+    provider: openai
+  openai:
+    enabled: true
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${OPENAI_API_KEY:sk-replace-me-in-env}
+    model-name: ${OPENAI_MODEL:gpt-4o-mini}
+    stream: true
+  # Mock 模型开关：true 时不调用真实 LLM，用内置 Mock 模型把
+  # 「工具调用 → ReAct 循环 → 结果回灌 → 最终回答」整条链路跑通。
+  # 配好真实 OPENAI_API_KEY 后置为 false 即可切到真实模型。
+  mock:
+    enabled: ${AGENTSCOPE_MOCK_ENABLED:true}

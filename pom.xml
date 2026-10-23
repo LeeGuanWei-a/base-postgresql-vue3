@@ -34,6 +34,8 @@
         <jwt.version>0.9.1</jwt.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <springdoc.version>3.1.1</springdoc.version>
+        <!-- AgentScope Java 集成（v2.0.4 稳定版，Java 17+ / Spring Boot 4） -->
+        <agentscope.version>2.0.4</agentscope.version>
     </properties>
 
     <!-- 依赖声明（dependencyManagement 与 base-agent-platform-keycloak 3.9.2 对齐） -->
@@ -117,6 +119,31 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- AgentScope Java - 依赖 BOM（统一管理 agentscope-core / harness / extensions 版本） -->
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-dependencies-bom</artifactId>
+                <version>${agentscope.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- AgentScope Java - 业务模块 BOM（核心 + harness + 全部发布到中央仓库的扩展） -->
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-bom</artifactId>
+                <version>${agentscope.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- AgentScope Java - Spring Boot 4 starter（auto-configuration + properties） -->
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-spring-boot-starter</artifactId>
+                <version>${agentscope.version}</version>
             </dependency>
 
             <!-- io常用工具类 -->
@@ -210,6 +237,13 @@
                 <version>${basic.version}</version>
             </dependency>
 
+            <!-- AgentScope Java 集成子模块（与 extend-quartz / extend-generator 同级） -->
+            <dependency>
+                <groupId>com.basic</groupId>
+                <artifactId>extend-agentscope</artifactId>
+                <version>${basic.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -220,6 +254,7 @@
         <module>basic-common</module>
         <module>extend-quartz</module>
         <module>extend-generator</module>
+        <module>extend-agentscope</module>
         <module>business-core</module>
     </modules>
     <packaging>pom</packaging>
