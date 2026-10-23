@@ -38,7 +38,7 @@
 | 25 | `web-ui/src/views/basic-extend/agent/panels/index.js` | **新增** | 能力 id → 面板映射表 |
 | 26 | `web-ui/src/views/basic-extend/agent/components/CapabilityChatBox.vue` | **新增** | 通用对话外壳组件 |
 | 27 | `web-ui/src/views/basic-extend/agent/components/CapabilityDetailCard.vue` | **新增** | 通用详情卡片组件 |
-| 28 | `file-sql/create-agentscope-capability-menu.sql` | **新增** | 2 条 `sys_menu` 记录(幂等) |
+| 28 | `file-sql/basicdb-vue3.sql` | **修改** | 全库导出,内含 2 条 `sys_menu` 菜单记录;schema 为 `basicdb_agentscope` |
 
 ---
 
@@ -658,7 +658,7 @@ agentscope:
 | **F-9** | 工具注册了但 Agent 调不到 | starter 的 `agentscopeToolkit` 是 **`@Scope("prototype")`**,工具注册在某个注入点上,Agent 拿到的是另一个实例 | 自建**单例** `businessToolkit` 并在 Agent 上显式 `.toolkit(businessToolkit)` |
 | **F-10** | 启动报 `NoUniqueBeanDefinitionException: Model` | `MockChatModel` 被注册成了 Spring Bean,容器里出现两个 `Model` | Mock 模型**不注册为 Bean**,由 `ModelResolver` 持有单例 |
 | **F-11** | 启动报 `NoUniqueBeanDefinitionException: ReActAgent` | 有代码按**类型**注入了 `ReActAgent` | 一律加 `@Qualifier`,或用 `getBean(beanName, ReActAgent.class)` |
-| **F-12** | 前端能力展厅空白 / 侧边栏空 | 菜单 `sys_menu` 未插入,或 `component` 路径写错 | 执行 `file-sql/create-agentscope-capability-menu.sql`;`component` 须为 `basic-extend/agent/index` |
+| **F-12** | 前端能力展厅空白 / 侧边栏空 | 菜单 `sys_menu` 未插入,或 `component` 路径写错 | 确认已导入 `file-sql/basicdb-vue3.sql`(含 1067/1068 两条菜单);`component` 须为 `basic-extend/agent/index` |
 | **F-13** | 前端控制台 `panels/index.js` 导入报错 | 映射表里列了组件但文件没建 | 补齐文件;或临时改用 `GenericPanel` 兜底 |
 | **F-14** | SSE 一直转圈不出字 | 前端用 `EventSource` 发请求 | `EventSource` 不支持请求头,改用 `fetch` + `ReadableStream`(见 §4.5.4) |
 | **F-15** | 能力对话返回"能力不可用" | 外部依赖型能力默认无 Agent Bean | 属预期行为;配置对应依赖后由 `reload` 接口重新装配 |

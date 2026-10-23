@@ -119,7 +119,7 @@
       MCP 客户端 / 渠道接入 / 沙箱执行 / 调度器(以上 4 个为**外部依赖型,默认关闭**)
     - 新增前端 `web-ui/src/views/basic-extend/agent/`(容器 + 21 个面板 + 2 个共享组件),
       左侧导航**由后端能力清单动态驱动**;菜单走 RuoYi 动态路由
-      (`file-sql/create-agentscope-capability-menu.sql`,2 条 `sys_menu` 记录)
+      (2 条 `sys_menu` 记录,已内联在 `file-sql/basicdb-vue3.sql` 里)
     - 新增 **Mock 模型**(`agentscope.mock.enabled=true`):**没有 LLM Key 也能把
       「模型决策 → 工具调用 → 结果回灌 → 最终回答」整条链路真实跑通**,工具查的是真实 PostgreSQL
     - 外部依赖型能力**代码完整 + 留开关 + 状态面板可见**(缺什么依赖、yml 配置示例都写在详情里)
@@ -382,8 +382,8 @@ public <T> T getCacheObject(final String key) {
 - [ ] **配置模型凭据**:`OPENAI_API_KEY` 等环境变量已注入(生产**必须**;默认值 `sk-replace-me-in-env` 不可用于生产)
 - [ ] `GET /agentscope/ping` 返回 `{"msg":"AgentScope Java v2.0.4 ready","code":200}`
 - [ ] `GET /agentscope/chat?prompt=hello` 带 JWT 能正常返回模型回答
-- [ ] **执行菜单 SQL**:`file-sql/create-agentscope-capability-menu.sql`(2 条 `sys_menu` 记录,
-  否则前端「扩展功能 → AgentScope 能力展厅」菜单不出现)
+- [ ] **导入数据库**:`file-sql/basicdb-vue3.sql`(34 表 + 2 视图 + 2 条能力展厅菜单记录;
+  菜单缺失时前端「扩展功能 → AgentScope 能力展厅」不会出现)
 - [ ] `GET /agentscope/capability/list` 带 JWT 返回 **21 个能力**清单
 - [ ] `POST /agentscope/capability/tool/chat` 带 JWT 能触发**真实工具调用**并返回真实 PostgreSQL 数据
 - [ ] 前端 `web-ui` 里「扩展功能 → AgentScope 能力展厅」能打开,21 个能力逐个点得动
@@ -717,7 +717,8 @@ base-postgresql-vue3/
 │       └── web/                          # AgentController(ping / chat / stream)
 ├── extend-flowable/                     # (仅 springboot2-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
-│   └── create-agentscope-capability-menu.sql   # 能力展厅菜单(本分支新增)
+│   ├── basicdb-vue3.sql                 # 全库结构与初始化数据(34 表 + 2 视图,已含 2 条展厅菜单)
+│   └── reset-*.sql                      # 管理员/全量密码重置脚本
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
 ├── docs/                                # 分支配套开发文档

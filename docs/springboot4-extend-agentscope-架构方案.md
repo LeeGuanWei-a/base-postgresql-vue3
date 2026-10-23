@@ -393,7 +393,7 @@ ModelResolver
 | 探活 | `GET /agentscope/ping` → `{"msg":"AgentScope Java v2.0.4 ready","code":200}` |
 | 能力清单 | `GET /agentscope/capability/list` → 21 个能力的 id/name/icon/summary/params |
 | 前端入口 | 菜单「扩展功能 → AgentScope 能力展厅」→ `/basic-extend/agent` |
-| 数据库 | 需执行 `file-sql/create-agentscope-capability-menu.sql`(2 条 `sys_menu` 记录) |
+| 数据库 | 导入 `file-sql/basicdb-vue3.sql`(34 表 + 2 视图 + 2 条 `sys_menu` 菜单记录,已内联) |
 | 启动前置 | **必须 `mvn clean`**,否则 `target/classes` 残留的旧 `.class` 会触发 `VerifyError`(见 RK-5) |
 
 ---

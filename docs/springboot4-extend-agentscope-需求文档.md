@@ -238,7 +238,7 @@
 | FR-6.5 | `CapabilityController.resolveAgent()` 按 bean 名取 Agent | A-3 |
 | FR-6.6 | `CapabilityInfo.id` ↔ `web-ui/.../panels/index.js` | A-8 / A-10 |
 | FR-7.1 ~ FR-7.6 | `extend-agentscope/.../capability/CapabilityController.java` | A-8 / A-9 |
-| FR-8.1 ~ FR-8.7 | `web-ui/src/views/basic-extend/agent/**`、`web-ui/src/api/agentscope.js`、`file-sql/create-agentscope-capability-menu.sql` | A-10 / A-11 |
+| FR-8.1 ~ FR-8.7 | `web-ui/src/views/basic-extend/agent/**`、`web-ui/src/api/agentscope.js`、`file-sql/basicdb-vue3.sql`(内联菜单) | A-10 / A-11 |
 | FR-9.1 ~ FR-9.4 | `extend-agentscope/.../mock/MockChatModel.java`、`.../config/ModelResolver.java`、`application.yml` | A-9 |
 
 ---

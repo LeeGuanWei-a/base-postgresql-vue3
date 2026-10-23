@@ -24,12 +24,13 @@
 > 与其它分支隔离。菜单脚本按该 schema 书写;若部署到 `basicdb`,把脚本里的
 > `basicdb_agentscope` 替换为 `basicdb` 即可,SQL 逻辑不变。
 
-| 变更 | 类型 | 对象 | 脚本 |
+| 变更 | 类型 | 对象 | 承载位置 |
 |---|---|---|---|
-| 菜单 1067 | INSERT | `<schema>.sys_menu`(目录 `M`,path=`basic-extend`) | `file-sql/create-agentscope-capability-menu.sql` |
+| 菜单 1067 | INSERT | `<schema>.sys_menu`(目录 `M`,path=`basic-extend`) | `file-sql/basicdb-vue3.sql` |
 | 菜单 1068 | INSERT | `<schema>.sys_menu`(菜单 `C`,component=`basic-extend/agent/index`) | 同上 |
 
-> 脚本**幂等**:以 `WHERE NOT EXISTS(menu_id = ...)` 保护,可重复执行。
+> 这 2 条记录**已内联在全库导出脚本** `file-sql/basicdb-vue3.sql` 中,
+> 导入该脚本即同时完成建表与菜单注册,不再需要单独的菜单脚本。
 
 ---
 
@@ -175,7 +176,7 @@ AgentScope 官方提供了多种存储扩展,可在后续按需引入:
 | **触发器 / 函数** | 无 |
 | **数据迁移** | 无 |
 | **菜单数据** | **新增 2 条 `sys_menu` 记录**(1067 目录 / 1068 菜单) |
-| **SQL 脚本** | `file-sql/create-agentscope-capability-menu.sql`(新增,幂等 INSERT) |
+| **SQL 脚本** | `file-sql/basicdb-vue3.sql`(全库导出,已内联上述 2 条菜单记录) |
 | **既有 34 表 + 5 函数** | **零改动** |
 
 ### 6.1 `sys_menu` 记录明细
@@ -210,7 +211,7 @@ AgentScope 官方提供了多种存储扩展,可在后续按需引入:
 | A-2 | 既有表结构未变 | `git diff` 不含既有表的 DDL 变更 | ✅ 通过 |
 | A-3 | 应用不因 AgentScope 启动失败 | 启动日志 `Started BasicApplication in ...` | ✅ 通过 |
 | A-4 | Agent 调用不触发业务表写入 | 观察 `sys_oper_log` 无新增 Agent 记录 | ✅ 通过 |
-| A-5 | 菜单脚本可重复执行 | 连续执行 `create-agentscope-capability-menu.sql` 两次,`sys_menu` 仍只有 1067/1068 两条 | ✅ 通过 |
+| A-5 | 菜单记录随全库脚本一次性落库 | 导入 `basicdb-vue3.sql` 后 `sys_menu` 中 1067/1068 各 1 条,无重复 | ✅ 通过 |
 | A-6 | 菜单可见且路由可达 | 登录后 `/getRouters` 含 `basic-extend/agent`,前端可打开能力展厅 | ✅ 通过 |
 
 ---
