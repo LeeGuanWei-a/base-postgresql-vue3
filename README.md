@@ -570,3 +570,57 @@ base-postgresql-vue3/
 > **本分支与 master 的差异**:仅后端从 SB 2.5.14(JDK 11 / Security 5 / javax.* / springfox)
 > 升级到 SB 3.5.16(JDK 17 / Security 6 / jakarta.* / springdoc);
 > 前端两端、SQL 脚本、`web-mp` 移动端、目录结构**完全相同**。
+
+---
+
+## 十一、行为验证码(tianai-captcha 1.5.2)效果预览 ★ 本分支新增
+
+> 本章仅展示 3 种验证码的**视觉效果**与类型说明;**后端 / 前端的详细变更**已在 [§ 3.7 行为验证码改造](#37-行为验证码改造tianai-captcha-152) 完整描述,本章不重复。
+
+### 11.1 3 种行为验证码
+
+| 类型 | 常量 | 用户操作 | 适用场景 |
+|------|------|----------|----------|
+| 滑动 | `SLIDER` | 拖动滑块到图片缺口位置 | 登录、注册(最常用) |
+| 旋转 | `ROTATE` | 拖动图片/滑块旋转到与缺口重合 | 支付、敏感操作 |
+| 文字点选 | `WORD_IMAGE_CLICK` | 按顺序点击图中指定汉字 | 防机器人 |
+
+> **滑动还原 `CONCAT` 已下线**: 前端渲染效果不理想, 传入该类型会自动回退为 `SLIDER`。
+
+#### 效果预览
+
+**PC 端 `web-ui`** — 登录框内三种类型可自由切换,图示为「滑动」:
+
+![PC 端滑动验证码](web-ui.png)
+
+**移动端 `web-mp`** — H5 / 微信小程序 / App 通用,图示为「滑动」:
+
+![移动端滑动验证码](web-mp.png)
+
+> **图片存放约定**:与 `springboot2-tianai-captcha` 分支一致,截图统一放在仓库**根目录**(`web-ui.png` / `web-mp.png`),README 用相对路径引用;若新增其它类型(旋转 / 文字点选)截图,同样放根目录。
+
+### 11.2 接口契约(快速参考)
+
+| 方法 | URL | 作用 |
+|------|-----|------|
+| `GET` | `/captchaImage` | 拿背景图 + uuid 凭证(参考 [§ 3.7 line 212](#37-行为验证码改造tianai-captcha-152) `CaptchaController`) |
+| `POST` | `/captcha/check` | 行为数据二次校验,Redis 凭证 120s TTL(参考 [§ 3.7 line 213](#37-行为验证码改造tianai-captcha-152) `CaptchaCheckController`) |
+| `POST` | `/login` | body 多带 `uuid` + `captchaData` 两个字段(参考 [§ 3.7 line 214](#37-行为验证码改造tianai-captcha-152) `LoginBody`) |
+
+> 详细参数 / 响应 / 错误码已在 [§ 3.7 行为验证码改造](#37-行为验证码改造tianai-captcha-152) 写明,不再重复。
+
+### 11.3 验证
+
+```bash
+# 后端启动后, 浏览器访问
+http://localhost:8080/captchaImage
+# 期望: 返回 captchaEnabled=true, img=base64 字符串, uuid=字符串
+
+# 手动完成滑动/旋转后, 前端会自动调 /captcha/check
+# 看 Network: 200 + result 字段(uuid)
+
+# /login 调成功后, Redis 里 captcha:verified:* key 应被删除
+redis-cli -h 192.168.170.125 -p 6379 KEYS "captcha:verified:*"
+# 期望: 空
+```
+
