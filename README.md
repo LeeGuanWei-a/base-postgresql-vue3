@@ -1,9 +1,9 @@
 # Basic Admin (Spring Boot 4.1.1 + Vue 3 + Element Plus)
 
-基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot3` 分支**唯一区别**:**后端从 Spring Boot 3.5.16 升级到 Spring Boot 4.1.1**;前端两端(`web-ui` / `web-mp`)保持 **JavaScript 版**,不动。
+基于若依 RuoYi-Vue 3.9.2 改造,与 `springboot4` 分支**唯一区别**:**新增 AgentScope Java 2.0.4 多智能体框架集成**;后端技术栈(Spring Boot 4.1.1 / JDK 21 / Jackson 3)、前端两端(`web-ui` / `web-mp`)、数据库 34 张表**完全不动**。
 
-> 当前分支:`springboot4` ——「**springboot3 + 后端 SB 3.5.16 → 4.1.1 升级**」。
-> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot4_TypeScript` 等分支,本分支**只描述 springboot4**。
+> 当前分支:`springboot4-extend-agentscope` ——「**springboot4 + AgentScope Java 2.0.4 智能体框架集成**」。
+> 仓库另有 `master` / `springboot2-extend-flowable` / `springboot2-tianai-captcha` / `springboot2_TypeScript` / `springboot3` / `springboot3-tianai-captcha` / `springboot3_TypeScript` / `springboot4` / `springboot4_TypeScript` / `springboot4-extend-flowable` 等分支,本分支**只描述 springboot4-extend-agentscope**。
 
 ---
 
@@ -56,6 +56,7 @@
 | jakarta.servlet | **6.1.0** | ★ 由 5.x 升到 6.x |
 | fastjson2 | **未引入** | (若依原版用,我们不用,改 Jackson 3) |
 | Quartz | **spring-boot-starter-quartz**(自动装配 `SchedulerFactoryBean`) | ★ 取代手写的 `quartz:2.5.2` 依赖 |
+| **AgentScope Java** | **2.0.4**(`io.agentscope`,Apache-2.0) | ★ **本分支新增**:多智能体框架(ReAct / Toolkit / Memory / 多厂商 Model) |
 
 > 完整的 SB 3 → SB 4 升级细节(Jackson 3 适配 / Redis 序列化 / 循环依赖等)见下文
 > 第二节起的细节章节。
@@ -64,18 +65,18 @@
 
 ## 二、本分支是什么
 
-`springboot4` 分支以 **`springboot3` 分支**为基线,只做了一件事:
+`springboot4-extend-agentscope` 分支以 **`springboot4` 分支**为基线,只做了一件事:
 
-> **把后端从 Spring Boot 3.5.16 一次性升级到 Spring Boot 4.1.1**,
-> 前端两端(`web-ui` / `web-mp`)、业务功能、数据库脚本**完全不动**。
+> **接入 AgentScope Java 2.0.4 多智能体框架**,新增 `extend-agentscope` 子模块,
+> 后端技术栈(Spring Boot 4.1.1 / JDK 21 / Jackson 3)、前端两端、数据库 34 张表**完全不动**。
 
-具体而言:
+`springboot4` 相对 `springboot3` 的后端升级内容(1–17 项)本分支**全部继承**:
 
 1. **JDK 17 → 21**
 2. **Spring Boot 3.5.16 → 4.1.1**
 3. **Spring Framework 6.x → 7.0.9**
 4. **Spring Security 6.x → 7.1.1**(`getAuthorities()` 不能再返回 null,会直接 NPE)
-5. **Jackson 2 → Jackson 3**(`com.fasterxml.jackson.*` → `tools.jackson.*`,全包名换,本次**最大坑**)
+5. **Jackson 2 → Jackson 3**(`com.fasterxml.jackson.*` → `tools.jackson.*`,全包名换,上游**最大坑**)
 6. **Spring Boot starter 重命名 / 子模块拆分**:
    - `spring-boot-starter-web` → `spring-boot-starter-webmvc`
    - `spring-boot-starter-aop` → `spring-boot-starter-aspectj`
@@ -96,8 +97,38 @@
 16. **Quartz 改用 `spring-boot-starter-quartz` 自动装配**,不手写 `quartz:2.5.2` 依赖
 17. **web-mp 移动端** 与 `springboot3` 一致(JS 版)
 
-`springboot4` 与 `springboot3` 的**唯一差异**就是上面 1–16 的后端升级;前端代码、
-SQL 脚本、业务功能、目录结构**完全相同**。
+在此之上,本分支**新增第 18 项**:
+
+18. **AgentScope Java 2.0.4 集成**
+    - 新增 **8 号子模块** `extend-agentscope`(与 `extend-quartz` / `extend-generator` 同级)
+    - 根 `pom.xml` 引入 `agentscope-dependencies-bom` + `agentscope-bom`,版本号统一由单一属性 `agentscope.version=2.0.4` 管理
+    - 依赖 `agentscope-spring-boot-starter`(自动装配 `ReActAgent` / `Memory` / `Toolkit`)+
+      `agentscope-extensions-model-openai` + `agentscope-openai-spring-boot-starter`(自动装配 `OpenAIChatModel`)
+    - 新增 HTTP 出口 `/agentscope/ping`(匿名探活)、`/agentscope/chat`(同步)、`/agentscope/stream`(SSE 流式)
+    - `agentscope.*` 配置走 `application.yml`,**API Key 一律走环境变量**(`OPENAI_API_KEY`)
+    - **既有 7 个模块源码零改动**,数据库 **零变更**(会话记忆当前为内存态)
+
+19. **AgentScope 全量能力集成 + 前端能力展厅**
+    - 新增**能力注册表**(`CapabilityProvider` / `CapabilityRegistry` / `CapabilityInfo`)+ **通用端点**
+      `GET /agentscope/capability/list`、`POST|GET /agentscope/capability/{id}/chat`、
+      `GET /agentscope/capability/{id}/stream`(SSE)、`GET /agentscope/capability/{id}/detail`
+    - **21 个能力实例**,每个能力一个独立 `ReActAgent` Bean + 独立面板:
+      基础对话 / 工具调用 / 工具分组 / 结构化输出 / 任务清单 / 子 Agent / 多会话 / 长期记忆 /
+      RAG 知识库 / 权限控制 / 中断运行 / Hook 拦截 / Middleware 拦截 / 模型故障转移 /
+      状态持久化 / 元工具 / 多厂商模型(以上 17 个为核心能力)+
+      MCP 客户端 / 渠道接入 / 沙箱执行 / 调度器(以上 4 个为**外部依赖型,默认关闭**)
+    - 新增前端 `web-ui/src/views/basic-extend/agent/`(容器 + 21 个面板 + 2 个共享组件),
+      左侧导航**由后端能力清单动态驱动**;菜单走 RuoYi 动态路由
+      (`file-sql/create-agentscope-capability-menu.sql`,2 条 `sys_menu` 记录)
+    - 新增 **Mock 模型**(`agentscope.mock.enabled=true`):**没有 LLM Key 也能把
+      「模型决策 → 工具调用 → 结果回灌 → 最终回答」整条链路真实跑通**,工具查的是真实 PostgreSQL
+    - 外部依赖型能力**代码完整 + 留开关 + 状态面板可见**(缺什么依赖、yml 配置示例都写在详情里)
+
+`AgentScope` 之外,**本分支与 `springboot4` 的差异仅此两项**;前端基础框架、SQL 脚本、
+业务功能、目录结构**完全相同**。
+
+> 📘 本分支配套 5 份开发文档(与仓库其它分支命名约定一致):
+> `docs/springboot4-extend-agentscope-{需求文档,架构方案,概要设计,详细设计,数据库设计}.md`
 
 ---
 
@@ -129,9 +160,9 @@ SQL 脚本、业务功能、目录结构**完全相同**。
 + tools.jackson.core:jackson-databind          ← 新增(Jackson 3 替换 Jackson 2)
 ```
 
-### 3.2 7 个子模块 `pom.xml`
+### 3.2 8 个子模块 `pom.xml`
 
-- 7 个子模块的 `parent.version` 从 `3.9.2` → **`4.0.0`**
+- 8 个子模块的 `parent.version` 从 `3.9.2` → **`4.0.0`**
 - `basic-common/pom.xml`:
   - `mybatis-plus-spring-boot3-starter` → `spring-boot4-starter`
   - `com.fasterxml.jackson.core:jackson-databind` → `tools.jackson.core:jackson-databind`
@@ -142,6 +173,7 @@ SQL 脚本、业务功能、目录结构**完全相同**。
   - 新增:`mybatis-plus-extension` / `mybatis-plus-jsqlparser-4.9` / `jackson-datatype-jsr310`
 - `extend-quartz/pom.xml`:手写 `quartz:2.5.2` 依赖**移除**,改用 `spring-boot-starter-quartz`(SB 自动装配 `SchedulerFactoryBean`,RAMJobStore 避免 PG `varchar(1)` 字段雷)
 - `extend-generator/pom.xml`:`druid-spring-boot-4-starter`
+- `extend-agentscope/pom.xml`(**本分支新增**):`agentscope-spring-boot-starter` + `agentscope-extensions-model-openai` + `agentscope-openai-spring-boot-starter` + `basic-common` + `spring-boot-starter-web`
 
 ### 3.3 `application-dev.yml` / `application.yml`
 
@@ -321,9 +353,9 @@ public <T> T getCacheObject(final String key) {
 | **前端 web-ui** | 与 `springboot3` 一致(JS 版,Vue 3.5.26 + Element Plus 2.13.1 + Vite 6.4.1) |
 | **前端 web-mp** | 与 `springboot3` 一致(uni-app 3 + uview-plus 3 + Vite 5.2.8,JS 版) |
 | **业务功能** | 锁屏解锁、SQL bug 修复等与 master 共同的改动全部继承 |
-| **数据库脚本** | `file-sql/basicdb-vue3.sql`(34 张表 + 5 函数,`basicdb` schema) |
-| **目录结构** | 7 个后端 maven module + `web-ui/` + `web-mp/` |
-| **`application.yml` 数据源** | PostgreSQL `jdbc:postgresql://localhost:5432/basicdb?currentSchema=basicdb` |
+| **数据库脚本** | `file-sql/basicdb-vue3.sql`(34 张表 + 5 函数;基线 schema 为 `basicdb`,**本分支实际使用 `basicdb_agentscope`**,与前者结构完全一致) |
+| **目录结构** | 8 个后端 maven module + `web-ui/` + `web-mp/` |
+| **`application-dev.yml` 数据源** | PostgreSQL `jdbc:postgresql://192.168.170.125:54321/basicdb-vue3?currentSchema=basicdb_agentscope` |
 | **Spring Security 5→6 改动** | `WebSecurityConfigurerAdapter` → `SecurityFilterChain` Bean、`antMatchers` → `requestMatchers` 等(SB 3 时代已做) |
 | **Jakarta EE 改造** | `javax.*` → `jakarta.*` 全部 import(SB 3 时代已做) |
 | **springfox → springdoc** | `SwaggerConfig` 重写(SB 3 时代已做) |
@@ -338,7 +370,7 @@ public <T> T getCacheObject(final String key) {
 - [x] `cd web-mp && pnpm install` 拉依赖(移动端)
 - [ ] `pnpm dev` 验证 PC 端启动(`web-ui`)
 - [ ] `pnpm dev:h5` 验证移动端 H5 启动(`web-mp`)
-- [x] 7 个子模块 `parent.version` 一致为 **`4.0.0`** ★★ 与 master / `springboot3` 都不一样
+- [x] 8 个子模块 `parent.version` 一致为 **`4.0.0`** ★★ 与 master / `springboot3` 都不一样
 - [x] IDE 工程的 Project SDK 设为 **JDK 21**,Language level **21** ★★ 与 master / `springboot3` 都不一样
 - [x] `mvn clean compile` 0 ERROR
 - [x] `mvn package -DskipTests` 0 ERROR
@@ -346,6 +378,19 @@ public <T> T getCacheObject(final String key) {
 - [ ] admin 登录成功(PC / 移动端)
 - [ ] Druid 监控页 `/druid/index.html` 可访问(`statViewServlet.enabled: true`)
 - [ ] Redis 缓存读写正常(验证 Jackson 3 序列化 + defaultTyping)
+- [x] **AgentScope Java 2.0.4 依赖可从 Maven Central 解析**(BOM 锁定,无需额外仓库)
+- [ ] **配置模型凭据**:`OPENAI_API_KEY` 等环境变量已注入(生产**必须**;默认值 `sk-replace-me-in-env` 不可用于生产)
+- [ ] `GET /agentscope/ping` 返回 `{"msg":"AgentScope Java v2.0.4 ready","code":200}`
+- [ ] `GET /agentscope/chat?prompt=hello` 带 JWT 能正常返回模型回答
+- [ ] **执行菜单 SQL**:`file-sql/create-agentscope-capability-menu.sql`(2 条 `sys_menu` 记录,
+  否则前端「扩展功能 → AgentScope 能力展厅」菜单不出现)
+- [ ] `GET /agentscope/capability/list` 带 JWT 返回 **21 个能力**清单
+- [ ] `POST /agentscope/capability/tool/chat` 带 JWT 能触发**真实工具调用**并返回真实 PostgreSQL 数据
+- [ ] 前端 `web-ui` 里「扩展功能 → AgentScope 能力展厅」能打开,21 个能力逐个点得动
+- [ ] **无 Key 环境**:保持 `agentscope.mock.enabled=true`,Mock 模型仍能把整条链路跑通
+
+> ⚠️ **切换分支后务必 `mvn clean`**:`target/classes` 里可能残留上一分支的旧 `.class`,
+> 会在启动期抛 `VerifyError`(实测 `basic-framework` 的 `JacksonConfig` 即为此类问题)。
 
 ---
 
@@ -368,6 +413,25 @@ public <T> T getCacheObject(final String key) {
 - [ ] `pagehelper 2.1 → 4.1` 大版本跳变,分页参数兼容性是否完全保留未测
 - [ ] 集成 Flowable 流程引擎(已经在 `springboot2-extend-flowable` 分支做了)
 
+### 8.1 AgentScope 侧未做 / 后续可优化
+
+- [x] ~~**业务工具注册**~~ → 已做:`tool/PlatformTools`(用户 / 字典 / 角色 / 操作日志 / 表行数)
+      + `tool/SystemTools`(时间 / 减法 / 回显),`businessToolkit` 单例承载
+- [x] ~~**前端对话页**~~ → 已做:`web-ui/src/views/basic-extend/agent/` 能力展厅
+      (21 个面板 + 通用对话框 + 通用详情卡片,左侧导航由后端能力清单驱动)
+- [ ] **会话记忆落库**:当前为内存态,重启即丢;需接 `agentscope-extensions-postgresql`
+  (本项目是 PostgreSQL,**不要**用 `-mysql` 扩展),并配套 TTL 清理任务
+- [ ] **RAG 接真实向量库**:当前是自研内存版关键词检索(`SimpleKeywordKnowledge`),
+  需先定向量库方案,再引 `agentscope-extensions-rag`
+- [ ] **真实 MCP 接入**:当前只提供装配骨架 + 状态接口 + yml 示例,需接真实 MCP Server
+- [ ] **真实 IM 渠道**:当前只提供渠道注册表 + webhook 协议模拟,需引 `agentscope-extensions-channel-*` + 凭证
+- [ ] **真实沙箱容器**:当前是受限白名单本地执行,需引 `agentscope-extensions-sandbox-*` + K8s/Docker
+- [ ] **调度器与 Quartz 打通**:当前是进程内 cron(`ScheduledExecutorService`),建议换成项目既有 Quartz
+- [ ] **同步接口的线程占用**:`/agentscope/capability/{id}/chat` 走 `.block(120s)` 阻塞 Tomcat 线程,高压场景需改异步任务化
+- [ ] **多模型厂商并存**:目前只装 OpenAI 兼容协议;若需 Claude / 通义原生能力,再叠加对应扩展
+- [ ] **AgentScope 2.1 升级评估**:2.1.0 目前仍是 BETA,API 未稳,暂不升级
+- [ ] **能力 id 契约版本化**:能力 id 一经发布即前端契约,后续若要重命名需同步改前端 `panels/index.js`
+
 ---
 
 ## 九、其他分支(参考)
@@ -384,13 +448,15 @@ public <T> T getCacheObject(final String key) {
 | `springboot3-tianai-captcha` | `springboot3` + **tianai-captcha 1.5.2** 行为验证码 |
 | `springboot3_TypeScript` | `springboot3` + 前端 TS 化 |
 | `springboot3-extend-flowable` | `springboot3` + `springboot2-extend-flowable` 的 Flowable 集成 |
-| `springboot4` 🟢 | **当前分支**:后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Spring Framework 7 + springdoc 3.1 + MP 3.5.17;前端 **JS 不动**、DB 34 表不动 |
+| `springboot4` | 后端 SB 3.5.16 → **4.1.1**(JDK 17 → **21**),**Jackson 3**(`tools.jackson.*`)+ Security 7 + Spring Framework 7 + springdoc 3.1 + MP 3.5.17;前端 **JS 不动**、DB 34 表不动 |
 | `springboot4_TypeScript` | `springboot4` + 前端 TS 化(**技术栈最完整**) |
 | `springboot4-extend-flowable` | `springboot4` + `springboot2-extend-flowable` 的 Flowable 集成 |
+| **`springboot4-extend-agentscope`** 🟢 | **当前分支**:`springboot4` + **AgentScope Java 2.0.4 多智能体框架**(新增 `extend-agentscope` 子模块);后端技术栈 / 前端 / DB 34 表**全部不动** |
 
 > 命名约定:`springboot{N}` = 后端 SB 大版本基线;`_TypeScript` = 该基线 + 前端 TS 化;
-> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎。
-> 本分支 `springboot4` = `springboot3` + 后端 SB4 升级(**Jackson 3 是最大差异**),**不引入** Flowable / 行为验证码、**不做**前端 TS 化。
+> `-tianai-captcha` = 该基线 + 行为验证码(替代 kaptcha);`-extend-flowable` = 该基线 + Flowable 流程引擎;
+> `-extend-agentscope` = 该基线 + AgentScope 智能体框架。
+> 本分支 `springboot4-extend-agentscope` = `springboot4` + AgentScope 2.0.4,**不引入** Flowable / 行为验证码、**不做**前端 TS 化。
 
 ---
 
@@ -505,7 +571,7 @@ pnpm build:app
 | 文件路径 | `file-sql/basicdb-vue3.sql` |
 | 来源 | `pg_dump` 导出(导出自 PostgreSQL 15.1,导出工具 pg_dump 17.0) |
 | 数据库角色 | 所有对象 `OWNER TO system`(导入前**必须**先有 `system` 角色) |
-| Schema | `basicdb`(脚本里所有表/函数/序列都在该 schema 下) |
+| Schema | `basicdb_agentscope`(脚本里所有表/函数/序列都在该 schema 下;与 `basicdb` 结构完全一致) |
 | 表数量 | **34 张**(`gen_*` 2 + `qrtz_*` 11 + `sys_*` 21) |
 | 函数数量 | 5 个(`date_format` / `exec` / `find_in_set` / `ifnull` / `tabledef`) |
 | 数据加载方式 | `COPY ... FROM stdin;`(原生 psql `\copy` 流式导入,**不**走 `INSERT`) |
@@ -627,7 +693,7 @@ spring:
 
 ```
 base-postgresql-vue3/
-├── pom.xml                              # 父 pom(7 个后端子模块,无 web-mp)
+├── pom.xml                              # 父 pom(8 个后端子模块,无 web-mp)
 ├── README.md                            # 本文档
 ├── ry.sh / ry.bat                       # RuoYi 启动脚本(原版遗留)
 ├── basic-admin-api/                     # Spring Boot 启动模块(SB 4.1.1)
@@ -637,14 +703,36 @@ base-postgresql-vue3/
 ├── business-core/                       # 业务扩展点
 ├── extend-quartz/                       # Quartz 定时任务扩展(用 spring-boot-starter-quartz)
 ├── extend-generator/                    # 代码生成扩展
+├── extend-agentscope/                   # AgentScope Java 2.0.4 智能体扩展(本分支新增)
+│   └── src/main/java/com/basic/agentscope/
+│       ├── capability/                   # 能力注册表 + 21 个能力实例
+│       │   ├── CapabilityInfo/Category/Provider/Registry/Controller
+│       │   ├── chat/ tool/ toolgroup/ structured/ tasklist/ subagent/ session/
+│       │   ├── memory/ rag/ permission/ interrupt/ hook/ middleware/ failover/
+│       │   └── state/ metatool/ model/ mcp/ channel/ sandbox/ scheduler/
+│       ├── config/                       # AgentScopeConfig / ModelResolver / 外部依赖型配置
+│       ├── dto/                          # AgentChatRequest / AgentChatResponse
+│       ├── mock/                         # MockChatModel(无 Key 跑通全链路)
+│       ├── tool/                         # PlatformTools / SystemTools(真实查 PostgreSQL)
+│       └── web/                          # AgentController(ping / chat / stream)
 ├── extend-flowable/                     # (仅 springboot2-extend-flowable 分支)
 ├── file-sql/                            # SQL 脚本
+│   └── create-agentscope-capability-menu.sql   # 能力展厅菜单(本分支新增)
 ├── file-bin/                            # 二进制资源(jar 内置)
 ├── file-doc/                            # 文档资源(jar 内置)
+├── docs/                                # 分支配套开发文档
+│   └── springboot4-extend-agentscope-{需求文档,架构方案,概要设计,详细设计,数据库设计}.md
 ├── web-ui/                              # PC 端前端(Vue3 + Element Plus,JavaScript)
+│   └── src/
+│       ├── api/agentscope.js             # 能力展厅接口封装(含 SSE 解析)
+│       └── views/basic-extend/agent/     # 能力展厅(本分支新增)
+│           ├── index.vue                 #   容器:左侧能力导航 + 右侧面板
+│           ├── panels/                   #   21 个能力面板 + GenericPanel 兜底
+│           └── components/               #   CapabilityChatBox / CapabilityDetailCard
 └── web-mp/                              # 移动端前端(uni-app3 + uview-plus,JavaScript)
 ```
 
-> **本分支与 `springboot3` 的差异**:仅后端从 SB 3.5.16(JDK 17 / Security 6 / Jackson 2 / Jakarta 5)
-> 升级到 SB 4.1.1(JDK 21 / Security 7 / **Jackson 3** / Jakarta 6);
-> 前端两端、SQL 脚本、`web-mp` 移动端、目录结构**完全相同**。
+> **本分支与 `springboot4` 的差异**:仅新增 `extend-agentscope` 子模块接入 AgentScope Java 2.0.4
+> + 前端能力展厅 + 2 条菜单记录;
+> SB 4.1.1 / JDK 21 / Security 7 / **Jackson 3** / Jakarta 6 / 前端两端基础框架 / SQL 脚本 / `web-mp` 移动端
+> / 目录结构**完全相同**。
