@@ -125,6 +125,18 @@ aside {
   padding: 20px;
 }
 
+/*
+ * 固定头部布局下 .app-main 自身高度锁死（height: calc(100vh - 84px)）且 overflow: hidden，
+ * 普通列表页（system/menu、system/dept 等）必须自己提供滚动视图，否则内容超出部分
+ * 直接被裁掉、完全滚不动（树形表格能无限展开时尤其明显）。
+ * 分栏页 .tree-sidebar-manage-wrap 由内部 .content-inner 滚动，这里排除，避免出现双层滚动条。
+ */
+.app-main > .app-container:not(.tree-sidebar-manage-wrap) {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .components-container {
   margin: 30px 50px;
   position: relative;
