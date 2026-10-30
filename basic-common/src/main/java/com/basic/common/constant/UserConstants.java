@@ -71,8 +71,8 @@ public class UserConstants
     public static final int USERNAME_MAX_LENGTH = 20;
 
     /**
-     * 密码长度限制
+     * 密码长度限制（与 {@link com.basic.common.utils.PasswordPolicy} 保持一致）
      */
-    public static final int PASSWORD_MIN_LENGTH = 5;
-    public static final int PASSWORD_MAX_LENGTH = 20;
+    public static final int PASSWORD_MIN_LENGTH = 8;
+    public static final int PASSWORD_MAX_LENGTH = 15;
 }
