@@ -10,6 +10,7 @@ import com.basic.common.core.redis.RedisCache;
 import com.basic.common.exception.user.CaptchaException;
 import com.basic.common.exception.user.CaptchaExpireException;
 import com.basic.common.utils.MessageUtils;
+import com.basic.common.utils.PasswordPolicy;
 import com.basic.common.utils.SecurityUtils;
 import com.basic.common.utils.StringUtils;
 import com.basic.framework.manager.AsyncManager;
@@ -61,10 +62,9 @@ public class SysRegisterService
         {
             msg = "账户长度必须在2到20个字符之间";
         }
-        else if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
-                || password.length() > UserConstants.PASSWORD_MAX_LENGTH)
+        else if (!PasswordPolicy.isValid(password))
         {
-            msg = "密码长度必须在5到20个字符之间";
+            msg = PasswordPolicy.MESSAGE;
         }
         else if (UserConstants.NOT_UNIQUE.equals(userService.checkUserNameUnique(username)))
         {
