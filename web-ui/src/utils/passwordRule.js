@@ -1,73 +1,88 @@
 /**
- * 密码强度规则
- * 根据参数 chrtype 动态生成校验规则
+ * 密码复杂度规则（与后端 com.basic.common.utils.PasswordPolicy 保持一致）
  *
- * chrtype 说明：
- *   0 - 任意字符（默认）
- *   1 - 纯数字（0-9）
- *   2 - 纯字母（a-z / A-Z）
- *   3 - 字母 + 数字（必须同时包含）
- *   4 - 字母 + 数字 + 特殊字符（必须同时包含，特殊字符：~!@#$%^&*()-=_+）
+ * 规则：
+ *   1. 长度 8 ~ 15 位
+ *   2. 必须同时包含大写字母、小写字母、数字、特殊字符
+ *   3. 仅允许可打印 ASCII 字符（不含空格、中文等）
+ *
+ * 后端在“新增用户 / 重置密码 / 修改密码 / 注册”四个入口做同样的校验，
+ * 前端校验仅用于提升体验，不能替代后端校验。
  */
 
-import cache from '@/plugins/cache'
+// 密码长度限制
+export const PASSWORD_MIN_LENGTH = 8
+export const PASSWORD_MAX_LENGTH = 15
 
-// 密码限制类型
-const pwdChrType = ref(cache.session.get('pwrChrtype') || '0')
+// 密码为空提示
+export const PASSWORD_EMPTY_MESSAGE = '密码不能为空'
 
-// 各类型对应的正则、错误提示
-const PWD_RULES = {
-  '0': { pattern: /^[^<>"'|\\]+$/, message: '密码不能包含非法字符：< > " \' \\ |' },
-  '1': { pattern: /^[0-9]+$/, message: '密码只能为数字（0-9）' },
-  '2': { pattern: /^[a-zA-Z]+$/, message: '密码只能为英文字母（a-z、A-Z）' },
-  '3': { pattern: /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/, message: '密码必须同时包含字母和数字' },
-  '4': { pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()\-=_+])[A-Za-z\d~!@#$%^&*()\-=_+]+$/, message: '密码必须同时包含字母、数字和特殊字符（~!@#$%^&*()-=_+）' }
+// 密码复杂度提示
+export const PASSWORD_MESSAGE = '密码长度必须介于 8 和 15 之间，且必须同时包含大写字母、小写字母、数字和特殊字符'
+
+// 与后端 PasswordPolicy.PATTERN 完全一致
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[!-~]{8,15}$/
+
+/**
+ * 密码是否满足复杂度要求
+ * @param {string} value 明文密码
+ * @returns {boolean}
+ */
+export function isValidPassword(value) {
+  return typeof value === 'string' && PASSWORD_PATTERN.test(value)
+}
+
+/**
+ * 生成 el-form 的密码校验规则
+ * @param {string} emptyMessage 为空时的提示
+ * @returns {Array}
+ */
+function buildRules(emptyMessage) {
+  return [
+    { required: true, message: emptyMessage, trigger: 'blur' },
+    {
+      trigger: 'blur',
+      validator: (rule, value, callback) => {
+        // 为空由 required 规则提示，这里不重复报错
+        if (!value) {
+          return callback()
+        }
+        if (isValidPassword(value)) {
+          return callback()
+        }
+        return callback(new Error(PASSWORD_MESSAGE))
+      }
+    }
+  ]
 }
 
 export function usePasswordRule() {
-  // 默认密码校验
-  const pwdValidator = computed(() => {
-    const rule = PWD_RULES[pwdChrType.value] || PWD_RULES['0']
-    return [
-      { required: true, message: '密码不能为空', trigger: 'blur' },
-      { min: 6, max: 20, message: '密码长度必须介于 6 和 20 之间', trigger: 'blur' },
-      { pattern: rule.pattern, message: rule.message, trigger: 'blur' }
-    ]
-  })
-  // 校验prompt的inputValidator函数
-  const pwdPromptValidator = (value) => {
-    const rule = PWD_RULES['0']
-    if (!value || value.length < 6 || value.length > 20) {
-      return '密码长度必须介于 6 和 20 之间'
-    }
-    if (!rule.pattern.test(value)) {
-      return rule.message
-    }
-  }
-  // 个人中心密码校验
-  const infoPwdValidator = computed(() => {
-    const rule = PWD_RULES[pwdChrType.value] || PWD_RULES['0']
-    return [
-      { required: true, message: '新密码不能为空', trigger: 'blur' },
-      { min: 6, max: 20, message: '新密码长度必须介于 6 和 20 之间', trigger: 'blur' },
-      { pattern: rule.pattern, message: rule.message, trigger: 'blur' }
-    ]
-  })
+  // 新增用户时的密码校验
+  const pwdValidator = buildRules('密码不能为空')
+  // 个人中心修改密码时的校验
+  const infoPwdValidator = buildRules('新密码不能为空')
   // 注册页面密码校验
-  const registerPwdValidator = computed(() => {
-    const rule = PWD_RULES['0']
-    return [
-      { required: true, message: '请输入您的密码', trigger: 'blur' },
-      { min: 6, max: 20, message: '用户密码长度必须介于 6 和 20 之间', trigger: 'blur' },
-      { pattern: rule.pattern, message: rule.message, trigger: 'blur' }
-    ]
-  })
+  const registerPwdValidator = buildRules('请输入您的密码')
+
+  /**
+   * ElMessageBox.prompt 的 inputValidator：校验通过返回 true，否则返回错误提示
+   * @param {string} value 明文密码
+   * @returns {true|string}
+   */
+  const pwdPromptValidator = (value) => {
+    if (!value) {
+      return PASSWORD_EMPTY_MESSAGE
+    }
+    if (!isValidPassword(value)) {
+      return PASSWORD_MESSAGE
+    }
+    return true
+  }
 
   return {
-    pwdChrType,
     pwdValidator,
     infoPwdValidator,
-    pwdPromptValidator,
-    registerPwdValidator
+    registerPwdValidator,
+    pwdPromptValidator
   }
 }
