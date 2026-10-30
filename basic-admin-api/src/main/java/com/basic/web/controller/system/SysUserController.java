@@ -8,6 +8,7 @@ import com.basic.common.core.domain.entity.SysRole;
 import com.basic.common.core.domain.entity.SysUser;
 import com.basic.common.core.page.TableDataInfo;
 import com.basic.common.enums.BusinessType;
+import com.basic.common.utils.PasswordPolicy;
 import com.basic.common.utils.SecurityUtils;
 import com.basic.common.utils.StringUtils;
 import com.basic.common.utils.poi.ExcelUtil;
@@ -128,6 +129,8 @@ public class SysUserController extends BaseController
         {
             return AjaxResult.error("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
+        // 校验密码复杂度
+        PasswordPolicy.check(user.getPassword());
         user.setCreateBy(getUsername());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         return toAjax(userService.insertUser(user));
@@ -182,6 +185,8 @@ public class SysUserController extends BaseController
     {
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
+        // 校验密码复杂度
+        PasswordPolicy.check(user.getPassword());
         user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
         user.setUpdateBy(getUsername());
         return toAjax(userService.resetPwd(user));
