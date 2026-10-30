@@ -15,6 +15,7 @@ import com.basic.common.constant.UserConstants;
 import com.basic.common.core.domain.entity.SysRole;
 import com.basic.common.core.domain.entity.SysUser;
 import com.basic.common.exception.ServiceException;
+import com.basic.common.utils.PasswordPolicy;
 import com.basic.common.utils.SecurityUtils;
 import com.basic.common.utils.StringUtils;
 import com.basic.common.utils.bean.BeanValidators;
@@ -511,6 +512,11 @@ public class SysUserServiceImpl implements ISysUserService
         StringBuilder successMsg = new StringBuilder();
         StringBuilder failureMsg = new StringBuilder();
         String password = configService.selectConfigByKey("sys.user.initPassword");
+        // 导入用户使用系统初始密码，初始密码同样必须满足密码复杂度策略
+        if (!PasswordPolicy.isValid(password))
+        {
+            throw new ServiceException("系统初始密码(sys.user.initPassword)不符合密码复杂度策略，请先修改参数设置：" + PasswordPolicy.MESSAGE);
+        }
         for (SysUser user : userList)
         {
             try
