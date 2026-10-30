@@ -1,5 +1,4 @@
 import router from '@/router'
-import cache from '@/plugins/cache'
 import { ElMessageBox } from 'element-plus'
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
@@ -66,7 +65,6 @@ const useUserStore = defineStore(
             this.name = user.userName || ''
             this.nickName = user.nickName || ''
             this.avatar = avatar
-            cache.session.set('pwrChrtype', res.pwdChrtype)
             /* 初始密码提示 */
             if(res.isDefaultModifyPwd) {
               ElMessageBox.confirm('您的密码还是初始密码，请修改密码！',  '安全提示', {  confirmButtonText: '确定',  cancelButtonText: '取消',  type: 'warning' }).then(() => {

@@ -4,7 +4,7 @@
       <el-input v-model="user.oldPassword" placeholder="请输入旧密码" type="password" show-password />
     </el-form-item>
     <el-form-item label="新密码" prop="newPassword" :rules="infoPwdValidator">
-      <el-input v-model="user.newPassword" placeholder="请输入新密码" type="password" show-password />
+      <el-input v-model="user.newPassword" placeholder="8-15 位，须含大小写字母、数字和特殊字符" type="password" maxlength="15" show-password />
     </el-form-item>
     <el-form-item label="确认密码" prop="confirmPassword">
       <el-input v-model="user.confirmPassword" placeholder="请确认新密码" type="password" show-password />
