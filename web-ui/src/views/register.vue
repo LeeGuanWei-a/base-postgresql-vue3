@@ -19,7 +19,8 @@
           type="password"
           size="large" 
           auto-complete="off"
-          placeholder="密码"
+          placeholder="密码（8-15 位，含大小写字母、数字和特殊字符）"
+          maxlength="15"
           @keyup.enter="handleRegister"
         >
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>

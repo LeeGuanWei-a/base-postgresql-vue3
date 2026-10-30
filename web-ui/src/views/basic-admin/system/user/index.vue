@@ -125,7 +125,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item v-if="form.userId == undefined" label="用户密码" prop="password" :rules="pwdValidator">
-              <el-input v-model="form.password" placeholder="请输入用户密码" type="password" maxlength="20" show-password />
+              <el-input v-model="form.password" placeholder="8-15 位，须含大小写字母、数字和特殊字符" type="password" maxlength="15" show-password />
             </el-form-item>
           </el-col>
         </el-row>

@@ -8,6 +8,7 @@ import com.basic.common.core.domain.AjaxResult;
 import com.basic.common.core.domain.entity.SysUser;
 import com.basic.common.core.domain.model.LoginUser;
 import com.basic.common.enums.BusinessType;
+import com.basic.common.utils.PasswordPolicy;
 import com.basic.common.utils.SecurityUtils;
 import com.basic.common.utils.StringUtils;
 import com.basic.common.utils.file.FileUploadUtils;
@@ -100,6 +101,8 @@ public class SysProfileController extends BaseController
         {
             return AjaxResult.error("新密码不能与旧密码相同");
         }
+        // 校验密码复杂度
+        PasswordPolicy.check(newPassword);
         if (userService.resetUserPwd(userName, SecurityUtils.encryptPassword(newPassword)) > 0)
         {
             // 更新缓存用户密码
